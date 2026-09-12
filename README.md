@@ -1,8 +1,9 @@
 # ExMateria Gambit Tactics
 
-A native reimplementation of **Final Fantasy Tactics** (PSX) in Godot 4 — 3D isometric,
-sprite-based combat rendered from the disc's own SEQ/SHP animation data, with the combat
-simulation running as GPU compute shaders.
+An in-progress SRPG framework in Godot 4 — 3D isometric, sprite-based combat with the
+simulation running as GPU compute shaders — bootstrapped to **Final Fantasy Tactics**
+(PSX), which supplies its content and its reference behaviour rather than being the
+target.
 
 **Bring your own ISO.** This repository contains no Square Enix data of any kind: no
 disc bytes, no map geometry, no sprites, no audio, no VRAM captures. Everything the game
