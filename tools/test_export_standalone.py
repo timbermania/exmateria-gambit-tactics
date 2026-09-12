@@ -271,28 +271,46 @@ class PlatformSupportIsWhatTheBinariesSay(unittest.TestCase):
             out[slot] = self.VENDOR_PREFIX + path[len(self.RES_PREFIX):]
         return out
 
-    def test_exactly_one_of_the_declared_slots_has_a_committed_binary(self):
+    def test_three_of_the_declared_slots_have_a_committed_binary(self):
+        """Was one slot until the `SPU Windows build` workflow existed. The two
+        Windows DLLs are CI output committed on purpose — no maintainer has a Windows
+        machine, so CI is their only producer and a `PREBUILT` entry sourced from a
+        local build could never restore them.
+        """
         declared = self._declared()
         self.assertEqual(len(declared), 12,
                          "the slot list changed; re-read register step 14")
         tracked = set(ex.tracked_package_files())
         have = sorted(slot for slot, path in declared.items() if path in tracked)
         self.assertEqual(
-            have, ["linux.debug.x86_64"],
+            have, ["linux.debug.x86_64",
+                   "windows.debug.x86_64",
+                   "windows.release.x86_64"],
             "the shipped-platform set changed. That is good news, and it makes "
-            "SETUP_FROM_SCRATCH.md's 'Platform support' table WRONG — update the "
-            "table and this arm together")
+            "SETUP_FROM_SCRATCH.md's 'Platform support' table and the README's WRONG "
+            "— update the tables and this arm together")
 
-    def test_the_shipped_slot_really_resolves_to_a_real_library(self):
-        """A tracked path is not a loadable library. The one slot we claim works must
-        point at a file that is present, non-trivial and an ELF shared object — a
-        broken symlink into another worktree is tracked all the same, and that is the
-        failure this repository's own asset-hub rule exists to prevent."""
-        lib = ex.PACKAGE / self._declared()["linux.debug.x86_64"]
-        self.assertTrue(lib.exists(), f"{lib} is declared, tracked and NOT THERE")
-        self.assertGreater(lib.stat().st_size, 500_000, "suspiciously small for the SPU")
-        with lib.open("rb") as f:
-            self.assertEqual(f.read(4), b"\x7fELF", "not an ELF shared object")
+    def test_every_shipped_slot_really_resolves_to_a_real_library(self):
+        """A tracked path is not a loadable library. Every slot we claim ships must
+        point at a file that is present, non-trivial, and the right binary format for
+        its platform — a broken symlink into another worktree is tracked all the same,
+        and that is the failure this repository's own asset-hub rule exists to prevent.
+
+        The Windows arms check the format ONLY. `MZ` proves a PE image and nothing
+        about whether Godot can load it; the DLLs are unverified at runtime and the
+        docs say so. A guard that implied otherwise would be the more dangerous lie.
+        """
+        for slot, magic, why in (
+            ("linux.debug.x86_64", b"\x7fELF", "not an ELF shared object"),
+            ("windows.debug.x86_64", b"MZ", "not a PE image"),
+            ("windows.release.x86_64", b"MZ", "not a PE image"),
+        ):
+            lib = ex.PACKAGE / self._declared()[slot]
+            self.assertTrue(lib.exists(), f"{lib} is declared, tracked and NOT THERE")
+            self.assertGreater(lib.stat().st_size, 500_000,
+                               f"{slot}: suspiciously small for the SPU")
+            with lib.open("rb") as f:
+                self.assertEqual(f.read(len(magic)), magic, f"{slot}: {why}")
 
     def test_the_setup_doc_states_the_platform_limit_and_why(self):
         """Pinned as whole claims, not bare words: the section heading, the fact that
@@ -300,8 +318,8 @@ class PlatformSupportIsWhatTheBinariesSay(unittest.TestCase):
         and the reason a reader cannot fix it locally — the C++ source is not here."""
         doc = (ex.PACKAGE / "SETUP_FROM_SCRATCH.md").read_text()
         for claim in (
-            "#### Platform support — Linux x86_64 only, and the reason is the SPU",
-            "an **exported release build fails even on Linux**",
+            "#### Platform support — Linux x86_64, plus an unverified Windows build",
+            "an **exported release build fails on Linux**",
             # ⚠️ ONE LINE ONLY. The first draft of this needle was "**no C++ source
             # and no `SConstruct`**", which the doc wraps between "C++" and "source"
             # — a claim can be present and still not match a needle that spans the
@@ -558,9 +576,14 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
     def test_it_states_the_three_things_that_surprise_every_reader(self):
         """All three were learned the expensive way and all three belong above the fold:
         the extract landing OUTSIDE the clone (step 12), the shipped library slots
-        (step 14), and the ENGINE — a fork with no package, whose absence is not an
-        error but a game that renders without its effects. A quick-start that omits any
-        of them sends the reader into a failure whose cause is nowhere near the symptom.
+        (step 14), and the ENGINE — a fork with no package or download.
+
+        ⚠️ The engine needle used to pin "Stock Godot fails silently, not loudly ...
+        every folded effect vanishes", which #721 / ADR-0191 dec. 14 REFUTED in both
+        directions: before it the kernel did not compile on stock (loud, not silent),
+        and after it each producer draws an in-scene twin (present, not vanished). A
+        guard can pin a sentence that is confidently wrong, so these needles pin the
+        MEASURED section's heading instead of its conclusions.
 
         The engine claims are pinned here rather than in a test of their own because a
         test is a process (charter clause 13) and these share this one's setup.
@@ -570,9 +593,9 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
             "**`project-assets/` lands BESIDE the clone, not inside it.**",
             "## Platform support — Linux x86_64, and an unverified Windows build",
             "an **exported release build fails on Linux**",
-            "## The engine — a Godot 4.8 fork you build",
+            "### Which Godot — this needs a fork, and stock will not do",
+            "## Building the fork",
             "> **<https://github.com/timbermania/godot>** — branch `master`",
-            "**Stock Godot fails silently, not loudly**",
             "Keep `dev_build=no`",
         ):
             self.assertIn(claim, r, f"README lost: {claim!r}")
@@ -596,6 +619,57 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
         self.assertIn('FFT_ISO_PATH="${FFT_ISO:-', boot,
                       "the README documents $FFT_ISO; bootstrap must still read it")
         self.assertIn("godot --path . res://assets/scenes/GPUArena.tscn", r)
+
+
+class TheGodotRequirementIsStated(unittest.TestCase):
+    """The published docs claimed "godot >= 4.6" and never mentioned that this project
+    needs a build with the `compositor_layer` primitive.
+
+    MEASURED on stock 4.7.1, which is why the wording is this strong: TWO independent
+    fork-only dependencies, either fatal alone —
+      - `fold_layer.tres` is a `CompositorRenderLayer`: "Can't create sub resource"
+      - `is_compositor_layer_supported()` is resolved at PARSE time, so `Fold.gd`'s own
+        `has_method()` guard cannot save the file that contains the call
+    `Fold.gd` then does not compile and `Fold.owns()` is "Nonexistent function", which
+    cascades through every display-space effect. It does NOT degrade.
+    """
+
+    def test_no_doc_still_claims_the_old_floor(self):
+        for rel in ("README.md", "SETUP_FROM_SCRATCH.md"):
+            with self.subTest(doc=rel):
+                body = (ex.PACKAGE / rel).read_text()
+                self.assertNotIn("≥ 4.6", body,
+                                 f"{rel} still advertises a floor that cannot open this project")
+
+    def test_the_README_names_the_requirement_and_why(self):
+        r = (ex.PACKAGE / "README.md").read_text()
+        for claim in ("### Which Godot — this needs a fork, and stock will not do",
+                      "`CompositorRenderLayer`",
+                      "**parse** error"):
+            self.assertIn(claim, r, f"README lost: {claim!r}")
+
+    def test_both_docs_warn_that_OPENING_it_with_stock_edits_the_repo(self):
+        """The trap a reader hits while checking: Godot rewrites `project.godot` on
+        open and strips the `4.8` feature, so 'just try it' is a repo edit."""
+        for rel in ("README.md", "SETUP_FROM_SCRATCH.md"):
+            with self.subTest(doc=rel):
+                body = (ex.PACKAGE / rel).read_text()
+                self.assertIn("strips the `4.8` feature", body)
+
+    def test_project_godot_still_declares_the_4_8_feature(self):
+        """The docs' claim rests on this. If the feature list ever drops 4.8 the
+        requirement changed and all of the above needs re-measuring."""
+        pg = (ex.PACKAGE / "project.godot").read_text()
+        self.assertIn('config/features=PackedStringArray("4.8"', pg)
+
+    def test_the_shipped_CLAUDE_md_does_not_leave_a_local_path_as_the_only_answer(self):
+        """CLAUDE.md ships in the clone. It told the reader `godot` on `$PATH` is the
+        fork via `/usr/local/bin/godot` — true on the maintainer's box and useless
+        anywhere else. Same defect class as steps 2, 14 and 18."""
+        c = (ex.PACKAGE / "CLAUDE.md").read_text()
+        self.assertIn("/usr/local/bin/godot", c, "the note should still exist")
+        self.assertIn("a fact about this machine, not about the repository", c,
+                      "the shipped file must say the local path is not the answer")
 
 
 class InvariantStaleInDest(unittest.TestCase):

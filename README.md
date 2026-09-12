@@ -15,8 +15,9 @@ needs from the disc is produced on your machine, from your own copy, by the pars
 ## Quick start
 
 You need a Linux x86_64 machine (see *Platform support*), an FFT PSX disc image you
-own, `uv` on your `$PATH`, and a **Godot 4.8 fork you build yourself** — no stock
-Godot will do (see *The engine*).
+own, `uv` on your `$PATH`, and a **Godot 4.8 fork you build yourself**, carrying the
+`compositor_layer` primitive — no stock Godot will do (see *Which Godot* immediately
+below, and *The engine* for how to build it).
 
 ```bash
 # 0. the engine — build the fork once (~half an hour). There is no package for it.
@@ -39,6 +40,40 @@ godot --path . res://assets/scenes/GPUArena.tscn
 ```
 
 Bootstrap is idempotent — re-running it is a no-op for work already done.
+
+### Which Godot — this needs a fork, and stock will not do
+
+`godot --version` must report **4.8** and the build must support the
+`compositor_layer` primitive. Measured against stock 4.7.1:
+
+| | stock 4.7.1 | a `compositor_layer` build |
+|---|---|---|
+| `CompositorRenderLayer` (the kernel's `fold_layer.tres`) | ✗ "Can't create sub resource" | ✓ |
+| `RenderingServer.is_compositor_layer_supported()` | ✗ absent | ✓ |
+| `addons/exmateria_schema/compositing_key/Fold.gd` compiles | ✓ **since #721** | ✓ |
+| `Fold.owns()` | `false` | `true` |
+| the display-space fold runs | ✗ — every producer draws its in-scene twin | ✓ |
+| anyone has LOOKED at those twins | ✗ never | — |
+
+⚠️ **This table changed on 2026-09-12 and the change is worth reading.** Until #721
+neither of the first two rows degraded: each stopped `Fold.gd` COMPILING, so
+`Fold.owns()` was "Nonexistent function" and the failure cascaded through every
+display-space effect in the game. The kernel is written as a feature detect with an
+in-scene fallback shader behind every folded one, and **that fallback had never once
+been reachable** on the builds it exists for. It is now — the layer loads lazily and
+the capability query is deferred to run time (ADR-0191 dec. 14).
+
+🔴 **Reachable is not verified, so this is still not a supported way to run the
+game.** Nobody has ever looked at the twelve pairs of twins side by side. Per the
+folded shaders' own comments the difference is **order and blend correctness**, not
+fidelity: `darkscreen_mosaic_fold.gdshader` composites identically either side of the
+resolve, while an add/sub banner *must* fold or it renders with the fog painted over
+it. So some will look identical and some will look *wrong* rather than merely worse.
+
+⚠️ **And do not open this project with a stock build to find out.** Godot rewrites
+`project.godot` on open and strips the `4.8` feature, so the attempt edits the repo.
+Every stock measurement above was taken in a throwaway project for exactly that
+reason.
 
 ### What that actually produces
 
@@ -66,17 +101,14 @@ after that the SPIR-V cache makes it ~30 ms.
 
 ---
 
-## The engine — a Godot 4.8 fork you build
+## Building the fork
 
-This game needs a forked Godot, and there is no package or download for it:
+*Which Godot* above says what you need and what stock does instead; this is how to
+get one. There is no package and no download:
 
-> **<https://github.com/timbermania/godot>** — branch `master`
-
-Its key change is compositor render layers (`render_mode compositor_layer` plus named
-scratch surfaces), which every particle and callback effect in the game draws through.
-**Stock Godot fails silently, not loudly**: if it opens the project at all, the game
-boots, prints `[compositor-autopilot] inactive`, and every folded effect vanishes. The
-failure mode is a working-looking game with no effects.
+> **<https://github.com/timbermania/godot>** — branch `master`. Four commits over
+> upstream `master`, the load-bearing one being compositor render layers
+> (`render_mode compositor_layer` plus named scratch surfaces).
 
 Build it with upstream's own prerequisites
 ([Godot docs](https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_linuxbsd.html)),
@@ -89,8 +121,14 @@ asserts on, which is slow and useless to measure on.
 > `dev` is the version status in `version.py`, unrelated to `dev_build`, and
 > `custom_build` is true of any source build — so `--version` tells you neither the build
 > type nor that you have the fork. The build type is in the filename
-> (`…editor.x86_64` optimized, `…editor.dev.x86_64` not); the fork shows up as
-> `[compositor-autopilot] ACTIVE` in a running game.
+> (`…editor.x86_64` optimized, `…editor.dev.x86_64` not); for the fork itself, query the
+> primitive — `RenderingServer.is_compositor_layer_supported()`, the row *Which Godot*
+> measures.
+
+**On Windows,** `platform=linuxbsd` is obviously wrong and
+[upstream's Windows instructions](https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_windows.html)
+are the ones to follow — but nobody has built this fork for Windows or run the game
+there, so you would be first, and *Platform support* below is the rest of that story.
 
 Detail and failure modes: `SETUP_FROM_SCRATCH.md` section 1.1.
 
@@ -117,13 +155,9 @@ does not open at all.
 run. They export the right entry symbol and import only `KERNEL32.dll`, so there is no
 Visual C++ redistributable to install — but no maintainer owns a Windows machine, and
 nothing beyond "it compiled and linked" has been established. If you try it, please
-report what happens. Windows users should also know how the two halves want to be run:
-**bootstrap under WSL** (the `tools/*.sh` are bash, and WSL has `rsync`, symlinks and
-`python3`), then **run native `Godot.exe`** against those same files — WSLg reaches the
-GPU only through a D3D12 translation layer, which is the wrong substrate for this
-renderer. Git Bash works for bootstrap too, since the sync script now falls back to
-`cp -RL` when `rsync` is missing and `$GODOT`/`$PYTHON` cover the differently-named
-commands, but it is the less travelled path.
+report what happens. Two other things Windows users should expect: `tools/bootstrap_assets.sh`
+and the rest of `tools/*.sh` are bash, so you need Git Bash or WSL to produce the assets,
+and the rest of the project is exercised only on Linux.
 
 The C++ source is not in this repository — it lives in the separate `exmateria-sound`
 project — so you cannot build the missing slots from here.
