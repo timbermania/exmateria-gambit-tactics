@@ -43,13 +43,29 @@ need_cmd() {
 
 # ----- 0. validate environment ------------------------------------------------
 log "0/8 validating environment"
-need_cmd godot
+# Two of these are named differently on Windows and nowhere else: there is no
+# `python3` (it is `python`, and the WindowsApps stub of that name is worse than
+# nothing), and Godot ships as Godot_v4.x-stable_win64.exe. Neither is a real
+# portability problem — a hard-coded name just failed the pre-flight before the
+# script reached anything that mattered. $GODOT and $PYTHON override.
+GODOT_BIN="${GODOT:-godot}"
+if [ -n "${PYTHON:-}" ]; then
+    PYTHON_BIN="$PYTHON"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN=python3
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN=python
+else
+    die "missing command: python3 (or python — set \$PYTHON to name yours)"
+fi
+
+need_cmd "$GODOT_BIN"
 need_cmd uv
-need_cmd python3
+need_cmd "$PYTHON_BIN"
 need_cmd ln
 need_cmd grep
 need_cmd sed
-ok "godot, uv, python3, ln, grep, sed all present"
+ok "$GODOT_BIN, uv, $PYTHON_BIN, ln, grep, sed all present"
 
 # Vulkan ICD check (informational on Linux; can't easily detect on Windows).
 case "$(uname -s)" in
@@ -373,10 +389,11 @@ log "6/8 running Godot import"
 # repairs any that predate that default or were auto-flipped to VRAM (mode 2).
 ( cd "$GODOT_DIR" && uv run python tools/normalize_texture_imports.py ) || \
     warn "texture-import normalize reported an issue (continuing)"
-if godot --import --path "$GODOT_DIR" > /tmp/bootstrap_godot_import.log 2>&1; then
+GODOT_IMPORT_LOG="${TMPDIR:-/tmp}/bootstrap_godot_import.log"
+if "$GODOT_BIN" --import --path "$GODOT_DIR" > "$GODOT_IMPORT_LOG" 2>&1; then
     ok "import done (.godot/imported populated, class cache refreshed)"
 else
-    warn "import returned non-zero; see /tmp/bootstrap_godot_import.log"
+    warn "import returned non-zero; see $GODOT_IMPORT_LOG"
 fi
 
 # ----- 7. summary ------------------------------------------------------------
@@ -409,7 +426,7 @@ log "8/8 done"
 cat <<EOF
 
   Launch the game with:
-    godot --path '$GODOT_DIR' res://assets/scenes/GPUArena.tscn
+    $GODOT_BIN --path '$GODOT_DIR' res://assets/scenes/GPUArena.tscn
 
   Known cosmetic warnings on first launch (not blockers):
     - File not found: …/*_names.json
