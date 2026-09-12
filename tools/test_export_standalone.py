@@ -387,8 +387,14 @@ class ProvenanceOfTheThreeUnclassified(unittest.TestCase):
         self.assertIn("provenance", md,
                       "ADR-0001: a committed artifact declares its provenance in itself")
         self.assertIn("There is no parser", md["source"])
-        for claim in ("no generator exists", "committed because nothing can rebuild it"):
-            self.assertIn(claim, md["provenance"])
+        # The claims, not the prose. This arm fired when the note was reworded under
+        # #1307 to record a SECOND bounded search — which is the arm working, so the
+        # needles now name what must remain true rather than a sentence's shape.
+        for claim in ("no generator exists",
+                      "nothing can rebuild this file",
+                      "a bounded negative is not an absence"):
+            self.assertIn(claim, md["provenance"],
+                          f"base_stats' provenance note no longer states: {claim!r}")
 
     def test_job_levels_is_FFTPATCHER_which_ADR_0001_itself_says(self):
         """The one of the three that was already right, and the arm exists so a future
@@ -549,17 +555,25 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
         self.assertIn("README.md", ex.manifest())
         self.assertIn("README.md", ex.tracked_package_files())
 
-    def test_it_states_the_two_things_that_surprise_every_reader(self):
-        """Both were learned the expensive way and both belong above the fold: the
-        extract landing OUTSIDE the clone (step 12) and the single shipped library slot
-        (step 14). A quick-start that omits either sends the reader into a failure whose
-        cause is nowhere near the symptom.
+    def test_it_states_the_three_things_that_surprise_every_reader(self):
+        """All three were learned the expensive way and all three belong above the fold:
+        the extract landing OUTSIDE the clone (step 12), the shipped library slots
+        (step 14), and the ENGINE — a fork with no package, whose absence is not an
+        error but a game that renders without its effects. A quick-start that omits any
+        of them sends the reader into a failure whose cause is nowhere near the symptom.
+
+        The engine claims are pinned here rather than in a test of their own because a
+        test is a process (charter clause 13) and these share this one's setup.
         """
         r = (ex.PACKAGE / "README.md").read_text()
         for claim in (
             "**`project-assets/` lands BESIDE the clone, not inside it.**",
-            "## Platform support — Linux x86_64 only",
-            "an **exported release build fails even on Linux**",
+            "## Platform support — Linux x86_64, and an unverified Windows build",
+            "an **exported release build fails on Linux**",
+            "## The engine — a Godot 4.8 fork you build",
+            "> **<https://github.com/timbermania/godot>** — branch `master`",
+            "**Stock Godot fails silently, not loudly**",
+            "Keep `dev_build=no`",
         ):
             self.assertIn(claim, r, f"README lost: {claim!r}")
             self.assertEqual(r.count(claim), 1, f"{claim!r} must occur exactly once")
@@ -711,7 +725,7 @@ class BuildBeforeCheck(unittest.TestCase):
             self.assertFalse(dest.exists(), "nothing may be written when the manifest is unsound")
 
 class ProjectAssetsLandsBesideTheClone(unittest.TestCase):
-    """Register step 12 — the fact `SETUP_FROM_SCRATCH.md` §1.2 now documents.
+    """Register step 12 — the fact `SETUP_FROM_SCRATCH.md` §1.3 now documents.
 
     Documented because it reads as a bug: in a standalone clone the package root
     IS the repo root, so `<package>/..` is the directory you cloned into and
@@ -734,10 +748,10 @@ class ProjectAssetsLandsBesideTheClone(unittest.TestCase):
         self.assertFalse(
             got.resolve().is_relative_to(pkg),
             "the extract resolved INSIDE the package — ROM data would land in the repo, "
-            "and SETUP_FROM_SCRATCH.md §1.2 is now wrong")
+            "and SETUP_FROM_SCRATCH.md §1.3 is now wrong")
 
     def test_FFT_EXTRACT_overrides_it(self):
-        """§1.2 tells the reader this is the escape hatch. If it stopped working the
+        """§1.3 tells the reader this is the escape hatch. If it stopped working the
         doc would be sending people down a path that does nothing."""
         import importlib, os
         from unittest import mock

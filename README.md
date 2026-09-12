@@ -15,14 +15,21 @@ needs from the disc is produced on your machine, from your own copy, by the pars
 ## Quick start
 
 You need a Linux x86_64 machine (see *Platform support*), an FFT PSX disc image you
-own, and `godot` ≥ 4.6 plus `uv` on your `$PATH`.
+own, `uv` on your `$PATH`, and a **Godot 4.8 fork you build yourself** — no stock
+Godot will do (see *The engine*).
 
 ```bash
+# 0. the engine — build the fork once (~half an hour). There is no package for it.
+git clone https://github.com/timbermania/godot.git ~/godot-exmateria
+cd ~/godot-exmateria
+scons -j"$(nproc)" platform=linuxbsd target=editor dev_build=no
+sudo ln -sf ~/godot-exmateria/bin/godot.linuxbsd.editor.x86_64 /usr/local/bin/godot
+
 git clone <this repo> exmateria-gambit-tactics
 cd exmateria-gambit-tactics
 
 # 1. extract your disc (fft-iso-patcher, or any tool that yields the layout
-#    SETUP_FROM_SCRATCH.md section 1.2 describes)
+#    SETUP_FROM_SCRATCH.md section 1.3 describes)
 # 2. point bootstrap at the extract:
 FFT_ISO=/path/to/your/'Final Fantasy Tactics.bin' \
   bash tools/bootstrap_assets.sh /path/to/your/fft-extract
@@ -55,7 +62,37 @@ after that the SPIR-V cache makes it ~30 ms.
 > everyone. It is deliberate: no ROM-derived byte ever lands inside the repository, so
 > that guarantee rests on the layout rather than on a `.gitignore` rule somebody could
 > edit. `$FFT_EXTRACT` overrides it. Full resolution order in
-> `SETUP_FROM_SCRATCH.md` section 1.2.
+> `SETUP_FROM_SCRATCH.md` section 1.3.
+
+---
+
+## The engine — a Godot 4.8 fork you build
+
+This game needs a forked Godot, and there is no package or download for it:
+
+> **<https://github.com/timbermania/godot>** — branch `master`
+
+Its key change is compositor render layers (`render_mode compositor_layer` plus named
+scratch surfaces), which every particle and callback effect in the game draws through.
+**Stock Godot fails silently, not loudly**: if it opens the project at all, the game
+boots, prints `[compositor-autopilot] inactive`, and every folded effect vanishes. The
+failure mode is a working-looking game with no effects.
+
+Build it with upstream's own prerequisites
+([Godot docs](https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_linuxbsd.html)),
+then the `scons` line from *Quick start* — roughly 20–40 min on a modern desktop once,
+and minutes for rebuilds after that. Keep `dev_build=no`: it is scons' default and
+resolves `optimize` to `speed_trace`, while `dev_build=yes` gives you `-O0` with engine
+asserts on, which is slow and useless to measure on.
+
+> ⚠️ **`godot --version` prints `4.8.dev.custom_build.<sha>` whichever you built.** That
+> `dev` is the version status in `version.py`, unrelated to `dev_build`, and
+> `custom_build` is true of any source build — so `--version` tells you neither the build
+> type nor that you have the fork. The build type is in the filename
+> (`…editor.x86_64` optimized, `…editor.dev.x86_64` not); the fork shows up as
+> `[compositor-autopilot] ACTIVE` in a running game.
+
+Detail and failure modes: `SETUP_FROM_SCRATCH.md` section 1.1.
 
 ---
 
@@ -86,7 +123,7 @@ and the rest of the project is exercised only on Linux.
 
 The C++ source is not in this repository — it lives in the separate `exmateria-sound`
 project — so you cannot build the missing slots from here.
-`SETUP_FROM_SCRATCH.md` section 1.3 has the detail.
+`SETUP_FROM_SCRATCH.md` section 1.4 has the detail.
 
 ---
 
