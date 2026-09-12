@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b6tcursor4444"]
+
+[ext_resource type="Script" path="res://addons/exmateria_battlefield/cursor/TileCursor.gd" id="1_tilecursor"]
+
+[node name="TileCursor" type="Node3D"]
+script = ExtResource("1_tilecursor")
+
+[node name="HighlightMesh" type="MeshInstance3D" parent="."]

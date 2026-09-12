@@ -1,0 +1,1083 @@
+================================================================================
+\x1b[38;5;39m                   FFT ABILITY EFFECT MECHANICS REFERENCE\x1b[0m
+          What Every Status, Formula, and Mechanic Actually Does
+================================================================================
+
+\x1b[38;5;208mOVERVIEW\x1b[0m
+========
+
+This document is the mechanical companion to ability_semantics.json. Where the
+semantics file says "Applies Wall" or "Inflicts Poison," this reference explains
+what Wall and Poison actually DO — exact formulas, durations, interactions, and
+edge cases.
+
+Covers all 368 Normal abilities across 16 semantic categories:
+  - Status Effects (buffs, debuffs, cancellation)
+  - Damage (physical, magic, percentage, current/lost HP)
+  - Healing (MA-based, percentage, HP+MP, self-sacrifice)
+  - Absorb (HP/MP drain)
+  - Break / Steal (equipment, gil, exp)
+  - Stat Modification (permanent boosts/reductions)
+  - Songs / Dances (continuous tick effects)
+  - Special (Quick, Golem, level change, CT manipulation)
+
+Data sources:
+  - Formula dispatch table at 0x8018f614 (101 function pointers)
+  - FORMULA_SEMANTICS from formula_xy_table.py
+  - INFLICT_STATUS_NAMES from seed_ability_semantics.py
+  - ability_attributes.json (368 entries)
+  - PSX BATTLE.BIN disassembly
+
+
+================================================================================
+\x1b[38;5;208m1. STATUS EFFECTS\x1b[0m
+================================================================================
+
+Status effects are applied via the inflict_status field (IDs 32-63 for named
+statuses, 59-121 for compound sets). Hit-only formulas (0x0A, 0x0B, 0x22,
+0x38, etc.) apply statuses without dealing damage.
+
+\x1b[38;5;250mFaith Scaling on Status Hit Rate\x1b[0m
+---------------------------------
+
+Formulas marked "F" scale hit chance by Faith:
+
+    Effective Hit% = (MA + X) * (CasterFaith/100) * (TargetFaith/100)
+
+Formulas marked "NS" (Not Signed/Not Faith) skip Faith scaling:
+
+    Effective Hit% = MA + X    (or SP + X for physical formulas)
+
+This means Innocent (Faith=0) targets are immune to Faith-scaled statuses but
+NOT immune to NS statuses like Break/Steal.
+
+
+\x1b[38;5;118m1A. BUFF STATUSES (Positive)\x1b[0m
+-----------------------------
+
+\x1b[38;5;228mRaise (ID 32)\x1b[0m
+    Effect:     Revives a KO'd unit
+    Mechanic:   Applied alongside a percentage HP heal (e.g., Raise = Heal 50%
+                + Raise status; Raise 2 = Heal 100% + Raise status)
+    Duration:   Instant (consumed on application)
+    Used by:    Raise (formula 0x0D, y=50), Raise 2 (formula 0x0D, y=100)
+
+\x1b[38;5;228mReraise (ID 33)\x1b[0m
+    Effect:     Auto-revive when unit is KO'd
+    Mechanic:   When unit's HP reaches 0, automatically revives with a small
+                amount of HP. Status is consumed on trigger (one-time use).
+    Duration:   Permanent until triggered or dispelled
+    Cancels:    —
+    Used by:    Reraise (formula 0x0B), Angel Ring (innate)
+
+\x1b[38;5;228mRegen (ID 34)\x1b[0m
+    Effect:     Periodic HP recovery
+    Mechanic:   Heals 1/8 of unit's max HP each CT tick
+    Duration:   Permanent (until removed)
+    Cancels:    Poison (mutual cancellation)
+    Used by:    Regen (formula 0x0B)
+
+\x1b[38;5;228mProtect (ID 35)\x1b[0m
+    Effect:     Reduces incoming physical damage
+    Mechanic:   Attacker's PA is reduced by 2/3 (multiplied by 2/3) in the
+                physical damage calculation
+    Duration:   32 CT ticks
+    Cancels:    —
+    Used by:    Protect (formula 0x0B), Protect 2 (formula 0x0B)
+
+\x1b[38;5;228mShell (ID 36)\x1b[0m
+    Effect:     Reduces incoming magic damage
+    Mechanic:   Attacker's MA is reduced by 2/3 (multiplied by 2/3) in the
+                magic damage calculation
+    Duration:   32 CT ticks
+    Cancels:    —
+    Used by:    Shell (formula 0x0B), Shell 2 (formula 0x0B)
+
+\x1b[38;5;228mWall (ID 37)\x1b[0m
+    Effect:     Protect + Shell combined
+    Mechanic:   Both physical (PA * 2/3) and magical (MA * 2/3) damage
+                reduction active simultaneously
+    Duration:   32 CT ticks
+    Cancels:    —
+    Used by:    Wall (formula 0x0B)
+
+\x1b[38;5;228mHaste (ID 42)\x1b[0m
+    Effect:     Faster turn frequency
+    Mechanic:   CT accumulation rate multiplied by 1.5 (gains 50% more CT per
+                tick, effectively taking turns ~50% more often)
+    Duration:   32 CT ticks
+    Cancels:    Slow (mutual cancellation)
+    Used by:    Haste (formula 0x0A), Haste 2 (formula 0x0A)
+
+\x1b[38;5;228mFloat (ID 46)\x1b[0m
+    Effect:     Levitation above terrain
+    Mechanic:   Unit hovers above ground. Immune to terrain-based damage and
+                ground-targeting effects. Can traverse water/lava tiles safely.
+    Duration:   Permanent (until removed)
+    Cancels:    —
+    Used by:    Float (formula 0x0B)
+
+\x1b[38;5;228mReflect (ID 47)\x1b[0m
+    Effect:     Bounces targeted spells
+    Mechanic:   Single-target spells aimed at this unit bounce to a random
+                enemy. Does NOT affect: area-of-effect spells, summon magic,
+                Arithmetick-targeted spells, or self-targeted abilities.
+    Duration:   32 CT ticks
+    Cancels:    —
+    Used by:    Reflect (formula 0x0B)
+
+\x1b[38;5;228mFaith (ID 49)\x1b[0m
+    Effect:     Amplifies magical interactions
+    Mechanic:   Sets unit's effective Faith to a high value. Increases both
+                magic damage dealt AND magic damage/healing received. Since
+                Faith scaling is (CasterFaith/100) * (TargetFaith/100), high
+                Faith makes the unit both a stronger mage and more vulnerable
+                to magic.
+    Duration:   Permanent (until removed)
+    Cancels:    Innocent (mutual cancellation)
+    Used by:    Faith (formula 0x0A)
+
+
+\x1b[38;5;118m1B. DEBUFF STATUSES (Negative)\x1b[0m
+-------------------------------
+
+\x1b[38;5;228mPoison (ID 39)\x1b[0m
+    Effect:     Periodic HP loss
+    Mechanic:   Deals 1/8 of unit's max HP as damage each CT tick
+    Duration:   36 CT ticks
+    Cancels:    Regen (mutual cancellation)
+    Used by:    Poison (formula 0x0A), Bio series (compound sets)
+
+\x1b[38;5;228mFrog (ID 40)\x1b[0m
+    Effect:     Transformation — severely limits actions
+    Mechanic:   Unit can only use basic Attack and the Frog spell. All stats
+                are effectively halved. Frog casting Frog on a Frog cures it.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Frog (formula 0x0A)
+
+\x1b[38;5;228mSlow (ID 43)\x1b[0m
+    Effect:     Reduced turn frequency
+    Mechanic:   CT accumulation rate multiplied by 0.5 (gains half CT per tick,
+                effectively taking turns ~50% less often)
+    Duration:   32 CT ticks
+    Cancels:    Haste (mutual cancellation)
+    Used by:    Slow (formula 0x0A), Slow 2 (formula 0x0A)
+
+\x1b[38;5;228mStop (ID 44)\x1b[0m
+    Effect:     Complete time freeze
+    Mechanic:   CT frozen at current value (no accumulation). Unit cannot act,
+                move, evade, or trigger reaction abilities. Unlike Sleep, not
+                broken by taking damage.
+    Duration:   20 CT ticks (shorter than most timed statuses)
+    Cancels:    —
+    Used by:    Stop (formula 0x0A)
+
+\x1b[38;5;228mDon't Move (ID 45)\x1b[0m
+    Effect:     Movement disabled
+    Mechanic:   Unit cannot reposition on the battlefield. Can still perform
+                actions (attack, cast spells, use items) from current tile.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Don't Move (formula 0x0A)
+
+\x1b[38;5;228mDarkness (ID 48)\x1b[0m
+    Effect:     Impaired physical accuracy
+    Mechanic:   Physical attack hit rate is halved. Does not affect magic hit
+                rates or magic damage.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Blind (formula 0x0A)
+
+\x1b[38;5;228mInnocent (ID 50)\x1b[0m
+    Effect:     Complete magic immunity (both ways)
+    Mechanic:   Sets effective Faith to 0. Since magic damage/healing scales by
+                (TargetFaith/100), this makes ALL Faith-scaled formulas deal 0
+                damage and 0 healing. The unit can neither benefit from nor be
+                harmed by magic.
+    Duration:   Permanent (until cured)
+    Cancels:    Faith (mutual cancellation)
+    Used by:    Innocent (formula 0x0A)
+
+\x1b[38;5;228mUndead (ID 51)\x1b[0m
+    Effect:     Inverted healing/damage
+    Mechanic:   Healing effects deal damage instead. Damage effects heal
+                instead. Phoenix Down / Raise instantly KOs. Cure spells deal
+                their heal amount as damage. Potions deal damage.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Zombie (formula 0x0A), various monster abilities
+
+\x1b[38;5;228mSilence (ID 52)\x1b[0m
+    Effect:     Spellcasting disabled
+    Mechanic:   Cannot use abilities flagged as "not_silence" in ability
+                attributes (most magic spells). Can still use physical
+                abilities, items, and abilities not flagged.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Silence Song (formula 0x0A)
+
+\x1b[38;5;228mBerserk (ID 53)\x1b[0m
+    Effect:     Uncontrollable — auto-attacks
+    Mechanic:   Unit becomes AI-controlled. Automatically moves toward and
+                attacks the nearest enemy with basic Attack. Receives a PA
+                bonus (PA * 4/3). Cannot use abilities, items, or move
+                strategically.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Berserk (formula 0x0A)
+
+\x1b[38;5;228mConfusion (ID 54)\x1b[0m
+    Effect:     Random targeting — attacks allies
+    Mechanic:   Unit becomes AI-controlled with randomized target selection.
+                Will attack allies and enemies indiscriminately. Broken by
+                taking physical damage from an ally.
+    Duration:   Permanent (until cured or broken by damage)
+    Cancels:    —
+    Used by:    Confuse (formula 0x0A), Befuddle
+
+\x1b[38;5;228mDon't Act (ID 56)\x1b[0m
+    Effect:     Actions disabled
+    Mechanic:   Cannot perform any action (attack, cast, use items). Can still
+                move to reposition. CT continues to accumulate normally.
+    Duration:   24 CT ticks
+    Cancels:    —
+    Used by:    Don't Act (formula 0x0A)
+
+\x1b[38;5;228mSleep (ID 57)\x1b[0m
+    Effect:     Unconscious — vulnerable
+    Mechanic:   No CT accumulation. Cannot act, move, evade, or react. Physical
+                attacks against sleeping units deal 1.5x damage. Woken by any
+                damage (including poison ticks).
+    Duration:   60 CT ticks (longest timed status)
+    Cancels:    —
+    Used by:    Sleep (formula 0x0A)
+
+\x1b[38;5;228mPetrify (ID 58)\x1b[0m
+    Effect:     Complete petrification
+    Mechanic:   Unit is completely frozen. No CT gain, no actions, no reactions,
+                no evasion. Treated as KO for battle-end conditions (if all
+                non-petrified allies are KO'd, battle is lost). Immune to all
+                other status changes while petrified.
+    Duration:   Permanent (until cured)
+    Cancels:    —
+    Used by:    Petrify (formula 0x0A), Break series
+
+\x1b[38;5;228mDeath Sentence (ID 61)\x1b[0m
+    Effect:     Countdown to death
+    Mechanic:   A 3-tick countdown appears above the unit. When it reaches 0,
+                the unit is instantly KO'd. Can be cured before countdown
+                expires.
+    Duration:   3 CT ticks until KO
+    Cancels:    —
+    Used by:    Death Sentence (formula 0x0A)
+
+\x1b[38;5;228mCharm (ID 62)\x1b[0m
+    Effect:     Temporary allegiance switch
+    Mechanic:   Unit fights for the opposing side. AI-controlled, targets
+                former allies. Only works on opposite-sex targets (formula
+                0x29: OppositeSex hit check). Broken by taking physical damage.
+    Duration:   Permanent (until cured or broken)
+    Cancels:    —
+    Used by:    Charm (formula 0x29)
+
+
+\x1b[38;5;118m1C. SPECIAL STATUS OPERATIONS\x1b[0m
+------------------------------
+
+\x1b[38;5;228mCancel Statuses / Esuna (ID 38)\x1b[0m
+    Effect:     Removes negative statuses from target
+    Mechanic:   Clears a predefined set of negative status flags. Does NOT
+                remove all statuses — only those in the cancellation bitmask.
+    Used by:    Esuna (formula 0x0B), Stigma Magic, Heal
+
+\x1b[38;5;228mDispel (ID 55)\x1b[0m
+    Effect:     Removes positive statuses from target
+    Mechanic:   Strips buff statuses: Protect, Shell, Haste, Regen, Reraise,
+                Float, Reflect, Wall, Faith.
+    Used by:    Dispel Magic (formula 0x0A)
+
+\x1b[38;5;228mDeath+Stop+DontMove+DontAct (ID 41)\x1b[0m
+    Effect:     Compound instant-kill or total disable
+    Mechanic:   Attempts to apply Death first. If Death is resisted, falls
+                through to Stop, Don't Move, and Don't Act. Result depends
+                on target's immunities.
+    Used by:    Galaxy Stop (formula 0x0A), various monster abilities
+
+\x1b[38;5;228mInvite (ID 63)\x1b[0m
+    Effect:     Permanent recruitment
+    Mechanic:   Target permanently joins the player's party. Removes unit from
+                enemy roster. Only works on human-type units (not monsters in
+                most cases). Battle continues with remaining enemies.
+    Used by:    Invitation (formula 0x0A)
+
+
+\x1b[38;5;118m1D. COMPOUND STATUS SETS (IDs 59-121)\x1b[0m
+---------------------------------------
+
+inflict_status IDs 59 and above map to compound status sets defined in a lookup
+table in BATTLE.BIN (not fully decoded in this codebase). Each compound set ID
+resolves to a bitmask of individual status flags.
+
+Known compound sets:
+
+    ID    Name/Context          Likely Statuses
+    ---   -------------------   ----------------------------------------
+    59    NamelessSong set      Random positive status (one of the buffs)
+    60    NamelessDance set     Random negative status (one of the debuffs)
+    85    BloodSuck set         HP drain + status combination
+    121   Various monster       Multiple debuff combination
+
+These compound sets are applied by monster abilities, special skills, and the
+Nameless Song/Dance random effects. The exact bitmask mapping requires further
+reverse engineering of the BATTLE.BIN status set table.
+
+
+================================================================================
+\x1b[38;5;208m2. DAMAGE SYSTEM\x1b[0m
+================================================================================
+
+All damage flows through the formula dispatch table at 0x8018f614. The
+formula_id (byte in ability attributes) selects one of 101 function pointers.
+
+\x1b[38;5;250mDamage Pipeline\x1b[0m
+-----------------
+
+    1. Formula function calculates raw damage from stats + X/Y params
+    2. Faith scaling applied (if formula is Faith-type "F")
+    3. Element interaction applied (absorb/weak/null/half)
+    4. Protect/Shell reduction applied (if applicable)
+    5. Random variance applied (~12.5% range)
+    6. Final damage subtracted from target HP
+
+\x1b[38;5;250mFaith Scaling\x1b[0m
+---------------
+
+Formulas marked "F" (Faith-dependent) multiply damage by:
+
+    FaithMult = (CasterFaith / 100) * (TargetFaith / 100)
+
+Example: Caster Faith=70, Target Faith=50:
+    FaithMult = 0.70 * 0.50 = 0.35 (only 35% of base damage)
+
+Formulas marked "NS" (Not Signed / Not Faith) skip this multiplier entirely.
+This is why:
+  - Innocent (Faith=0) gives complete magic immunity (0 * anything = 0)
+  - High Faith units deal AND receive more magic damage
+  - Physical formulas (NS) ignore Faith completely
+
+\x1b[38;5;250mElement Interaction\x1b[0m
+---------------------
+
+Elements: Fire, Ice, Lightning, Wind, Water, Earth, Holy, Dark
+
+    Target absorbs element  →  Damage becomes healing (negative damage)
+    Target weak to element  →  Damage * 2
+    Target nulls element    →  Damage = 0
+    Target halves element   →  Damage / 2
+    No affinity             →  Normal damage
+
+Equipment and innate abilities set element affinities. Multiple elements on a
+single ability are possible but rare.
+
+
+\x1b[38;5;118m2A. WEAPON-BASED PHYSICAL DAMAGE\x1b[0m
+----------------------------------
+
+Formulas 0x00-0x05 — standard weapon attacks.
+
+    0x00: Dmg = PA * WP                    (standard melee/ranged)
+    0x01: Dmg = PA * WP                    (variant)
+    0x02: Dmg = PA * WP (NS)              (ignores Sign/Faith)
+    0x03: Dmg = WP * WP (NS)             (weapon power squared, guns)
+    0x04: Dmg = MA * WP                    (magic guns)
+    0x05: Dmg = PA * WP                    (variant)
+
+Affected by: Protect (PA * 2/3), Brave (for knight swords, katanas)
+Not affected by: Faith, Shell, Elements (unless weapon is elemental)
+
+    0x06: AbsHP = weapon damage            (Blood Sword — drains HP)
+    0x07: Heal  = weapon damage            (healing rod weapons)
+
+X and Y parameters are unused for all weapon formulas.
+
+
+\x1b[38;5;118m2B. MA-BASED MAGIC DAMAGE\x1b[0m
+---------------------------
+
+The most common damage formula family (41+ abilities).
+
+\x1b[38;5;228mFormula 0x08: Dmg_F(MA*Y)\x1b[0m  — Standard magic damage
+    Damage = MA * Y * (CasterFaith/100) * (TargetFaith/100)
+    Used by: Fire (Y=14), Fire 2 (Y=18), Fire 3 (Y=24), Ice, Bolt, etc.
+    Element: Set per ability (Fire=128, Ice=64, Bolt=32, etc.)
+
+\x1b[38;5;228mFormula 0x20: Dmg_(MA*Y)\x1b[0m  — Non-Faith magic damage
+    Damage = MA * Y
+    No Faith scaling. Used by: Summon magic (Ifrit Y=28, Shiva Y=24, etc.)
+
+\x1b[38;5;228mFormula 0x4E: Dmg_(MA*Y)\x1b[0m  — Monster magic damage
+    Damage = MA * Y
+    Used by: Various monster abilities (25 abilities)
+
+\x1b[38;5;228mFormula 0x24: Dmg_((PA+Y)/2*MA)\x1b[0m  — Hybrid damage
+    Damage = ((PA + Y) / 2) * MA
+    Scales off both PA and MA. Used by: Holy Sword abilities
+
+\x1b[38;5;228mFormula 0x31: Dmg_((PA+Y)/2*PA)\x1b[0m  — PA-hybrid damage
+    Damage = ((PA + Y) / 2) * PA
+    Used by: Various physical-styled damage abilities
+
+\x1b[38;5;228mFormula 0x1E: Dmg_((MA+Y)*MA/2) multi-hit\x1b[0m
+    Damage per hit = ((MA + Y) * MA) / 2
+    Number of hits = Random(1, X)
+    Used by: Repeated magic attacks (randomized hit count)
+
+\x1b[38;5;228mFormula 0x1F: Dmg with inverse Faith\x1b[0m
+    Damage = ((100-CasterFaith) * (100-TargetFaith) * (MA+Y) * MA) / 2
+    Hits = Random(1, X)
+    Used by: Dark-element abilities that benefit from LOW Faith
+
+\x1b[38;5;228mFormulas 0x5E/0x5F/0x60: Dmg_((MA+Y)/2*MA) variants\x1b[0m
+    0x5E: Multi-hit (X+1 hits) with status application
+    0x5F: Single hit
+    0x60: Single hit, non-elemental, with status
+    Used by: High-tier monster/special abilities
+
+
+\x1b[38;5;118m2C. PERCENTAGE DAMAGE\x1b[0m
+-----------------------
+
+Damage based on target's max or current HP rather than caster stats.
+
+\x1b[38;5;228mFormula 0x09: Dmg_(Y/100)% Hit_F(MA+X)%\x1b[0m
+    Damage = (Y / 100) * TargetMaxHP
+    Hit rate = (MA + X) * Faith scaling
+    Used by: Gravity (Y=25), Demi (Y=50), Demi 2 (Y=75)
+
+\x1b[38;5;228mFormula 0x0E: Dmg_(Y)% Hit_F(MA+X)%\x1b[0m
+    Damage = Y% of TargetMaxHP
+    Used by: Various percentage damage abilities
+
+\x1b[38;5;228mFormula 0x53: Dmg_(Y)% Hit_(MA+X)%\x1b[0m
+    Damage = Y% of TargetMaxHP (no Faith on damage, Faith on hit)
+    Used by: Monster percentage damage
+
+\x1b[38;5;228mFormula 0x1B: DmgMP_(Y)% Hit_F(MA+X)%\x1b[0m
+    MP Damage = Y% of TargetMaxMP
+    Targets MP instead of HP
+
+\x1b[38;5;228mFormula 0x2C: DmgMP_(Y)% Hit_(PA+Y)%\x1b[0m
+    MP Damage = Y% of TargetMaxMP
+    Hit rate uses PA instead of MA
+
+
+\x1b[38;5;118m2D. CURRENT/LOST HP DAMAGE\x1b[0m
+----------------------------
+
+Damage based on HP values rather than stats or percentages.
+
+\x1b[38;5;228mFormula 0x16: DmgMP_(TarCurMP)\x1b[0m
+    Damage = Target's current MP (drains all MP, deals as damage to MP)
+    Hit rate = (MA + X) * Faith scaling
+
+\x1b[38;5;228mFormula 0x17: Dmg_(TarCurHP-1)\x1b[0m
+    Damage = Target's current HP - 1 (reduces target to exactly 1 HP)
+    Hit rate = (MA + X) * Faith scaling
+
+\x1b[38;5;228mFormula 0x3E: Dmg_(TarCurHP-1) 100% hit\x1b[0m
+    Same as 0x17 but with guaranteed hit (no Faith check)
+
+\x1b[38;5;228mFormula 0x43: Dmg_(CasMaxHP-CasCurHP)\x1b[0m
+    Damage = Caster's MaxHP - Caster's CurrentHP (caster's lost HP)
+    More damage when caster is injured. Used by: Darkness (Dark Knight)
+
+\x1b[38;5;228mFormula 0x4F: Dmg_(CasMaxHP-CasCurHP) Hit_(MA+X)%\x1b[0m
+    Same as 0x43 with MA-based hit rate. Used by: monster abilities
+
+\x1b[38;5;228mFormula 0x52: Dmg_(CasMaxHP-CasCurHP) + status\x1b[0m
+    Lost HP damage with 100% status application
+
+\x1b[38;5;228mFormula 0x44: Dmg_(TarCurMP)\x1b[0m
+    Damage = Target's current MP (targets HP pool using MP value)
+
+\x1b[38;5;228mFormula 0x45: Dmg_(TarMaxHP-TarCurHP)\x1b[0m
+    Damage = Target's missing HP. More effective against injured targets.
+
+
+\x1b[38;5;118m2E. PA-BASED PHYSICAL DAMAGE\x1b[0m
+------------------------------
+
+Non-weapon physical formulas using PA directly.
+
+\x1b[38;5;228mFormula 0x2D: Dmg_(PA*(WP+Y)) + 100% status\x1b[0m
+    Damage = PA * (WP + Y)
+    Status applied with 100% hit rate (no evasion check)
+    Used by: Crush Punch, Holy Explosion, other knight sword techs
+
+\x1b[38;5;228mFormula 0x42: Dmg_(PA*Y) with self-damage\x1b[0m
+    Damage = PA * Y
+    Self damage = PA * Y / X (caster takes a fraction)
+    Used by: Sacrifice-type abilities
+
+\x1b[38;5;228mFormula 0x32: Dmg_(Rdm(1..X)*(PA*3+Y)) NS NE\x1b[0m
+    Damage = Random(1, X) * (PA*3 + Y)
+    Non-elemental, non-Faith. Used by: random physical attacks
+
+\x1b[38;5;228mFormula 0x37: Dmg_(Rdm(1..Y)*PA) NS NE\x1b[0m
+    Damage = Random(1, Y) * PA
+    Non-elemental, non-Faith. Used by: monster physical abilities
+
+\x1b[38;5;228mFormula 0x63: Dmg_(SP*WP)\x1b[0m
+    Damage = Speed * WP
+    Used by: Speed-based attacks (Ninja abilities)
+
+\x1b[38;5;228mFormula 0x64: Jump Dmg_(PA*WP)\x1b[0m
+    Damage = PA * WP
+    Jump-specific formula (shares handler with 0x63). Bypasses evasion.
+
+
+================================================================================
+\x1b[38;5;208m3. HEALING SYSTEM\x1b[0m
+================================================================================
+
+Healing formulas restore HP (and sometimes MP). Affected by Undead status
+(healing deals damage instead) and Faith scaling (for F-type formulas).
+
+
+\x1b[38;5;118m3A. MA-BASED HEALING\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormulas 0x0C, 0x23, 0x4C: Heal_F(MA*Y) NS\x1b[0m
+    Heal = MA * Y
+    0x0C: Standard (Cure=14, Cure 2=18, Cure 3=24, Cure 4=30)
+    0x23: Variant (used by summon heals like Fairy Y=36)
+    0x4C: Variant (used by monster heal abilities)
+    "NS" = not affected by Sign, meaning always heals (not damage)
+    Faith scaling: YES — (CasterFaith/100) * (TargetFaith/100)
+
+    Example: Cure 3, MA=12, CasterFaith=70, TargetFaith=60:
+        Heal = 12 * 24 * 0.70 * 0.60 = 121 HP
+
+
+\x1b[38;5;118m3B. PERCENTAGE HEALING\x1b[0m
+------------------------
+
+\x1b[38;5;228mFormula 0x0D: Heal_(Y)% Hit_F(MA+X)%\x1b[0m
+    Heal = Y% of target's max HP
+    Used by: Raise (Y=50), Raise 2 (Y=100), Chakra variants
+
+\x1b[38;5;228mFormula 0x35: Heal_(Y)% Hit_(PA+X)%\x1b[0m
+    Heal = Y% of target's max HP
+    Uses PA for hit rate instead of MA (physical-based healer)
+
+
+\x1b[38;5;118m3C. HP+MP HEALING\x1b[0m
+--------------------
+
+\x1b[38;5;228mFormula 0x34: Heal_(PA*Y) HealMP_(PA*Y/2) NS\x1b[0m
+    HP Heal = PA * Y
+    MP Heal = PA * Y / 2
+    Used by: Chakra (heals both HP and MP in one action)
+
+
+\x1b[38;5;118m3D. MP-ONLY HEALING\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormula 0x54: HealMP_(MA*Y) NS\x1b[0m
+    MP Heal = MA * Y
+    Used by: MP-restoration abilities
+
+
+\x1b[38;5;118m3E. SELF-SACRIFICE HEALING\x1b[0m
+----------------------------
+
+\x1b[38;5;228mFormula 0x3C: Heal allies, hurt self\x1b[0m
+    Allies healed = CasterMaxHP * 2/5 (40%)
+    Caster damage = CasterMaxHP * 1/5 (20%)
+    Used by: Wish (heals all allies at the cost of caster HP)
+
+
+\x1b[38;5;118m3F. SPECIAL HEALING\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormula 0x48: Heal_(Z*10)\x1b[0m
+    Heal = Z * 10 (Z = number of crystals/orbs collected)
+    Used by: Crystal-based healing (Samurai abilities)
+
+\x1b[38;5;228mFormula 0x49: HealMP_(Z*10)\x1b[0m
+    MP Heal = Z * 10
+    Used by: Crystal-based MP healing
+
+\x1b[38;5;228mFormula 0x4A: Heal_(100%) HealMP_(100%)\x1b[0m
+    Full HP and MP restoration
+    Used by: Full-restore abilities
+
+\x1b[38;5;228mFormula 0x4B: Heal_(Rdm(1..9)) + status\x1b[0m
+    Heal = Random(1, 9) HP (trivial amount)
+    Also applies status from inflict_status field
+    Used by: Minor heal + buff abilities
+
+
+================================================================================
+\x1b[38;5;208m4. ABSORB (HP/MP DRAIN)\x1b[0m
+================================================================================
+
+Absorb formulas deal damage to the target and heal the caster for the same
+amount.
+
+
+\x1b[38;5;118m4A. PERCENTAGE ABSORB\x1b[0m
+-----------------------
+
+\x1b[38;5;228mFormula 0x10: AbsHP_(Y)% Hit_F(MA+X)% NS\x1b[0m
+    Drain = Y% of target's max HP
+    Caster healed for same amount
+    Used by: LifeDrain (Y=25), Drain Touch (Y=25)
+
+\x1b[38;5;228mFormula 0x47: AbsHP_(Y)% + 100% status\x1b[0m
+    Drain = Y% of target's max HP
+    Also applies status from inflict_status field
+    Used by: BloodSuck (Y=25 + status set 85)
+
+\x1b[38;5;228mFormula 0x4D: AbsHP_(Y)% Hit_(MA+X)% NS\x1b[0m
+    Drain = Y% of target's max HP
+    Used by: Monster drain abilities
+
+\x1b[38;5;228mFormula 0x0F: AbsMP_(Y)% Hit_F(MA+X)% NS\x1b[0m
+    Drain = Y% of target's max MP
+    Caster gains drained MP
+    Used by: Osmose (Y=25)
+
+
+\x1b[38;5;118m4B. FLAT ABSORB\x1b[0m
+-----------------
+
+\x1b[38;5;228mFormula 0x30: AbsHP_(PA*WP) NS\x1b[0m
+    Drain = PA * WP (weapon-based flat drain)
+    Used by: Blood Sword-style abilities
+
+\x1b[38;5;228mFormula 0x2F: AbsMP_(PA*WP) NS\x1b[0m
+    Drain = PA * WP from target's MP pool
+    Caster gains drained MP
+
+
+================================================================================
+\x1b[38;5;208m5. BREAK & STEAL\x1b[0m
+================================================================================
+
+Break and Steal formulas target equipped items. The equipment slot is
+hardcoded per ability_id in FUN_801879c8.
+
+
+\x1b[38;5;118m5A. EQUIPMENT BREAK\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormula 0x25: Break Hit_(SP+X)%\x1b[0m
+    Permanently destroys the target's equipped item in a specific slot.
+    Hit rate = Speed + X (NOT PA+WP+X as some wikis claim — PSX code at
+    FUN_80185e30 uses Speed)
+    Slot determined by ability_id hardcoded mapping:
+        HeadBreak  → helmet slot
+        ArmorBreak → armor slot
+        ShieldBreak → shield slot
+        WeaponBreak → weapon slot
+
+    The item is removed from the target permanently. Cannot break items
+    flagged as unbreakable. Used by: Knight "Break" abilities (8 total)
+
+\x1b[38;5;228mFormula 0x2E: Break + Dmg_(PA*WP) NS\x1b[0m
+    Deals PA * WP physical damage AND breaks equipment
+    Combines damage with equipment destruction
+
+
+\x1b[38;5;118m5B. EQUIPMENT STEAL\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormula 0x26: Steal Hit_(SP+X)%\x1b[0m
+    Transfers target's equipped item to caster's inventory.
+    Hit rate = Speed + X
+    Slot determined by ability_id hardcoded mapping:
+        StealHelm → helmet slot
+        StealArmor → armor slot
+        StealShield → shield slot
+        StealWeapon → weapon slot
+        StealAccessry → accessory slot
+
+    Cannot steal items flagged as un-stealable.
+    Used by: Thief "Steal" abilities (5 equipment types)
+
+
+\x1b[38;5;118m5C. GIL AND EXP STEAL\x1b[0m
+-----------------------
+
+\x1b[38;5;228mFormula 0x27: StealGil_(CasLVL*SP) Hit_(SP+X)% NS\x1b[0m
+    Gil stolen = Caster's Level * Caster's Speed
+    Hit rate = Speed + X
+    Used by: StealGil
+
+\x1b[38;5;228mFormula 0x28: StealExp_(min(TarExp,SP+Y)) Hit_(SP+X)%\x1b[0m
+    Exp stolen = minimum of (Target's Exp, Speed + Y)
+    Hit rate = Speed + X
+    Used by: StealExp
+
+
+================================================================================
+\x1b[38;5;208m6. STAT MODIFICATION\x1b[0m
+================================================================================
+
+Stat modifications are permanent changes to a unit's base stats (not timed
+buffs). They persist for the rest of the battle.
+
+
+\x1b[38;5;118m6A. STAT BOOSTS\x1b[0m
+-----------------
+
+\x1b[38;5;228mFormula 0x36: +PA_(Y) NS\x1b[0m
+    Permanently increases target's PA by Y
+    Used by: Yell (+1 PA, Y=1), Accumulate (+1 PA, Y=1)
+
+\x1b[38;5;228mFormula 0x39: +SP_(Y) NS\x1b[0m
+    Permanently increases target's Speed by Y
+    Used by: Speed abilities (+1 Speed, Y=1)
+
+\x1b[38;5;228mFormula 0x3A: +Brave_(Y) NS\x1b[0m
+    Permanently increases target's Brave by Y
+    Used by: Brave-boosting abilities
+
+\x1b[38;5;228mFormula 0x3B: +Brave_(X) +PA/MA/SP_(Y) NS\x1b[0m
+    Increases Brave by X AND PA/MA/SP by Y
+    Dual stat boost in a single action
+
+All stat boosts are 100% hit rate (no evasion/Faith check), NS (not Faith-
+dependent), and apply to the caster or target depending on ability targeting.
+
+
+\x1b[38;5;118m6B. STAT REDUCTIONS\x1b[0m
+----------------------
+
+\x1b[38;5;228mFormula 0x1A: Hit_F(MA+Y)% -PA/MA/SP(X)\x1b[0m
+    Reduces target's stat by X amount
+    Hit rate = (MA + Y) * Faith scaling
+    Which stat (PA/MA/SP) is determined by ability_id mapping
+
+\x1b[38;5;228mFormula 0x2B: Hit_(PA+Y)% -PA/MA/SP_(X)\x1b[0m
+    Same as 0x1A but uses PA for hit rate instead of MA
+    Used by: physical-based stat reduction
+
+\x1b[38;5;228mFormula 0x55: -PA_(Y) Hit_(MA+X)% NS\x1b[0m
+    Reduces target's PA by Y
+    Hit rate = MA + X (no Faith scaling)
+
+\x1b[38;5;228mFormula 0x56: -MA_(Y) Hit_(MA+X)% NS\x1b[0m
+    Reduces target's MA by Y
+    Hit rate = MA + X (no Faith scaling)
+
+
+\x1b[38;5;118m6C. BRAVE/FAITH MODIFICATION\x1b[0m
+------------------------------
+
+\x1b[38;5;228mFormula 0x2A: Hit_(MA+X)% AffectBraveOrFaith(Y)\x1b[0m
+    Changes target's Brave or Faith by Y amount
+    Whether Brave or Faith is affected depends on ability_id
+    Used by: Mediator abilities (Praise, Threaten, Preach, Solution)
+
+\x1b[38;5;228mFormulas 0x61, 0x62: -Brave_(Y) Hit\x1b[0m
+    0x61: -Brave_(Y) Hit_F(MA+X)% — Faith-scaled hit rate
+    0x62: -Brave_(Y) Hit_(MA+X)% — No Faith scaling on hit
+    Reduces target's Brave by Y
+    Used by: Brave-reducing abilities
+
+Note: Brave/Faith changes that accumulate beyond threshold values during battle
+become permanent after battle (Brave changes of +/-4 or more per battle stick
+permanently to the unit's base Brave/Faith).
+
+
+================================================================================
+\x1b[38;5;208m7. SONGS & DANCES\x1b[0m
+================================================================================
+
+Songs and Dances are continuous-effect abilities. The caster enters a
+performing state and the effect triggers each CT tick while performing. The
+caster cannot take other actions while performing. Effects are hardcoded by
+ability_id, not by the X/Y parameters.
+
+
+\x1b[38;5;118m7A. SONGS (Bard — Formula 0x1C)\x1b[0m
+---------------------------------
+
+Hit rate = X% per tick (NS — not Faith-scaled)
+Target: All allies in range each tick
+
+    Ability         ID    Y     Effect per Tick
+    -------------   ---   ---   ------------------------------------
+    AngelSong       86    20    Restores HP (amount = Y = 20)
+    LifeSong        87    10    Restores MP (amount = Y = 10)
+    CheerSong       88    -     +1 Speed
+    BattleSong      89    -     +1 PA
+    MagicSong       90    -     +1 MA
+    NamelessSong    91    -     Random positive status (set 59)
+    LastSong        92    -     Sets allies' CT to 100 (instant turn)
+
+Songs stack over time — BattleSong applying +1 PA each tick for several ticks
+produces a significant PA increase. Stat boosts from songs are permanent for
+the duration of the battle.
+
+
+\x1b[38;5;118m7B. DANCES (Dancer — Formula 0x1D)\x1b[0m
+------------------------------------
+
+Hit rate = X% per tick (NS — not Faith-scaled)
+Target: All enemies in range each tick
+
+    Ability         ID    Y     Effect per Tick
+    -------------   ---   ---   ------------------------------------
+    WitchHunt       93    20    Drains MP (amount = Y = 20)
+    Wiznaibus       94    10    Drains HP (amount = Y = 10)
+    SlowDance       95    -     -1 Speed
+    PolkaPolka      96    -     -1 PA
+    Disillusion     97    -     -1 MA
+    NamelessDance   98    -     Random negative status (set 60)
+    LastDance       99    -     Reduces enemies' CT to 0
+
+Dances mirror Songs but target enemies with debuffs instead of allies with
+buffs. The stat reductions from dances are permanent for the battle duration.
+
+
+================================================================================
+\x1b[38;5;208m8. SPECIAL MECHANICS\x1b[0m
+================================================================================
+
+These abilities have unique, hardcoded behavior that doesn't fit standard
+damage/heal/status patterns.
+
+
+\x1b[38;5;228mQuick (Formula 0x12)\x1b[0m
+    Effect:     Grants the target an immediate extra turn
+    Mechanic:   Target's CT is set to allow an immediate action. The Quick'd
+                unit acts before normal CT rotation resumes.
+    Hit rate:   (MA + X) * Faith scaling
+    Used by:    Quick (Time Mage)
+
+\x1b[38;5;228mGolem (Formula 0x14)\x1b[0m
+    Effect:     Summons a barrier absorbing physical damage
+    Mechanic:   Creates a pool of damage absorption for ALL allies. Physical
+                attacks targeting any ally are absorbed by the Golem pool until
+                it's depleted. Does not absorb magic damage.
+    Hit rate:   (CasterFaith/100) * (MA + X)%
+    Pool:       Based on caster's MA
+    Used by:    Golem (Summon Magic)
+
+\x1b[38;5;228mCT Reset (Formula 0x15)\x1b[0m
+    Effect:     Sets target's CT to 0
+    Mechanic:   Target loses all accumulated CT, delaying their next turn
+                significantly. Does not apply Stop status — CT continues to
+                accumulate from 0 normally.
+    Hit rate:   (MA + X) * Faith scaling
+    Used by:    CT0 abilities
+
+\x1b[38;5;228mLevel +1 (Formula 0x57)\x1b[0m
+    Effect:     Caster gains 1 level and applies status to self
+    Mechanic:   Permanently increases caster's level by 1. Also applies
+                inflict_status to caster (typically a buff). Level increase
+                raises all stats according to level-up formulas.
+    Hit rate:   100% (self-targeting)
+    Used by:    Level-up abilities (monster)
+
+\x1b[38;5;228mLevel -1 (Formula 0x59)\x1b[0m
+    Effect:     Target loses 1 level
+    Mechanic:   Permanently decreases target's level by 1. Level decrease
+                lowers all stats according to level-down formulas.
+    Hit rate:   (MA + X) * Faith scaling
+    Used by:    Level-down abilities (monster)
+
+\x1b[38;5;228mMorbol (Formula 0x58)\x1b[0m
+    Effect:     Inflicts the Morbol compound status set
+    Mechanic:   Applies a combination of debuffs (typically: Poison, Darkness,
+                Confusion, Silence, Frog, Sleep, Don't Act, Don't Move)
+    Hit rate:   (MA + X)%
+    Used by:    Bad Breath (Morbol monster ability)
+
+\x1b[38;5;228mDragon Series (Formulas 0x5A-0x5D)\x1b[0m
+    Abilities that only affect Dragon-type units:
+    0x5A: Hit 100% — applies status (Dragon-only targeting)
+    0x5B: Heal Y% HP + apply status (Dragon HP restore)
+    0x5C: +Brave(X) +PA/MA/SP(Y) — Dragon stat boost
+    0x5D: Grants Quick to dragon — immediate extra turn
+
+\x1b[38;5;228mOpposite-Sex (Formula 0x29)\x1b[0m
+    Effect:     Charms target (only opposite-sex)
+    Mechanic:   Hit check includes a gender comparison. Only succeeds if caster
+                and target are opposite sexes. Genderless units are immune.
+    Hit rate:   (MA + X)%
+    Used by:    Charm (formula 0x29), certain reaction abilities
+
+
+================================================================================
+\x1b[38;5;208m9. SEMANTIC CATEGORY COVERAGE\x1b[0m
+================================================================================
+
+All 16 semantic_category values from ability_semantics.json:
+
+    Category            Count   Section
+    ------------------  -----   -----------------------------------
+    damage_magic         127    Section 2B, 2C, 2D
+    status_inflict        84    Section 1B
+    damage_physical       40    Section 2A, 2E
+    status_buff           21    Section 1A
+    heal_hp               17    Section 3A-3F
+    special               17    Section 8
+    unknown               12    (needs manual annotation)
+    stat_reduce           11    Section 6B, 6C
+    break                  8    Section 5A
+    steal                  8    Section 5B, 5C
+    absorb_hp              7    Section 4A, 4B
+    stat_boost             6    Section 6A
+    status_cancel          5    Section 1C
+    absorb_mp              3    Section 4A, 4B
+    heal_both              1    Section 3C
+    heal_mp                1    Section 3D
+
+Total: 368 abilities across 16 categories.
+
+
+================================================================================
+\x1b[38;5;208m10. FORMULA QUICK REFERENCE\x1b[0m
+================================================================================
+
+Complete mapping of all 101 formula IDs to their function and category:
+
+    Formula  Description                                  Category
+    -------  -----------------------------------------   ----------------
+    0x00-05  Weapon-based physical damage (PA*WP)        damage_physical
+    0x06     Weapon HP absorb                            absorb_hp
+    0x07     Weapon heal                                 heal_hp
+    0x08     Dmg_F(MA*Y) — standard magic dmg            damage_magic
+    0x09     Dmg (Y/100)% — pct dmg w/ Faith hit         damage_magic
+    0x0A     Hit_F(MA+X)% — status only (Faith hit)      status
+    0x0B     Hit_F(MA+X)% — status only (Faith hit)      status
+    0x0C     Heal_F(MA*Y) — standard magic heal          heal_hp
+    0x0D     Heal (Y)% — pct heal w/ Faith hit           heal_hp
+    0x0E     Dmg (Y)% — pct dmg w/ Faith hit             damage_magic
+    0x0F     AbsMP (Y)% — MP drain                       absorb_mp
+    0x10     AbsHP (Y)% — HP drain                       absorb_hp
+    0x11     (no-op)                                     —
+    0x12     Quick — extra turn                          special
+    0x13     (no-op)                                     —
+    0x14     Golem — physical damage barrier              special
+    0x15     CT Reset — set CT to 0                       special
+    0x16     Dmg = target's current MP                    damage_magic
+    0x17     Reduce target to 1 HP                        damage_magic
+    0x18-19  (no-op)                                     —
+    0x1A     Stat reduce (MA hit, Faith)                  stat_reduce
+    0x1B     MP damage (Y)%                              damage_magic
+    0x1C     Song — hit X% (NS)                          status/special
+    0x1D     Dance — hit X% (NS)                         status/special
+    0x1E     Multi-hit MA damage                          damage_magic
+    0x1F     Inverse-Faith multi-hit                      damage_magic
+    0x20     Dmg (MA*Y) — non-Faith magic                damage_magic
+    0x21     MP damage (MA*Y)                             damage_magic
+    0x22     100% status application                      status
+    0x23     Heal (MA*Y) — variant                       heal_hp
+    0x24     Hybrid dmg ((PA+Y)/2*MA)                    damage_magic
+    0x25     Break — equipment destroy                   break
+    0x26     Steal — equipment transfer                  steal
+    0x27     Steal Gil (LVL*SP)                          steal
+    0x28     Steal Exp (min(TarExp,SP+Y))                steal
+    0x29     Opposite-sex Charm                           status
+    0x2A     Brave/Faith modification                     stat_modify
+    0x2B     Stat reduce (PA hit)                         stat_reduce
+    0x2C     MP damage (Y)% PA-based hit                 damage_magic
+    0x2D     PA*(WP+Y) + 100% status                     damage_physical
+    0x2E     Break + PA*WP damage                         break
+    0x2F     AbsMP (PA*WP) flat                          absorb_mp
+    0x30     AbsHP (PA*WP) flat                          absorb_hp
+    0x31     Dmg ((PA+Y)/2*PA) — PA hybrid               damage_physical
+    0x32     Random physical (Rdm*PA)                     damage_physical
+    0x33     Hit (PA+X)% — status only                   status
+    0x34     Heal HP (PA*Y) + MP (PA*Y/2)                heal_both
+    0x35     Heal (Y)% PA-based hit                      heal_hp
+    0x36     +PA permanent                                stat_boost
+    0x37     Random PA damage                             damage_physical
+    0x38     100% status (no damage)                      status
+    0x39     +Speed permanent                             stat_boost
+    0x3A     +Brave permanent                             stat_boost
+    0x3B     +Brave + stat permanent                      stat_boost
+    0x3C     Self-sacrifice heal (40%/20%)                heal_hp
+    0x3D     Hit (MA+X)% — status only                   status
+    0x3E     Reduce to 1 HP (100% hit)                    damage_magic
+    0x3F     Hit (SP+X)% — status only                   status
+    0x40     Undead: Hit (SP+X)%                          status
+    0x41     Hit (MA+X)% — status only                   status
+    0x42     PA*Y damage + self-damage                   damage_physical
+    0x43     Dmg = caster's lost HP                       damage_physical
+    0x44     Dmg = target's current MP                    damage_magic
+    0x45     Dmg = target's missing HP                    damage_magic
+    0x46     (no-op)                                     —
+    0x47     AbsHP (Y)% + 100% status                    absorb_hp
+    0x48     Heal (Z*10) crystal                          heal_hp
+    0x49     HealMP (Z*10) crystal                        heal_mp
+    0x4A     Full HP+MP restore                           heal_both
+    0x4B     Random heal + status                         heal_hp
+    0x4C     Heal (MA*Y) — variant                       heal_hp
+    0x4D     AbsHP (Y)% MA-based hit                     absorb_hp
+    0x4E     Dmg (MA*Y) — monster magic                  damage_magic
+    0x4F     Dmg = caster lost HP (MA hit)               damage_magic
+    0x50     Status (reduced by Defense UP)               status
+    0x51     Status (Zodiac only)                         status
+    0x52     Lost HP dmg + 100% status                    damage_magic
+    0x53     Dmg (Y)% MA hit                              damage_magic
+    0x54     HealMP (MA*Y)                                heal_mp
+    0x55     -PA permanent                                stat_reduce
+    0x56     -MA permanent                                stat_reduce
+    0x57     +Level(1) + status on caster                 special
+    0x58     Morbol status set                            status
+    0x59     -Level(1)                                    special
+    0x5A     Dragon: 100% status                          special
+    0x5B     Dragon: Heal + status                        special
+    0x5C     Dragon: +Brave +stat                         special
+    0x5D     Dragon: Quick                                special
+    0x5E     Multi-hit MA + status                        damage_magic
+    0x5F     Single MA ((MA+Y)/2*MA)                     damage_magic
+    0x60     Non-elem MA + status                         damage_magic
+    0x61     -Brave (Faith hit)                           stat_reduce
+    0x62     -Brave (no Faith hit)                        stat_reduce
+    0x63     Dmg (SP*WP)                                  damage_physical
+    0x64     Jump (PA*WP)                                 damage_physical
+
+
+================================================================================
+\x1b[38;5;208mAPPENDIX A: ELEMENT TABLE\x1b[0m
+================================================================================
+
+    Bit      Element      Common Abilities
+    ------   ----------   ----------------------------------------
+    0x01     Dark         Dark Holy, Dark-element monster attacks
+    0x02     Holy         Holy, MBarrier
+    0x04     Water        Water Ball, Leviathan
+    0x08     Wind         Wind Slash, Cyclops
+    0x10     Earth        Earth Slash, Titan
+    0x20     Lightning    Bolt, Bolt 2, Bolt 3, Ramuh
+    0x40     Ice          Ice, Ice 2, Ice 3, Shiva
+    0x80     Fire         Fire, Fire 2, Fire 3, Ifrit
+
+
+================================================================================
+\x1b[38;5;208mAPPENDIX B: STATUS DURATION SUMMARY\x1b[0m
+================================================================================
+
+    Duration        Statuses
+    -------------   ------------------------------------------------
+    Instant         Raise (consumed on apply)
+    3 CT ticks      Death Sentence (countdown to KO)
+    20 CT ticks     Stop
+    24 CT ticks     Don't Act
+    32 CT ticks     Protect, Shell, Wall, Haste, Slow, Reflect
+    36 CT ticks     Poison
+    60 CT ticks     Sleep
+    Permanent       Regen, Reraise, Float, Faith, Innocent, Frog,
+                    Don't Move, Darkness, Undead, Silence, Berserk,
+                    Confusion, Petrify, Charm
+    Until trigger   Reraise (consumed on KO)
+    Until damaged   Sleep (woken), Confusion (broken by ally hit),
+                    Charm (broken by physical hit)

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://r6hcvws0cqk1"]
+
+[ext_resource type="Script" path="res://tests/TileCursorTakeoverTest.gd" id="1_test"]
+
+[node name="TileCursorTakeoverTest" type="Node"]
+script = ExtResource("1_test")

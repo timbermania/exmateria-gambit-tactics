@@ -1,0 +1,84 @@
+# ADR-0001's one table: every tracked-or-generated artifact under the asset roots,
+# with its provenance and — for disc derivations — the generator that writes it.
+#
+# iso-data / iso-code        rebuilt by bootstrap_assets.sh; MUST NOT be committed.
+# runtime-capture            only observable in a running engine; committed.
+# fftpatcher                 from FFTPatcher's open-source data, not Square's disc.
+# hand-authored              a person wrote it (or merge-authored it over a derivation).
+#
+# .gitignore's managed block is rendered from this file; tools/check_generated_assets.py
+# fails if the two disagree. See root docs/adr/0001.
+#
+# path	provenance	generator
+addons/exmateria_almanac/abilities/AbilityDatabase.gd	iso-data	generate_ability_database.py
+addons/exmateria_almanac/abilities/AbilityView.gd	iso-data	generate_ability_database.py
+addons/exmateria_almanac/encounters/battle_conditionals.json	iso-data	export_battle_conditionals.py
+addons/exmateria_almanac/encounters/deployment_zones.json	iso-data	parse_placement.py
+addons/exmateria_almanac/encounters/entd_positions.json	iso-data	parse_placement.py
+addons/exmateria_almanac/encounters/scenarios.json	iso-data	parse_scenarios.py
+addons/exmateria_almanac/items/item_attributes.json	iso-data	extract_items.py
+addons/exmateria_almanac/items/items.json	iso-data	extract_items.py
+addons/exmateria_almanac/items/shop_availability.json	iso-data	parse_shop_availability.py
+addons/exmateria_almanac/jobs/jobs.json	iso-data	extract_fft_data.py
+addons/exmateria_almanac/sprites/reaction_animations.json	iso-data	dump_reaction_animations.py
+addons/exmateria_almanac/sprites/weapon_graphic_data.json	iso-data	parse_weapon_graphic_data.py
+addons/exmateria_almanac/sprites/wep_zero_frames.json	iso-data	parse_zero_frames.py
+assets/abilities/abilities.json	iso-data	extract_abilities.py
+assets/abilities/ability_attributes.json	iso-data	parse_abilities.py
+assets/abilities/ability_semantics.json	iso-data	seed_ability_semantics.py
+assets/abilities/effects.json	iso-data	parse_abilities.py
+assets/abilities/fft_names.json	iso-data	parse_abilities.py
+assets/abilities/skill_sets.json	iso-data	extract_abilities.py
+assets/audio/sfx_banks/attack_sounds.json	iso-data	parse_attack_sounds.py
+assets/audio/sfx_banks/env.feds	iso-data	parse_sfx_banks.py
+assets/audio/sfx_banks/env.json	iso-data	parse_sfx_banks.py
+assets/audio/sfx_banks/index.json	iso-data	parse_sfx_banks.py
+assets/audio/sfx_banks/system.feds	iso-data	parse_sfx_banks.py
+assets/audio/sfx_banks/system.json	iso-data	parse_sfx_banks.py
+assets/effects/trap/animations.json	iso-data	parse_trap_effect.py
+assets/effects/trap/element_config.json	iso-data	parse_trap_effect.py
+assets/effects/trap/emitters.json	iso-data	parse_trap_effect.py
+assets/effects/trap/frames.json	iso-data	parse_trap_effect.py
+assets/effects/trap/handler_config_map.json	iso-data	parse_trap_effect.py
+assets/effects/trap/palette.json	iso-data	parse_trap_effect.py
+assets/effects/trap/particle_header.json	iso-code	parse_trap_effect.py
+assets/effects/trap/sounds.json	iso-data	parse_trap_effect.py
+assets/effects/trap/texture_palette.json	iso-data	parse_trap_effect.py
+assets/effects/trap/timeline.json	iso-data	parse_trap_effect.py
+assets/feds_instrument_meta.json	iso-data	generate_feds_instrument_meta.py
+assets/feds_opcode_coverage.json	iso-data	generate_feds_opcode_coverage.py
+assets/feds_param_stats.json	iso-data	generate_feds_param_stats.py
+assets/fonts/font_meta.json	iso-data	parse_fft_font.py
+assets/items/item_icons.json	iso-data	extract_item_sprites.py
+assets/projectiles/projectile_models.json	iso-data	parse_projectile_models.py
+assets/scenarios/battle_conditional_opcodes.json	iso-data	gen_opcode_catalog.py
+assets/scenarios/entd.json	iso-data	parse_entd.py
+assets/scenarios/event_instructions.json	iso-data	gen_opcode_catalog.py
+assets/scenarios/roster_timeline.json	iso-data	build_roster_timeline.py
+assets/scenarios/scenario_1_chunk.json	iso-data	export_all_scenario_chunks.py
+assets/scenarios/scenario_1_chunk.raw.json	iso-data	export_all_scenario_chunks.py
+assets/scenarios/scenario_groups.json	iso-data	export_scenario_groups.py
+assets/scenarios/transition_graph.json	iso-data	build_transition_graph.py
+assets/sprites/glove_cursor.json	iso-data	parse_cursor_bob.py
+assets/sprites/number_popup_trend.json	iso-data	parse_number_popup.py
+assets/sprites/sprite_files.json	iso-data	build_sprite_file_map.py
+assets/ui/dialog_triangle.json	iso-data	parse_frame.py
+assets/ui/dialogue_box_curves.json	iso-data	parse_dialogue_box_curves.py
+tools/extracted/inflict_status_sets.json	iso-data	extract_inflict_status_sets.py
+tools/extracted/status_attributes.json	iso-data	extract_status_attributes.py
+addons/exmateria_almanac/jobs/job_levels.json	fftpatcher	-
+addons/exmateria_almanac/progression/base_stats.json	hand-authored	-
+addons/exmateria_almanac/sprites/sprite_types.json	iso-data	parse_sprite_types.py
+assets/audio/captured_entity_state.json	runtime-capture	-
+assets/audio/sfx_banks/sfx_bank_names.json	hand-authored	-
+assets/balance/levers.json	hand-authored	-
+assets/roster/unit_animation_viewer_roster.json	hand-authored	-
+assets/scenarios/cutscene_faces.json	hand-authored	-
+assets/scenarios/game_states.json	hand-authored	-
+assets/scenarios/map_names.json	fftpatcher	-
+assets/scenarios/music_names.json	fftpatcher	-
+assets/scenarios/scenario_names.json	fftpatcher	-
+assets/scenarios/template_assets.json	hand-authored	-
+assets/sprites/animation_names.json	hand-authored	-
+assets/sprites/weapon_attack_sounds.json	hand-authored	-
+assets/ui/page_turn_icon.json	hand-authored	-

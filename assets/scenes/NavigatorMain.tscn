@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://5oabnl4b1wyx"]
+
+[ext_resource type="Script" path="res://src/scenarios/NavigatorMain.gd" id="1_scene"]
+[ext_resource type="PackedScene" uid="uid://bcmbtcam4mnt77" path="res://assets/scenes/CombatCamera.tscn" id="2_camera"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="3_map"]
+[ext_resource type="Script" uid="uid://cy00rtuucoi3i" path="res://src/scenarios/DialogueOverlay.gd" id="4_overlay"]
+
+[sub_resource type="Environment" id="Env_scenario"]
+background_mode = 1
+
+[node name="NavigatorMain" type="Node3D"]
+script = ExtResource("1_scene")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_scenario")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("3_map")]
+auto_build_on_ready = false
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_camera")]
+transform = Transform3D(-0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 10, 5, 10)
+procedural_map_path = NodePath("../ProceduralMap")
+
+[node name="FadeLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="FadeRect" type="ColorRect" parent="FadeLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="DialogueOverlay" type="CanvasLayer" parent="."]
+layer = 90
+script = ExtResource("4_overlay")

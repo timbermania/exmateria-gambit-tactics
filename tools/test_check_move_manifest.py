@@ -1,0 +1,573 @@
+#!/usr/bin/env python3
+"""Direction tests for `check_move_manifest.py` — the per-extraction register.
+
+    cd tools && uv run python -m unittest test_check_move_manifest
+
+WHY A TEST AND NOT A SEEDED RUN. This guard's red state is *"somebody moved a
+file wrongly"*, and the only way to produce it against the real tree is to move a
+file wrongly — in a worktree other sessions share (see `CLAUDE.md` → Worktrees).
+So the arms are pure functions of (rows, `exists`) and these tests hand them a
+tree that does not exist on disk. That is also the only way to score the AFTER
+half of a move that has not happened yet: #1225 does the `git mv`, and the
+transition from *67 in the host / 0 moved* to *0 in the host / 67 moved* is the
+witness this register exists to produce. Both ends are asserted here, today.
+
+EVERY ARM IS SCORED IN BOTH DIRECTIONS. A guard asserted only in its green
+direction is a guard that can stop discriminating without anyone noticing — the
+failure `check_vault_anchors.py` had for four passes and that arm 4 exists to
+close, arriving one level up.
+"""
+import csv, io, contextlib, pathlib, re, unittest
+
+import check_move_manifest as G
+
+DOCS = G.PROJECT_DIR / "docs"
+
+
+def read_tsv(path):
+    with open(path, newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh, delimiter="\t"))
+
+
+MAN7 = read_tsv(DOCS / "EXTRACTION-7-MOVE-MANIFEST.tsv")
+EDG7 = read_tsv(DOCS / "EXTRACTION-7-VAULT-EDGES.tsv")
+SUBJ7 = G.SUBJECTS[7]
+
+# 🔴 THE MANIFEST STOPPED BEING ALL-MOVES AT #1218, AND EVERY ARM THAT BUILDS A FAKE
+# TREE OUT OF IT HAS TO SAY WHICH POPULATION IT MEANS. A `move` row asserts src XOR dst;
+# a `new` row asserts src EMPTY and dst PRESENT (`install/EffectsDebug.gd`, written to
+# take 61 `DebugConfig` reads out of the addon). Handing `arm1` a tree built from the
+# MOVE srcs and then asking it about a row that has no src reds for a reason that is not
+# a wrong move — which is the whole failure mode this register exists to avoid, arriving
+# from the inside. So the transition tests below are scoped to `MOVES7`, and `NEW7` gets
+# its own class rather than an exemption.
+MOVES7 = [r for r in MAN7 if (r["disposition"] or "").strip() == "move"]
+NEW7 = [r for r in MAN7 if (r["disposition"] or "").strip() == "new"]
+# The FOURTH disposition, added at #1224: moved in, then absorbed by a sibling, so both
+# addresses are empty. Kept rather than deleted for the reason `returned` is kept.
+MERGED7 = [r for r in MAN7 if (r["disposition"] or "").strip() == "merged"]
+
+
+def tree(paths):
+    """An `exists` predicate over a set of path strings."""
+    have = set(paths)
+    return lambda p: bool((p or "").strip()) and p in have
+
+
+class ManifestShape(unittest.TestCase):
+    """The register says what four passes measured, and says it out of the tree."""
+
+    def test_sixty_nine_rows_sixty_six_moves_two_authored_one_merged(self):
+        """67 moved in; the 68th was WRITTEN in the addon (#1218).
+
+        The count used to read 67 / all-`move`. #1218 added
+        `addons/exmateria_effects/install/EffectsDebug.gd` — a file with no original,
+        so `disposition == "new"` and arm 1 asserts the OPPOSITE pair of facts about
+        it. Booking it as a `move` against an invented host path would have recorded
+        a move that never happened, which is the exemption arm 1's `new` branch was
+        built to avoid needing (its first user was `Lattice.gd` at extraction #3).
+        """
+        self.assertEqual(len(MAN7), 69)
+        self.assertEqual({r["disposition"] for r in MAN7}, {"move", "new", "merged"})
+        self.assertEqual(len(MOVES7), 66)
+        # TWO authored rows now: `install/EffectsDebug.gd` (#1218, the debug seam) and
+        # `install/EffectsContent.gd` (#658/ADR-0202 dec. 5, the content root). Both are
+        # `install/` files that exist so the addon stops naming something the host owns.
+        self.assertEqual(len(NEW7), 2)
+        self.assertEqual(len(MERGED7), 1)
+        self.assertEqual({r["kind"] for r in MAN7}, {"script", "shader"})
+
+    def test_lines_is_an_invariant_against_the_tree_not_a_snapshot(self):
+        """🔴 `14,441` WAS A SNAPSHOT AND IT WENT STALE TWICE IN TWO COMMITS.
+
+        The membership's four-pass reading is **14,441** lines. #1215 authored 138
+        `Vault:` anchor lines into those same 67 files → 14,579. #1217 (b)/(c) then
+        rewrote `effect_particle_stp.gdshaderinc`'s arm-4b block → 14,601. Every
+        remaining pass-6 ticket edits member files too (#1218, #1220, #1221, #1223),
+        so a hardcoded total here would be wrong again before the `git mv`, and a
+        column nothing re-derives is the register-nobody-measured failure this
+        manifest exists to prevent (ADR-0290 dec. 10).
+
+        So `lines` is asserted against the LIVE tree, per row. The four-pass 14,441
+        stays in the record as provenance rather than as a target, and the column is
+        regenerated by whatever commit edits a member — which is checkable, unlike
+        remembering to.
+        """
+        # MOVES7 + NEW7, not MAN7: a `merged` row (#1224) has no file at EITHER address,
+        # so there is nothing to read it against. Arm 1 pins its `lines` to 0 instead.
+        for r in MOVES7 + NEW7:
+            # `dst if it exists else src` — the same idiom arm 4 uses, and needed from
+            # #1220 on: the PSX trio's `src` is gone the moment its rows read `moved`.
+            here = G.PROJECT_DIR / (r["dst"] if (G.PROJECT_DIR / r["dst"]).exists()
+                                    else r["src"])
+            self.assertEqual(int(r["lines"]), here.read_text().count("\n"), here.as_posix())
+        self.assertEqual(sum(len(r["anchors"].split(";")) if r["anchors"] else 0
+                             for r in MAN7), 139)
+
+    def test_every_row_is_in_exactly_one_of_its_two_places(self):
+        """The tree-side half of arm 1, and it is NOT "nothing has moved yet".
+
+        #1220 moved the PSX trio to `addons/exmateria_platform/` ahead of the rest, so
+        for four commits three rows read `moved` and sixty-four still read `in the
+        host`. Asserting "every src exists and no dst does" would have been a true
+        sentence for one commit and a false one for the next — exactly the
+        snapshot-vs-invariant mistake the `lines` column already made. XOR is the
+        invariant, and it is the half of this test that did not move at #1225.
+
+        🔴 THE COUNT IS NOW 67 AND THAT IS THE MOVE LANDING, NOT THE TEST WEAKENING.
+        #1225 `git mv`'d the remaining 64 into `addons/exmateria_effects/`, so every row
+        reads `moved` and the second assertion is a DIFFERENT claim from the XOR above
+        it: XOR says no row was copied or dropped, the count says the register describes
+        a completed extraction. A row reappearing at its `src` fails the first; a row
+        going missing fails both.
+        """
+        moved = 0
+        for r in MOVES7:
+            s = (G.PROJECT_DIR / r["src"]).exists()
+            d = (G.PROJECT_DIR / r["dst"]).exists()
+            self.assertNotEqual(s, d, "%s / %s — copied or dropped" % (r["src"], r["dst"]))
+            moved += int(d)
+        self.assertEqual(moved, 66, "every `move` row has moved — the trio at #1220, the "
+                                    "other 64 at #1225, less MapTintOverlay.gd which "
+                                    "#1224 merged away and which is now a `merged` row")
+        # A `merged` row's pair is BOTH absent — the shape arm 1 would otherwise read as
+        # a drop. Asserted here so "the file is gone" cannot be confused with "the
+        # register forgot it".
+        for r in MERGED7:
+            self.assertFalse((G.PROJECT_DIR / r["src"]).exists(), r["src"])
+            self.assertFalse((G.PROJECT_DIR / r["dst"]).exists(), r["dst"])
+            self.assertEqual(r["lines"], "0", r["dst"])
+        # 🔴 THE XOR IS NOT AVAILABLE TO A `new` ROW, and reading it as one is a trap
+        # `pathlib` sets: `PROJECT_DIR / ""` is `PROJECT_DIR`, which EXISTS, so an
+        # authored row reads `src and dst both present` — "copied or dropped" — for a
+        # row that is neither. Its own pair of facts is asserted here instead.
+        for r in NEW7:
+            self.assertEqual((r["src"] or "").strip(), "",
+                             "a `new` row names no src: %s" % r["dst"])
+            self.assertTrue((G.PROJECT_DIR / r["dst"]).exists(), r["dst"])
+
+    def test_the_psx_trio_is_the_only_row_leaving_this_addon(self):
+        out = sorted(r["dst"] for r in MAN7 if not r["dst"].startswith(SUBJ7["addon_root"]))
+        self.assertEqual(out, [
+            "addons/exmateria_platform/display_port/CameraCalibration.gd",
+            "addons/exmateria_platform/fixed_point/PsxChirality.gd",
+            "addons/exmateria_platform/fixed_point/PsxMagnitude.gd",
+        ])
+
+    def test_the_anchors_column_is_re_derived_from_the_files(self):
+        """Not trusted — read back off disk, and cross-checked against the edges."""
+        for r in MOVES7 + NEW7:
+            here = G.PROJECT_DIR / (r["dst"] if (G.PROJECT_DIR / r["dst"]).exists()
+                                    else r["src"])
+            live = sorted(set(G.ANCHOR.findall(here.read_text())))
+            self.assertEqual(r["anchors"].split(";") if r["anchors"] else [], live,
+                             here.as_posix())
+        self.assertEqual({(e["note"], e["src"], e["dst"]) for e in EDG7},
+                         {(n, r["src"], r["dst"]) for r in MAN7
+                          for n in (r["anchors"].split(";") if r["anchors"] else [])})
+        self.assertEqual(len(EDG7), 139)
+        self.assertEqual(len({e["note"] for e in EDG7}), 47)
+
+
+class TheTransitionIsTheWitness(unittest.TestCase):
+    """Before the move and after it, from the same rows. #1216's whole point."""
+
+    def test_before_the_move_reads_not_yet_moved_and_passes(self):
+        rep, fail, buckets = G.arm1(MOVES7, tree(r["src"] for r in MOVES7))
+        self.assertEqual(fail, [])
+        self.assertEqual(len(buckets["at_src"]), 66)
+        self.assertEqual(len(buckets["at_dst"]), 0)
+        self.assertIn("66 still in the host, 0 moved", rep)
+
+    def test_after_the_move_reads_moved_and_passes(self):
+        rep, fail, buckets = G.arm1(MOVES7, tree(r["dst"] for r in MOVES7))
+        self.assertEqual(fail, [])
+        self.assertEqual(len(buckets["at_src"]), 0)
+        self.assertEqual(len(buckets["at_dst"]), 66)
+        self.assertIn("0 still in the host, 66 moved", rep)
+
+
+class ArmOneBothDirections(unittest.TestCase):
+
+    def test_a_copy_is_not_a_move(self):
+        both = [r["src"] for r in MOVES7] + [r["dst"] for r in MOVES7]
+        _, fail, _ = G.arm1(MOVES7, tree(both))
+        self.assertEqual(len(fail), 66)
+        self.assertTrue(all("BOTH src and dst exist" in f for f in fail))
+
+    def test_a_drop_is_not_a_move(self):
+        _, fail, _ = G.arm1(MOVES7, tree([]))
+        self.assertEqual(len(fail), 66)
+        self.assertTrue(all("NEITHER src nor dst exists" in f for f in fail))
+
+    def test_one_unmoved_row_in_an_otherwise_moved_tree_reds(self):
+        """"a manifest row naming a file that did not move reds" (#1216)."""
+        stuck = MOVES7[0]
+        moved = [r["dst"] for r in MOVES7 if r is not stuck] + [stuck["src"], stuck["dst"]]
+        _, fail, _ = G.arm1(MOVES7, tree(moved))
+        self.assertEqual(len(fail), 1)
+        self.assertIn(stuck["src"], fail[0])
+        self.assertIn("BOTH src and dst exist", fail[0])
+
+
+class ArmOneNewRowBothDirections(unittest.TestCase):
+    """A `new` row asserts src EMPTY / dst PRESENT, and both halves have to fail.
+
+    Extraction #7 grew its first authored row at #1218 and arm 1's `new` branch had
+    no direction test in this module — #3's `Lattice.gd` exercised it in the tree and
+    nothing seeded the two ways it can be wrong. An untested branch on a register is
+    the register not looking: "declare it `new`" would otherwise be a way to get any
+    file into an addon with nothing checked but its existence.
+    """
+
+    def test_the_real_new_row_passes_in_a_tree_that_holds_its_dst(self):
+        rep, fail, buckets = G.arm1(NEW7, tree(r["dst"] for r in NEW7))
+        self.assertEqual(fail, [])
+        self.assertEqual(len(buckets["at_src"]), 0)
+        self.assertEqual(len(buckets["at_dst"]), 0)
+        self.assertIn("2 written in the addon", rep)
+
+    def test_a_new_row_that_names_a_src_reds(self):
+        """It is a move, and recording it as authored erases where it came from."""
+        forged = [dict(NEW7[0], src="src/effects/EffectsDebug.gd")]
+        _, fail, _ = G.arm1(forged, tree([forged[0]["src"], forged[0]["dst"]]))
+        self.assertEqual(len(fail), 1)
+        self.assertIn("a `new` row names a src, so it is a move", fail[0])
+
+    def test_a_new_row_whose_dst_is_absent_reds(self):
+        """The row's only positive claim is that the file is there.
+
+        One failure PER authored row — there are two since #658 added the content root,
+        and asserting `len == 1` would have quietly stopped covering the second.
+        """
+        _, fail, _ = G.arm1(NEW7, tree([]))
+        self.assertEqual(len(fail), len(NEW7))
+        for f in fail:
+            self.assertIn("`new` row's dst does not exist", f)
+        self.assertEqual({r["dst"] for r in NEW7},
+                         {f.split(": ", 1)[1] for f in fail})
+
+    def test_a_srcless_row_is_not_an_answer_to_arm_2s_reverse_half(self):
+        """The empty string is not a census row (the filter arm 2 grew at #1218).
+
+        Without it the `new` row's empty src falls through `- census` and reds as
+        *"the manifest names a census row the classifier no longer books"* — naming
+        nothing at all. Seeded by asking arm 2 the bare `at_src=None` question, which
+        is the form that treats every row as still in the host.
+        """
+        census = {r["src"] for r in MOVES7}
+        _, fail = G.arm2(MAN7, census, "Effects", [], SUBJ7["census_sources"])
+        self.assertEqual(fail, [])
+
+
+class ArmOneMergedRowBothDirections(unittest.TestCase):
+    """A `merged` row asserts src ABSENT / dst ABSENT / lines 0 / anchors none.
+
+    The FOURTH disposition, added at #1224 when `MapTintOverlay.gd` — moved into the
+    addon at #1225 — was absorbed by `TintedSurfaces` as its `SURFACE_MAP` token. Every
+    one of its four claims is seeded here, because "declare it `merged`" would otherwise
+    be a way to make any file disappear from a set-equality register with nothing
+    checked. That is the same reason `returned` and `new` have their own arms.
+    """
+
+    def test_the_real_merged_row_passes_in_a_tree_that_holds_neither_address(self):
+        rep, fail, buckets = G.arm1(MERGED7, tree([]))
+        self.assertEqual(fail, [])
+        self.assertEqual(len(buckets["merged"]), 1)
+        self.assertIn("1 merged away", rep)
+
+    def test_a_merged_row_whose_dst_still_exists_reds(self):
+        """It did not merge — the file is still there under its own name."""
+        _, fail, _ = G.arm1(MERGED7, tree([MERGED7[0]["dst"]]))
+        self.assertEqual(len(fail), 1)
+        self.assertIn("did not merge", fail[0])
+
+    def test_a_merged_row_whose_src_came_back_reds(self):
+        """The move this row records was undone, which the row would otherwise hide."""
+        _, fail, _ = G.arm1(MERGED7, tree([MERGED7[0]["src"]]))
+        self.assertEqual(len(fail), 1)
+        self.assertIn("came back", fail[0])
+
+    def test_a_merged_row_with_a_nonzero_lines_reds(self):
+        """`lines` is asserted against the live tree everywhere else; a file that does
+        not exist has none, so any other number is a leftover from before the merge."""
+        forged = [dict(MERGED7[0], lines="159")]
+        _, fail, _ = G.arm1(forged, tree([]))
+        self.assertEqual(len(fail), 1)
+        self.assertIn("`lines` 0", fail[0])
+
+    def test_a_merged_row_that_still_names_anchors_reds(self):
+        """The anchors column is re-derived from the FILE. No file, no anchors — and it
+        is what keeps this register agreeing with the present-tense edges register."""
+        forged = [dict(MERGED7[0], anchors="Map Tint")]
+        _, fail, _ = G.arm1(forged, tree([]))
+        self.assertEqual(len(fail), 1)
+        self.assertIn("no file to carry", fail[0])
+
+    def test_a_merged_dst_is_not_wanted_in_the_addon(self):
+        """Arm 3 is set equality; a merged dst is absent by assertion, so wanting it
+        would red every correct merge."""
+        _, fail = G.arm3(MAN7, SUBJ7["addon_root"],
+                         {r["dst"] for r in MOVES7 + NEW7
+                          if r["dst"].startswith(SUBJ7["addon_root"])},
+                         MERGED7, SUBJ7["scaffolding"])
+        self.assertEqual(fail, [])
+
+
+class ArmTwoBothDirections(unittest.TestCase):
+    """Set equality against the census, with the declared residue and its rot check."""
+
+    CENSUS = {r["src"] for r in MOVES7} | {"src/effects/studio/EffectViewerScene.gd",
+                                         "src/debug/TrapViewerPanel.gd",
+                                         "src/effects/PSXDitherCurves.gd"}
+    STAYS = ["src/effects/studio/", "src/debug/TrapViewerPanel.gd",
+             "src/effects/PSXDitherCurves.gd"]
+
+    def test_the_declared_residue_passes(self):
+        rep, fail = G.arm2(MAN7, self.CENSUS, "Effects", self.STAYS)
+        self.assertEqual(fail, [])
+        self.assertIn("66 on the manifest, 3 declared a stay", rep)
+
+    def test_a_member_missing_from_the_manifest_reds(self):
+        """"a member missing from the manifest reds" (#1216)."""
+        rep, fail = G.arm2(MAN7, self.CENSUS | {"src/effects/NewThing.gd"},
+                           "Effects", self.STAYS)
+        self.assertEqual(len(fail), 1)
+        self.assertIn("src/effects/NewThing.gd", fail[0])
+        self.assertIn("arm 2 ", fail[0])
+
+    def test_declaring_it_a_stay_is_the_only_way_to_silence_it(self):
+        _, fail = G.arm2(MAN7, self.CENSUS | {"src/effects/NewThing.gd"},
+                         "Effects", self.STAYS + ["src/effects/NewThing.gd"])
+        self.assertEqual(fail, [])
+
+    def test_a_stale_stays_entry_reds(self):
+        """arm 2b: the declaration cannot rot into a blanket unnoticed."""
+        _, fail = G.arm2(MAN7, self.CENSUS, "Effects",
+                         self.STAYS + ["src/effects/Departed.gd"])
+        self.assertEqual(len(fail), 1)
+        self.assertIn("arm 2b", fail[0])
+        self.assertIn("src/effects/Departed.gd", fail[0])
+
+    def test_a_manifest_row_the_classifier_dropped_reds(self):
+        """The reverse half: a member re-classified out from under the manifest."""
+        _, fail = G.arm2(MAN7, self.CENSUS - {MAN7[0]["src"]}, "Effects", self.STAYS,
+                         SUBJ7["census_sources"])
+        self.assertEqual(len(fail), 1)
+        self.assertIn("no longer books", fail[0])
+        self.assertIn(MAN7[0]["src"], fail[0])
+
+    def test_a_correctly_moved_row_is_not_a_classifier_drop(self):
+        """🔴 THE REVERSE HALF ONCE REPORTED ONE FAILURE PER CORRECT MOVE.
+
+        A moved row's `src` is gone, so the classifier cannot book it as `system`
+        any more — which is the success condition, not a drop. Measured at #1220's
+        in-between state (3 of 67 moved) the unscoped form reported exactly 3
+        failures. `at_src` is arm 1's bucket of rows still in the host.
+        """
+        moved = [r for r in MAN7 if not r["dst"].startswith(SUBJ7["addon_root"])]
+        self.assertEqual(len(moved), 3)
+        census = {r["src"] for r in MAN7} - {r["src"] for r in moved}
+        at_src = [r for r in MAN7 if r not in moved]
+        _, fail = G.arm2(MAN7, census, "Effects", [], SUBJ7["census_sources"], at_src)
+        self.assertEqual(fail, [], "a correct move read as a classifier drop")
+        # and the unscoped form is what it is being protected from
+        _, unscoped = G.arm2(MAN7, census, "Effects", [], SUBJ7["census_sources"])
+        self.assertEqual(len(unscoped), 3)
+        self.assertTrue(all("no longer books" in f for f in unscoped))
+
+    def test_a_row_still_in_the_host_that_lost_its_booking_still_reds(self):
+        """The other direction: scoping must not switch the half off."""
+        at_src = list(MAN7)
+        _, fail = G.arm2(MAN7, {r["src"] for r in MAN7} - {MAN7[0]["src"]},
+                         "Effects", [], SUBJ7["census_sources"], at_src)
+        self.assertEqual(len(fail), 1)
+        self.assertIn("no longer books", fail[0])
+
+    def test_the_manifests_source_value_is_the_declared_register_key(self):
+        """Misdeclare `census_sources` and the reverse half goes INERT, not red.
+
+        That is the whole reason it is a declaration: all 67 rows are `.gd`/shader
+        and classifier-visible, so #7 needs the half live, while #3's two `.tscn`
+        `scene` rows can never be in the census and need it off (#561 dec. 4).
+        """
+        self.assertEqual({r["source"] for r in MAN7}, SUBJ7["census_sources"])
+        _, fail = G.arm2(MAN7, self.CENSUS - {MAN7[0]["src"]}, "Effects", self.STAYS,
+                         {"some-other-source"})
+        self.assertEqual(fail, [], "the reverse half silently stopped checking")
+
+    def test_extraction_threes_empty_stays_is_the_old_full_bucket_assertion(self):
+        _, fail = G.arm2(MAN7, self.CENSUS, "Effects", [])
+        self.assertEqual(len(fail), 3)
+        self.assertTrue(all("arm 2 " in f for f in fail))
+
+
+class ArmThreeBothDirections(unittest.TestCase):
+    """Set equality against the addon tree, restricted to THIS addon's root."""
+
+    ROOT = SUBJ7["addon_root"]
+    # A `merged` dst is asserted ABSENT by arm 1, so it is not wanted in the addon —
+    # the same exclusion `returned` gets (#1224).
+    WANT = sorted(r["dst"] for r in MAN7
+                  if r["dst"].startswith(SUBJ7["addon_root"])
+                  and (r["disposition"] or "").strip() != "merged")
+
+    def test_set_equal_passes_and_the_trio_is_reported_not_dropped(self):
+        """64 moved in + 1 written in (#1218) — arm 3 does not care which.
+
+        Set equality is over the DSTS, and a `new` row has one. That is the property
+        that makes an authored addon file checkable at all: the alternative on offer
+        was `scaffolding`, i.e. an exemption, and `install/EffectsDebug.gd` is not
+        plugin plumbing.
+        """
+        rep, fail = G.arm3(MAN7, self.ROOT, set(self.WANT), MERGED7, SUBJ7["scaffolding"])
+        self.assertEqual(fail, [])
+        self.assertEqual(len(self.WANT), 65)
+        self.assertIn("manifest wants 65", rep)
+        self.assertIn("3 row(s) land in ANOTHER addon", rep)
+
+    def test_a_file_in_the_addon_that_is_not_on_the_manifest_reds(self):
+        _, fail = G.arm3(MAN7, self.ROOT, set(self.WANT) | {self.ROOT + "trap/Smuggled.gd"},
+                         MERGED7, SUBJ7["scaffolding"])
+        self.assertEqual(len(fail), 1)
+        self.assertIn("in the addon but not on the manifest", fail[0])
+
+    def test_a_manifest_dst_missing_from_the_addon_reds(self):
+        _, fail = G.arm3(MAN7, self.ROOT, set(self.WANT[1:]), MERGED7, SUBJ7["scaffolding"])
+        self.assertEqual(len(fail), 1)
+        self.assertIn("on the manifest but not in the addon", fail[0])
+
+    def test_the_facade_and_plugin_are_scaffolding_not_rows(self):
+        _, fail = G.arm3(MAN7, self.ROOT,
+                         set(self.WANT) | {self.ROOT + "plugin.gd",
+                                           self.ROOT + "exmateria_effects.gd"},
+                         MERGED7, SUBJ7["scaffolding"])
+        self.assertEqual(fail, [])
+
+    def test_a_returned_row_is_not_wanted_in_the_addon(self):
+        # MERGED7 rides along for the same reason a `returned` row does — arm 1 asserts
+        # both kinds' dsts ABSENT, so neither may be wanted in the addon (#1224).
+        back = [MAN7[0]] + MERGED7
+        _, fail = G.arm3(MAN7, self.ROOT,
+                         {p for p in self.WANT if p != MAN7[0]["dst"]},
+                         back, SUBJ7["scaffolding"])
+        self.assertEqual(fail, [])
+
+
+class ArmFourPinsTheNoteNotTheFile(unittest.TestCase):
+    """The file path changes by design; the note name is the fixed coordinate."""
+
+    EDGES = [{"note": "Map Tint", "src": "addons/exmateria_effects/overlay/MapTintOverlay.gd",
+              "dst": "addons/exmateria_effects/overlay/MapTintOverlay.gd"},
+             {"note": "Map Tint", "src": "addons/exmateria_effects/subsystem/PaletteSubsystem.gd",
+              "dst": "addons/exmateria_effects/subsystem/PaletteSubsystem.gd"}]
+
+    def _run(self, present, texts):
+        return G.arm4(self.EDGES, tree(present), lambda p: texts.get(p, ""))
+
+    def test_before_the_move_the_src_carries_it(self):
+        _, fail, live, _ = self._run([e["src"] for e in self.EDGES],
+                                     {e["src"]: "## Vault: [[Map Tint]]" for e in self.EDGES})
+        self.assertEqual(fail, [])
+        self.assertEqual(len(live["Map Tint"]), 2)
+
+    def test_after_the_move_the_dst_carries_it_and_nothing_reds(self):
+        _, fail, live, _ = self._run([e["dst"] for e in self.EDGES],
+                                     {e["dst"]: "## Vault: [[Map Tint]]" for e in self.EDGES})
+        self.assertEqual(fail, [])
+        self.assertEqual(live["Map Tint"], [e["dst"] for e in self.EDGES])
+
+    def test_losing_one_of_two_anchors_is_not_a_failure(self):
+        _, fail, live, _ = self._run([e["dst"] for e in self.EDGES],
+                                     {self.EDGES[0]["dst"]: "## Vault: [[Map Tint]]",
+                                      self.EDGES[1]["dst"]: "# nothing here any more"})
+        self.assertEqual(fail, [])
+        self.assertEqual(len(live["Map Tint"]), 1)
+
+    def test_losing_the_LAST_anchor_reds(self):
+        _, fail, live, _ = self._run([e["dst"] for e in self.EDGES],
+                                     {e["dst"]: "# rewritten, marker gone"
+                                      for e in self.EDGES})
+        self.assertEqual(len(fail), 1)
+        self.assertIn("[[Map Tint]] has ZERO surviving anchors", fail[0])
+
+    def test_deleting_both_files_outright_reds(self):
+        """The case `check_vault_anchors.py` is green for, by construction."""
+        _, fail, _, _ = self._run([], {})
+        self.assertEqual(len(fail), 1)
+        self.assertIn("ZERO surviving anchors", fail[0])
+
+    def test_the_real_register_is_whole(self):
+        exists = lambda p: bool((p or "").strip()) and (G.PROJECT_DIR / p).exists()
+        read = lambda p: (G.PROJECT_DIR / p).read_text(errors="replace")
+        rep, fail, live, notes = G.arm4(EDG7, exists, read)
+        self.assertEqual(fail, [])
+        self.assertEqual(len(notes), 47)
+        # 140 until #1224 merged `MapTintOverlay.gd` away, taking its `Map Tint` edge row
+        # with it — the note itself still has four other anchors, which is exactly what
+        # arm 4 exists to assert and what makes the deletion safe.
+        self.assertEqual(sum(len(v) for v in live.values()), 139)
+
+
+class ExtractionThreeIsUnchanged(unittest.TestCase):
+    """Asserted, not assumed — #1216's acceptance criterion, literally."""
+
+    def test_its_register_row_still_says_what_it_said(self):
+        s = G.SUBJECTS[3]
+        self.assertEqual(s["manifest"], "docs/EXTRACTION-3-MOVE-MANIFEST.tsv")
+        self.assertEqual(s["edges"], "docs/EXTRACTION-3-VAULT-EDGES.tsv")
+        self.assertEqual(s["addon_root"], "addons/exmateria_battlefield/")
+        self.assertEqual(s["system"], "Battlefield")
+        self.assertEqual(s["stays"], [], "extraction #3 moved the WHOLE census")
+        self.assertEqual(s["census_sources"], {"census"})
+
+    def test_its_rows_are_the_same_rows(self):
+        man = read_tsv(DOCS / "EXTRACTION-3-MOVE-MANIFEST.tsv")
+        edges = read_tsv(DOCS / "EXTRACTION-3-VAULT-EDGES.tsv")
+        self.assertEqual(len(man), 58)
+        self.assertEqual(len(edges), 31)
+        self.assertEqual(len({e["note"] for e in edges}), 15)
+        disp = {}
+        for r in man:
+            disp[r["disposition"] or "move"] = disp.get(r["disposition"] or "move", 0) + 1
+        self.assertEqual(disp, {"move": 46, "new": 11, "returned": 1})
+
+    def test_it_still_reports_the_same_four_numbers(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = G.main(["check_move_manifest.py", "--only", "3"])
+        out = buf.getvalue()
+        self.assertEqual(rc, 0, out)
+        self.assertIn("58 rows — 0 still in the host, 46 moved, 11 written in the addon, "
+                      "1 returned to the host", out)
+        self.assertIn("arm 3   addon holds 57 source files, manifest wants 57", out)
+        self.assertIn("arm 4   15 of 15 registered vault notes still anchored "
+                      "(31 of 31 edges live)", out)
+        self.assertNotIn("[FAIL]", out)
+
+
+class BothSubjectsAreWired(unittest.TestCase):
+
+    def test_the_whole_guard_is_green_today(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = G.main(["check_move_manifest.py"])
+        out = buf.getvalue()
+        self.assertEqual(rc, 0, out)
+        self.assertIn("[PASS] 2 extraction(s)", out)
+        self.assertIn("extraction #3", out)
+        self.assertIn("extraction #7", out)
+
+    def test_every_subject_names_registers_that_exist(self):
+        for n, s in G.SUBJECTS.items():
+            self.assertTrue((G.PROJECT_DIR / s["manifest"]).is_file(), n)
+            self.assertTrue((G.PROJECT_DIR / s["edges"]).is_file(), n)
+            self.assertTrue(s["addon_root"].startswith("addons/"), n)
+            self.assertTrue(s["addon_root"].endswith("/"), n)
+            self.assertTrue(s["census_sources"], n)
+            man = read_tsv(G.PROJECT_DIR / s["manifest"])
+            self.assertTrue(s["census_sources"] <= {r["source"] for r in man}, n)
+
+
+if __name__ == "__main__":
+    unittest.main()

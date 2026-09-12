@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/EffectStudioKindSelectorTest.gd" id="1_k"]
+
+[node name="EffectStudioKindSelectorTest" type="Node"]
+script = ExtResource("1_k")

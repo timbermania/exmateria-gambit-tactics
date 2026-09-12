@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_rng_determinism_test"]
+
+[ext_resource type="Script" path="res://tests/EffectRngDeterminismTest.gd" id="1_test"]
+
+[node name="EffectRngDeterminismTest" type="Node"]
+script = ExtResource("1_test")

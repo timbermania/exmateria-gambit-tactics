@@ -1,0 +1,19 @@
+; MONOREPO-ONLY — excluded from the published tree by
+; publish/manifests/exmateria-sound.manifest.
+;
+; Registers FFTSmdSequencerNative, the L3 parity rig's SMD accelerator, and
+; nothing else. A published install does not get this file, so sequencer.gd
+; finds no such class and stays on its GDScript driver (D2 #375 dec. 2).
+; The SPU itself ships from addons/exmateria_spu/, not from here.
+
+[configuration]
+
+entry_symbol = "fft_smd_library_init"
+compatibility_minimum = "4.4"
+
+[libraries]
+
+linux.debug.x86_64 = "res://addons/exmateria_sound/bin/libfftsmd.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/exmateria_sound/bin/libfftsmd.linux.template_release.x86_64.so"
+windows.debug.x86_64 = "res://addons/exmateria_sound/bin/libfftsmd.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/exmateria_sound/bin/libfftsmd.windows.template_release.x86_64.dll"

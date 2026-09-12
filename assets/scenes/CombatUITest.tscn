@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://b7dmawcjfljpg"]
+
+[ext_resource type="Script" uid="uid://ohy001f0ojmm" path="res://src/ui3/testing/CombatUITestScene.gd" id="1_test_scene"]
+[ext_resource type="PackedScene" path="res://assets/scenes/CombatUI.tscn" id="2_combat_ui"]
+[ext_resource type="Script" uid="uid://b1lqvofqy1u3c" path="res://src/ui3/UIUnitInfoWindow.gd" id="3_info_window"]
+[ext_resource type="PackedScene" uid="uid://b_dialogue_box_asm_01" path="res://src/ui3/assemblies/DialogueBox.tscn" id="4_dialogue_box"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.15, 0.15, 0.2, 1)
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_1"]
+
+[node name="CombatUITest" type="Node3D"]
+script = ExtResource("1_test_scene")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+attributes = SubResource("CameraAttributesPractical_1")
+projection = 1
+size = 12.6
+
+[node name="CombatUI" parent="." instance=ExtResource("2_combat_ui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="FieldInspectWindow" type="Node3D" parent="CombatUI/BaseLayer"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, -3.6, 0.1)
+script = ExtResource("3_info_window")
+
+[node name="DialogueBox" parent="CombatUI/BaseLayer" instance=ExtResource("4_dialogue_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2.5, 0.1)

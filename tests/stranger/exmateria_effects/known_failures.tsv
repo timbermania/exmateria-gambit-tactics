@@ -1,0 +1,72 @@
+# Files in `addons/exmateria_effects/` that do NOT compile in a stranger project.
+# `path <TAB> ticket <TAB> error signature <TAB> why`, read by
+# tests/stranger/shared/{stranger_install,stranger_burn_down}.gd and by rig.sh.
+#
+# NAMED, NEVER COUNTED, AND CHECKED IN BOTH DIRECTIONS. A row says "we know, it is
+# ticketed, it is goal #5 unmet on record" — the same contract
+# `check_addon_portability.ARM1_BURN_DOWN` has. The arm fails if an UNLISTED file
+# stops compiling AND if a LISTED one starts, because a burn-down that only grows is
+# a list nobody ever deletes from. See `tests/stranger/README.md` and
+# `tests/stranger/exmateria_battlefield/known_failures.tsv`, which is the same
+# contract written out at length.
+#
+# THE SIGNATURE COLUMN IS LOAD-BEARING. A broken script throws when ANY script that
+# names it is loaded, so the rig cannot simply not-look: it has to be able to say
+# which throws this list already explains. The signature is the substring of the
+# engine's own parse error, and a `SCRIPT ERROR` line matching no signature is still
+# the finding. `Failed to compile depended scripts` is allowed unconditionally — it
+# is a cascade line naming no file and no symbol.
+#
+# 🔴 THIS RIG OPENED WITH TWENTY-ONE ROWS ON 2026-09-12, THE DAY #1225 MOVED
+# EXTRACTION #7 IN, AND IT IS AT FIVE THE SAME DAY. The two rigs before it were written
+# after their addons were already installable and both files are empty, so neither
+# could ever show a drain being watched rather than asserted. ADR-0192 dec. 1 says the
+# register goes FIRST; this is that rule applied to a rig, and the 21 -> 6 -> 5 is what
+# it bought — #1218 took fifteen rows and #1219 the sixteenth. Every row here is also on another register — `check_addon_portability.py`'s
+# ARM1_BURN_DOWN and ARM7_BURN_DOWN — so the two instruments have to drain together or
+# one of them is lying.
+#
+# 🔴 FIFTEEN ROWS DRAINED AT #1218, AND THE COUNT WAS MEASURED, NOT PREDICTED.
+# #1218 re-pointed 61 `DebugConfig` reads at `install/EffectsDebug.gd`; 19 rows named
+# that reach, and a handoff estimated 17 of THESE rows would go with it. The rig said
+# fifteen. The four that did not are the four whose `error signature` column never
+# named `DebugConfig` in the first place:
+#
+#   - `EffectInstance.gd` / `EffectManager.gd` carried a SECOND owner (#658, #1219) and
+#     their ticket columns dropped the `#1218 +` half rather than the row.
+#     🔴 AND ONE OF THOSE TWO EDITS SILENTLY DID NOT LAND. #1218 re-ticketed both
+#     columns but only `EffectInstance.gd`'s prose was rewritten; `EffectManager.gd`'s
+#     `why` kept asserting a `DebugConfig` reach that no longer existed, under a ticket
+#     that no longer owned it, and named an `ARM7_BURN_DOWN` row #1219 was about to
+#     delete. Nothing caught it: the rig checks the PATH and the SIGNATURE, and the
+#     `why` column is unverifiable prose by construction. #1219 deleted that row
+#     outright, so the stale sentence is gone rather than corrected — but the general
+#     fact stands and is the reason this note exists: **an edit to a `why` is an
+#     unverified claim, and a batch of string replacements needs each one asserted.**
+#   - `PaletteSubsystem.gd` / `ScreenSubsystem.gd` were ticketed `#1218` for debt it
+#     never owned: their signatures name THIS addon's own `[autoload]`s. Re-ticketed
+#     here, because a row whose ticket closes without paying it is a row nobody
+#     rereads. `ScreenSubsystem.gd` gets no ticket at all — the honest state, and the
+#     rig's own output names the two routes out of it (declare the `[autoload]`, or
+#     spell the reach as a node path, which is what the reaches that DO survive here
+#     do).
+#
+# Read that as the general rule: a `known_failures.tsv` ticket column is a CLAIM about
+# why, and the signature column is the only part of a row the engine checks.
+#
+# WHAT IS NOT HERE, and it is now nearly all of the addon: 114 of the 119 arms pass.
+# Every file model, every callback shape, the whole particle chain, the TRAP palette
+# maths, all twelve shaders and the façade itself compile in a project that did nothing
+# for this addon.
+#
+# 🔴 AND THE EIGHT `res://assets/` CONTENT LITERALS ARE INVISIBLE HERE BY
+# CONSTRUCTION. They are LOAD-time reaches (`FileAccess`, `ResourceLoader`), not parse
+# -time ones, so every file holding one compiles in a project with no `assets/` at all
+# and this rig reports nothing about them. They are declared where they CAN be seen:
+# `check_addon_install.py`'s Class B rows and `check_addon_portability.py`'s
+# ARM6_BURN_DOWN. A rig's silence is not a measurement (ADR-0194 dec. 12).
+addons/exmateria_effects/cast/EffectInstance.gd	#658	res://addons/exmateria_sound/runtime/|Identifier "ExMateriaEffectSfx" not declared in the current scope.	three `preload`s into `addons/exmateria_sound/runtime/` — a package this rig does not stage, because it is EXTRACTED and ships its own two rigs (ADR-0212 dec. 11).
+addons/exmateria_effects/file_model/EffectData.gd	#658	res://addons/exmateria_sound/exmateria_sound.gd	it reads `Audio`'s `feds.bin` through that package's published façade — the blueprint's Format-owner rule, which ADR-0288 dec. 8 calls correct as written. The reach was the bare global `ExMateriaSound` until #1241's arm 8 ruled an undeclared sibling `class_name` unconditional; it is a PATH to the same façade now, for the reason the alias comment in the file gives. The sound package is EXTRACTED and this rig does not stage it, so the preload cannot resolve here.
+addons/exmateria_effects/subsystem/PaletteSubsystem.gd	ADR-0262 dec. 6 — NO TICKET	Identifier "TintedSurfaces" not declared in the current scope.	it drives THIS addon's own tint registry, and an `[autoload]` name exists only where the consuming project declares it or enables `plugin.gd` (ADR-0262 dec. 6). ⚠️ RE-TICKETED TWICE AND NOW CARRIES NO TICKET, WHICH IS THE HONEST STATE. It read `#1218`, then `#1223/#1224`; #1223 renamed one of the two names it reached and #1224 merged the other away, so the row's SIGNATURE went from two identifiers to one and the row NEVER DRAINED — an addon's own `[autoload]` is absent in a stranger project whatever it is called and however few there are. Nothing on the queue can pay it: the two routes out are for a consumer to declare the line or to enable `plugin.gd`, and both are the CONSUMER's act, not this addon's.
+addons/exmateria_effects/subsystem/ScreenSubsystem.gd	ADR-0262 dec. 6 — NO TICKET	Identifier "ScreenEffectOverlay" not declared in the current scope.	a pure CASCADE plus a reach of its own: `:171` calls `ScreenEffectOverlay.update_layer_gradient()`, which is THIS addon's own autoload — present only when a consumer declares the `[autoload]` line or enables `plugin.gd`, neither of which a stranger project does (ADR-0262 dec. 6). The sibling autoload reaches that DO survive here are the ones spelled as node paths.
+addons/exmateria_effects/trap/TrapPaletteController.gd	ADR-0262 dec. 6 — NO TICKET	Identifier "TintedSurfaces" not declared in the current scope.	it applies a TRAP tint through `TintedSurfaces`, this addon's own autoload — absent here for `PaletteSubsystem`'s reason above. ⚠️ RE-TICKETED TWICE AND NOW CARRIES NO TICKET. It read `#1223`, then `#1224`, and NEITHER could pay it: a rename moves the identifier this row names, and a merge reduces how many identifiers there are, and the row is about whether ANY of them exists in a project that declared none. #1224 landed and the row stands, exactly as predicted when it was re-ticketed. What #1224 moved is the host's `[autoload]` COUNT (4 -> 3); this row is the record that the two are different facts.

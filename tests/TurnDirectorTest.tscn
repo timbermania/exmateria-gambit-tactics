@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://turn_director_test"]
+
+[ext_resource type="Script" path="res://tests/TurnDirectorTest.gd" id="1_test"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="2_map"]
+
+[node name="TurnDirectorTest" type="Node3D"]
+script = ExtResource("1_test")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("2_map")]

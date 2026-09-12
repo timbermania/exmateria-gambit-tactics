@@ -1,0 +1,31 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_schema/project.godot`; this is that rig pointed at a
+; third in-walk addon, not a third invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; THE ADDON IS NOT ENABLED HERE. `exmateria_render` installs nothing — its
+; `plugin.gd` registers no autoload and no singleton — so a consumer uses it by
+; naming `ExMateriaRender` — the addon's ONE global name since ADR-0212 dec. 1,
+; carrying `FoldSurface` as a constant — and by pointing a `CompositorEffect` at
+; its two `.glsl` passes, which is what this project's staged copy must support
+; unaided.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_render"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b_scn_prayer_overlay_test_01"]
+
+[ext_resource type="Script" path="res://tests/ScenarioPrayerOverlayTest.gd" id="1_test"]
+
+[node name="ScenarioPrayerOverlayTest" type="Node"]
+script = ExtResource("1_test")

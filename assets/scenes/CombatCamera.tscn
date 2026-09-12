@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3 uid="uid://bcmbtcam4mnt77"]
+
+; The HOST's combat camera — ADR-0204 dec. 1. A Godot INHERITED SCENE whose base is the
+; addon's `PlayerCamera.tscn`, adding the one thing the addon must not carry: the host's
+; `CombatUI`, at the same node and the same index it has always sat at.
+;
+; 🔴 WHY THIS FILE EXISTS. `addons/exmateria_battlefield/camera/PlayerCamera.tscn` used to
+; declare and instance `res://assets/scenes/CombatUI.tscn` itself — the addon's camera scene
+; OWNED the host's entire combat UI. That is ADR-0202's Class C, a LAYERING INVERSION rather
+; than a path problem, and re-pathing it green would have made the tree worse.
+;
+; 🔴 EVERY NODE PATH STAYS BYTE-IDENTICAL, and that is the whole reason this is an inherited
+; scene rather than a named mount node in the addon. A consumer names its instance
+; `PlayerCamera` exactly as before, so `PlayerCamera/FocusPoint/Camera/CombatUI/ModalLayer/
+; JobPopup` still resolves; `GPUArena.tscn`'s 13 overrides do not move; `GPUCombatTestBase.gd`,
+; `GPUArena.gd` and `UnitAnimationViewerScene.gd` do not change. Each of the 107 consumers
+; swapped ONE `ext_resource` line. ADR-0204 dec. 2 rejects the `UIMount` spelling for two
+; measured reasons: it lengthens 17 live paths, and it publishes one child of `Camera` while
+; ~90 test scenes already override `Camera` itself under `[editable path="PlayerCamera"]`.
+;
+; ⚠️ 104 OF THE 107 CONSUMERS NEVER MENTION `CombatUI`. They inherit it silently — which is
+; why "delete the two lines from the addon" was never a two-line change, and why the oracle
+; for this move is a COUNT of resolutions rather than a green suite (dec. 5). 65 of the 76
+; GPU combat tests never dereference `combat_ui`, so a null binding passes.
+;
+; 🔴 CORRECTED, ADR-0208. This block used to say five `.gd` files (StartupDiagnostic,
+; CameraFeelTunablesTest, TileCursorTakeoverTest, TileCursorIntegrationTest,
+; EffectStudioCameraOwnershipTest) "deliberately still" preload the ADDON scene directly.
+; ADR-0207 dec. 7 swapped exactly those five to this mount one pass ago, and the register
+; agrees: NO `.gd` in the tree names the addon camera scene today, and this mount reports
+; 0 undeclared namers. The paragraph documented a state the tree had already left — the
+; same staleness the file's own ⚠️ warns about, one screen up.
+;
+; What replaced it is worth stating, because it is the OPPOSITE of what dec. 3 assumed.
+; `tests/CameraFeelPanelTuneFieldTest.gd` now `preload`s THIS scene and never instantiates
+; it: loading the PackedScene loads the base scene's script, whose `_static_init` binds the
+; `camera.*` slugs at class load. A mount is reachable by being LOADED, not only by being
+; instanced, and that is how the last camera row was paid (ADR-0208 dec. 1).
+[ext_resource type="PackedScene" uid="uid://dcuxclvngr86s" path="res://addons/exmateria_battlefield/camera/PlayerCamera.tscn" id="1_base"]
+[ext_resource type="PackedScene" path="res://assets/scenes/CombatUI.tscn" id="2_combat_ui"]
+
+[node name="PlayerCamera" instance=ExtResource("1_base")]
+
+[node name="CombatUI" parent="FocusPoint/Camera" index="1" instance=ExtResource("2_combat_ui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)

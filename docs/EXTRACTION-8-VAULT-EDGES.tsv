@@ -1,0 +1,53 @@
+note	src	dst
+Change Job Screen	src/ui3/changejob/ChangeJobScreen.gd	-
+Change Job Screen	src/ui3/changejob/ChangeJobWheel.gd	-
+Damage Number Popup System	src/ui3/elements/DamageNumber3D.gd	-
+Damage Number Popup System	src/ui3/elements/NumberPopupTrend.gd	-
+Dialogue Box Geometry	src/ui3/assemblies/DialogueBox.gd	-
+Dialogue Box Geometry	src/ui3/elements/UIFrame.gd	-
+Dialogue Font Palette	src/ui3/assemblies/DialogueBox.gd	-
+Dialogue Font Palette	src/ui3/elements/UIChar.gd	-
+Dialogue Font Palette	src/ui3/elements/UIFont.gd	-
+Dialogue Font Palette	src/ui3/elements/UIText.gd	-
+Dialogue Font Palette	src/ui3/shaders/ui_font_char.gdshader	-
+Dialogue Pagination	src/ui3/assemblies/DialogueBox.gd	-
+Dialogue Pagination	src/ui3/shaders/vitals_sprite.gdshader	-
+Display Message Opcode	src/ui3/assemblies/DialogueBox.gd	-
+Display Message Opcode	src/ui3/elements/UIFont.gd	-
+Display Message Opcode	src/ui3/elements/UIText.gd	-
+Display Space Blend Fold	src/ui3/formation/FormationScene.gd	-
+Display Space Blend Fold	src/ui3/shaders/formation_box_fold.gdshader	-
+Equip And Ability Panel	src/ui3/elements/RangeTileAtlas.gd	-
+Equip Stat Delta Preview	src/ui3/detail/EquipDeltaPalette.gd	-
+Equip Sub Screen	src/ui3/detail/EquipPickerMenu.gd	-
+Equip Sub Screen	src/ui3/detail/SpriteSlideAnimator.gd	-
+Event Dialogue Portrait System	assets/shaders/evtface_portrait_3d.gdshader	-
+Event Dialogue Portrait System	src/ui3/assemblies/DialogueBox.gd	-
+Event Dialogue Portrait System	src/ui3/elements/UIPortrait.gd	-
+Formation Ability Picker	src/ui3/UIPassiveAbilityPopup.gd	-
+Formation Element Placement	src/ui3/formation/FormationScene.gd	-
+Formation Screen Compositing	src/ui3/elements/NumberFont.gd	-
+Formation Screen Compositing	src/ui3/elements/RangeTileAtlas.gd	-
+Formation Screen Compositing	src/ui3/formation/FormationScene.gd	-
+Formation Screen Compositing	src/ui3/shaders/formation_background.gdshader	-
+Formation Screen Compositing	src/ui3/shaders/formation_orb_rim_fold.gdshader	-
+Formation Sort Tab Header	src/ui3/elements/RangeTileAtlas.gd	-
+Formation Vitals And Nameplate	src/ui3/elements/NumberFont.gd	-
+Formation Vitals And Nameplate	src/ui3/elements/RangeTileAtlas.gd	-
+Gold Selection Box	src/ui3/shaders/formation_box.gdshader	-
+Gold Selection Box	src/ui3/shaders/formation_box_sub.gdshader	-
+Learn Job Picker	src/ui3/UILearnPanel.gd	-
+Learn Job Picker	src/ui3/UIUnitInfoWindow.gd	-
+Learn Job Picker	src/ui3/elements/NumberFont.gd	-
+Menu Window Box Open	src/ui3/UI3BoxOpenBeat.gd	-
+Menu Window Box Open	src/ui3/detail/BoxOpenAnimator.gd	-
+PSX GPU Primitives	src/ui3/shaders/formation_orb_rim_fold.gdshader	-
+Start Action Menu	src/ui3/detail/StartActionMenu.gd	-
+Typewriter Text Cadence	src/ui3/assemblies/DialogueBox.gd	-
+Typewriter Text Cadence	src/ui3/elements/UIText.gd	-
+Unit Pager Buttons	src/ui3/detail/DetailScene.gd	-
+Unit Pager Buttons	src/ui3/elements/RangeTileAtlas.gd	-
+World Map Screen	src/world_map/WorldMapAssets.gd	NON-MEMBER
+World Map Screen	src/world_map/WorldMapPlaceList.gd	NON-MEMBER
+World Map Screen	src/world_map/WorldMapRenderer.gd	NON-MEMBER
+World Map Screen	src/world_map/WorldMapTownPage.gd	NON-MEMBER

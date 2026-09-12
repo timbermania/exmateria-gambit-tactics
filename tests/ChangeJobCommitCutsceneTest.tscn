@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bqx7cjcut1sc0"]
+
+[ext_resource type="Script" path="res://tests/ChangeJobCommitCutsceneTest.gd" id="1_cjc"]
+
+[node name="ChangeJobCommitCutsceneTest" type="Node3D"]
+script = ExtResource("1_cjc")

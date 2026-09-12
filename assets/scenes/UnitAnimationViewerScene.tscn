@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://iqeyud7sf2nk"]
+
+[ext_resource type="Script" uid="uid://cxr6r57iuogdf" path="res://src/scenes/UnitAnimationViewerScene.gd" id="1_resview"]
+[ext_resource type="PackedScene" uid="uid://bcmbtcam4mnt77" path="res://assets/scenes/CombatCamera.tscn" id="2_camera"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="3_map"]
+
+[sub_resource type="Environment" id="Env_default"]
+background_mode = 1
+background_color = Color(0.12, 0.12, 0.16, 1)
+
+[node name="UnitAnimationViewerScene" type="Node3D" unique_id=1658735912]
+script = ExtResource("1_resview")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1122430328]
+environment = SubResource("Env_default")
+
+[node name="ProceduralMap" parent="." unique_id=1889699611 instance=ExtResource("3_map")]
+
+[node name="PlayerCamera" parent="." unique_id=932474145 instance=ExtResource("2_camera")]
+transform = Transform3D(-0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 10, 5, 10)
+procedural_map_path = NodePath("../ProceduralMap")

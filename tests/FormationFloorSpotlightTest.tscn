@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_floor_spotlight_test"]
+
+[ext_resource type="Script" path="res://tests/FormationFloorSpotlightTest.gd" id="1_test"]
+
+[node name="FormationFloorSpotlightTest" type="Node"]
+script = ExtResource("1_test")

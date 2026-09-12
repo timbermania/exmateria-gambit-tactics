@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://gambit_encode_schema_test"]
+
+[ext_resource type="Script" path="res://tests/GambitEncodeSchemaTest.gd" id="1_test"]
+
+[node name="GambitEncodeSchemaTest" type="Node"]
+script = ExtResource("1_test")

@@ -1,0 +1,73 @@
+# Files in `addons/exmateria_sprite_rig/` that do NOT compile in a stranger
+# project. `path <TAB> ticket <TAB> error signature <TAB> why`, read by
+# tests/stranger/shared/{stranger_install,stranger_burn_down}.gd and by rig.sh.
+#
+# NAMED, NEVER COUNTED, AND CHECKED IN BOTH DIRECTIONS. A row says "we know, it is
+# ticketed, it is goal #5 unmet on record" -- the same contract
+# `check_addon_portability.ARM1_BURN_DOWN` has. The arm fails if an UNLISTED file
+# stops compiling AND if a LISTED one starts, because a burn-down that only grows
+# is a list nobody ever deletes from. See `tests/stranger/README.md` and
+# `tests/stranger/exmateria_battlefield/known_failures.tsv`, which is the same
+# contract written out at length.
+#
+# THE SIGNATURE COLUMN IS LOAD-BEARING. A broken script throws when ANY script that
+# names it is loaded, so the rig cannot simply not-look: it has to be able to say
+# which throws this list already explains. The signature is the substring of the
+# engine's own parse error, and a `SCRIPT ERROR` line matching no signature is still
+# the finding. `Failed to compile depended scripts` is allowed unconditionally -- it
+# is a cascade line naming no file and no symbol, and a genuinely new defect always
+# emits its own specific line beside it. Here that cascade is real and wide: the one
+# row below takes `exmateria_sprite_rig.gd` (the addon's ONE published global name),
+# `content/SpritePaletteResolver.gd`, `layers/WeaponAnimationSelector.gd` and
+# `viewer/SequenceViewer.gd` down with it, none of which has a defect of its own.
+#
+# 🔴 THE CASCADE SET DID NOT MOVE WHEN #847 WAS PAID, AND THAT IS WORTH STATING.
+# This file carried TWO rows from 2026-09-04 to 2026-09-05. #847 discharged the first
+# (`layers/SpriteLayerManager.gd`, the `Tune` reach) and FOUR MORE FILES STAYED DOWN --
+# `exmateria_sprite_rig.gd` (the addon's ONE published global name),
+# `content/SpritePaletteResolver.gd`, `layers/WeaponAnimationSelector.gd` and
+# `viewer/SequenceViewer.gd`, none of which had a defect of its own -- because
+# `exmateria_sprite_rig.gd` preloads BOTH named files and the other three reach it for
+# `ExMateriaSpriteRig.ContentPort` / `.AnimationOpcodes`. Paying one of two rows bought
+# a file that compiles and bought the addon's published global name nothing, and a
+# burn-down measured by ROW COUNT would have read that as half the debt paid.
+#
+# BOTH ROWS ARE NOW PAID AND THIS LIST IS EMPTY. #848 discharged the second on
+# 2026-09-05 (ADR-0234) and the four cascade files came back with it, which is the
+# other direction of the same observation: the cascade set does not move until the
+# LAST row leaves. Goal #5's install half is met for this addon and
+# `stranger_install.gd` is the arm that now makes that claim -- see `rig.sh`, which
+# does not run the burn-down scene against an empty list and says why.
+#
+# THE TWO ROWS WERE NOT ONE DEBT, AND THEY LEFT SEPARATELY AS PREDICTED. Arm 2 lumped
+# them because it reads the host `project.godot`'s `[autoload]` block and both names
+# are in it, but `Tune` was a host SCRIPT (`res://src/core/Tune.gd`) -- a REACH, paid
+# by routing through `ExMateriaPlatform.TunePort` -- while `PSXDisplay` is a script
+# inside a DECLARED DEP this rig already stages, missing only its `[autoload]`
+# binding. That was an install step, and it was paid by
+# `ExMateriaPlatform.DisplayPort`, the port the platform addon already shipped.
+#
+# 🔴 #848 SAID "NO PORT EXISTS FOR IT YET" AND THAT WAS FALSE.
+# `addons/exmateria_platform/display_port/DisplayPort.gd` had shipped since #590 and
+# is exactly the issue's option (a). What had NOT shipped was its READ half: #590 put
+# `set_camera_angle` on the port and left the mirror it writes reachable only as a
+# property on the autoload, which serves the host and cannot serve an addon. So the
+# fix was one verb on an existing port, not a new one -- and the issue's option (b),
+# a `get_node_or_null(^"PSXDisplay")` at the call site, was never open here:
+# `check_addon_portability.py` arm 2b exempts the kernel, the platform PORT and an
+# addon reaching its OWN singleton, and a SYSTEM addon naming a script another addon
+# ships is none of the three. ADR-0234.
+#
+# 🔴 THE ROW WAS ALREADY ON A STATIC REGISTER, AND THAT IS THE FINDING RATHER THAN
+# AN EXCUSE. `tools/check_addon_portability.py` arm 2 printed it under
+# "standalone-parse DEBT -- N line(s) in an addon with no project.godot of its own
+# name a HOST autoload. Not enforced (there is no standalone project to parse
+# against yet); it is what the next extraction has to answer." That heading is an
+# IOU, and this rig is the project it was written against. Extraction #4 pass 9
+# reported the sprite rig isolated on criterion 4, axis B, goal #5 and
+# `check_addon_portability` rc 0 -- all true, all static, and all four blind to the
+# fact that the addon did not COMPILE where the host is absent. Same defect, priced
+# differently; the rig is what priced it. Exactly what happened to
+# `lattice/Tile.gd` and `overlay/TileOverlayCompositor.gd` in the battlefield rig.
+#
+# ADR-0229 for the rig, #847 and #848 for the two rows, ADR-0234 for the second.

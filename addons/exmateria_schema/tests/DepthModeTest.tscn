@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://depth_mode_test"]
+
+[ext_resource type="Script" path="res://addons/exmateria_schema/tests/DepthModeTest.gd" id="1_test"]
+
+[node name="DepthModeTest" type="Node"]
+script = ExtResource("1_test")

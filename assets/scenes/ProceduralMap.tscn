@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3]
+
+; The HOST's procedural map node — ADR-0207 dec. 1. The single file outside
+; `addons/exmateria_battlefield/` permitted to name `assembly/MapComposer.gd`, and the
+; second entry on `check_lattice_scene.py`'s DECLARED_MOUNTS after ADR-0204's camera.
+;
+; 🔴 WHY THIS FILE EXISTS. 109 host scenes each declared their own
+;   [node name="ProceduralMap" type="Node3D" parent="."]
+;   script = ExtResource("…/assembly/MapComposer.gd")
+; — 115 of criterion 4's 137 sites, 83% of the register. They now instance this scene
+; instead. Rename or split `MapComposer.gd` and ONE host file changes, not 109.
+;
+; 🔴 WHY A SCENE AND NOT A PORT. ADR-0206 answered the cursor's coupling by publishing a
+; `class_name` (`CursorRig`) and letting hosts name the type. That mechanism CANNOT reach
+; this population: a `.tscn` `ext_resource` is always a path or a uid, never a
+; `class_name`, so 109 of the 115 sites are unreachable by criterion 1's instrument.
+; Criterion 4's population is a SCENE population and only a scene can serve it.
+;
+; 🔴 WHY AN INSTANCE AND NOT AN INHERITED SCENE. ADR-0204's mount inherits the addon's
+; `PlayerCamera.tscn` because the host had to add its own `CombatUI` as a child while every
+; internal node path stayed byte-identical. Nothing here adds a child and the composer node
+; has no internal structure, so inheritance buys nothing and would cost an addon file whose
+; only purpose is to be inherited. The transferable half of ADR-0204 is "instance a
+; host-owned PackedScene"; the inheritance half does not transfer, and ADR-0205 dec. 7 was
+; right that it had to be priced rather than assumed.
+;
+; 🔴 THE NODE IS UNCHANGED IN NAME, TYPE, PLACE AND DEFAULTS. Consumers keep
+; `[node name="ProceduralMap" parent="."]`, so `NodePath("../ProceduralMap")`,
+; `$ProceduralMap` and `get_node("ProceduralMap")` all still resolve. The scene stores no
+; property overrides, so every `@export` still takes its script default; the three consumers
+; that set `auto_build_on_ready` keep that line on the instance.
+;
+; ⚠️ `scene_file_path` becomes `res://assets/scenes/ProceduralMap.tscn` where it was `""`.
+; That is a GAIN, not a hazard — it is the key `ProceduralMapMountTest.gd` counts arrivals
+; on, exactly as `CombatCameraMountTest.gd` does for the camera. Nothing else in the tree
+; reads `scene_file_path`.
+
+[ext_resource type="Script" uid="uid://ciu0nyc3o8h7c" path="res://addons/exmateria_battlefield/assembly/MapComposer.gd" id="1_mc"]
+
+[node name="ProceduralMap" type="Node3D"]
+script = ExtResource("1_mc")

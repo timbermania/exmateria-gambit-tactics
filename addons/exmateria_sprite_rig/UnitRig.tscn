@@ -1,0 +1,105 @@
+[gd_scene load_steps=7 format=3 uid="uid://b6unitrig4444"]
+
+; The sprite rig's own scene — ADR-0217 dec. 3, built by #744. The base that
+; `res://assets/scenes/Unit.tscn` INHERITS, and the addon's one declared mount in
+; `check_lattice_scene.py`.
+;
+; 🔴 WHY THIS FILE EXISTS. `Unit.tscn` named four addon paths by `ext_resource` after the
+; move — the shader plus three scripts — and 114 files reference `Unit.tscn` (5
+; production, 109 `tests/`). Collapsing the four to one instance line is what lets those
+; 109 tests never learn the addon exists. The façade deliberately does NOT also publish
+; this scene: `const UnitRig = preload(...)` would resolve fine and give the rig two
+; spellings of one publish, so pass 9 would have two numbers for one question (ADR-0205
+; dec. 2 forbids exactly that merge).
+;
+; 🔴 INHERITED, NOT INSTANCED — ADR-0204's form, not ADR-0207 dec. 2's. The host adds five
+; nodes of its own to this root (`ShadowMesh`, `ShadowRaycast`, `SelectionArea`,
+; `MovementComponent`, `UnitStats`, `EquippedAbilities`, `UnitStatusManager`) and every one
+; of `Unit.tscn`'s node paths has to stay byte-identical, because `Unit.gd` and its
+; consumers address them by name. A wrapper node would bury all of them one level deeper.
+;
+; 🔴 THE MATERIAL CARRIES NO TEXTURES, AND THAT IS THE POINT (P4). `Unit.tscn` authored
+; `type1_tex`/`wep1_tex`/`eff1_tex` against `res://assets/sprites/textures/{01,WEP1,EFF1}.tga`
+; — three host content addresses that would move INTO the addon with the mesh and put P4
+; back above zero on the day #744 drove it to zero. They are not a loss: `Unit.gd`
+; `_initialize_materials()` REPLACES this material outright —
+; `self.material = UnitAssets.base_material().duplicate()` then
+; `self.mesh_instance.mesh.surface_set_material(0, material)` — so nothing at runtime has
+; ever read a texture authored here. `SpriteLayerManager` then binds the body sheet per
+; unit (`load_sprite_texture`) and lazily loads WEP1/EFF1 through
+; `SpriteRigContentRoot`. The authored block is an EDITOR PREVIEW, and the preview it
+; gives now is an untextured quad rather than Ramza.
+;
+; The remaining `shader_parameter/` block is kept byte-identical to what `Unit.tscn`
+; carried, minus those three lines: it is equally overwritten, and changing it here would
+; mix a rendering change into a move.
+
+[ext_resource type="Shader" uid="uid://cw3b5wdcumh7v" path="res://addons/exmateria_sprite_rig/render/unit.gdshader" id="1_shader"]
+[ext_resource type="Script" uid="uid://cjmc7fxnugsw6" path="res://addons/exmateria_sprite_rig/layers/SpriteLayerManager.gd" id="2_sprite_layers"]
+[ext_resource type="Script" uid="uid://bgui3cr6n8fqv" path="res://addons/exmateria_sprite_rig/state/AnimationStateController.gd" id="3_anim_state"]
+[ext_resource type="Script" uid="uid://b6ji5i03odr0u" path="res://addons/exmateria_sprite_rig/render/CameraRelativeRenderer.gd" id="4_camera_renderer"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_klvxx"]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/mesh_size = Vector2(1, 1)
+shader_parameter/type1_tex_size = Vector2(256, 488)
+shader_parameter/wep1_tex_size = Vector2(256, 488)
+shader_parameter/eff1_tex_size = Vector2(256, 488)
+shader_parameter/type1_rects = [Vector2(80, 104), Vector2(96, 40), Vector2(56, 104)]
+shader_parameter/type1_rect_sizes = [Vector2(24, 24), Vector2(32, 40), Vector2(24, 24)]
+shader_parameter/type1_locs = [Vector2(-9, -25), Vector2(-17, -33), Vector2(-17, -22)]
+shader_parameter/type1_loc_offsets = [Vector2(100, 100), Vector2(100, 100), Vector2(100, 100)]
+shader_parameter/type1_inversions = [false, false, false]
+shader_parameter/type1_reversions = [false, false, false]
+shader_parameter/type1_rotations = [0.0, 0.0, 0.0]
+shader_parameter/type1_rot_points = [Vector2(100, 100), Vector2(100, 100), Vector2(100, 100)]
+shader_parameter/wep1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep_enable = false
+shader_parameter/wep_on_top = false
+shader_parameter/eff_enable = false
+shader_parameter/eff_on_top = false
+shader_parameter/shared_loc_offset = Vector2(27, 26)
+shader_parameter/priority = [0, 1, 2, 3]
+shader_parameter/global_reversion = false
+shader_parameter/ambient_brightness = 1.4
+
+[sub_resource type="QuadMesh" id="QuadMesh_7agon"]
+lightmap_size_hint = Vector2i(7, 7)
+material = SubResource("ShaderMaterial_klvxx")
+subdivide_width = 1
+subdivide_depth = 1
+
+[node name="UnitRig" type="Node3D"]
+
+[node name="UnitMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0.05, 0)
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_7agon")
+skeleton = NodePath("")
+
+[node name="SpriteLayerManager" type="Node" parent="."]
+script = ExtResource("2_sprite_layers")
+
+[node name="AnimationStateController" type="Node" parent="."]
+script = ExtResource("3_anim_state")
+current_facing = 2
+
+[node name="CameraRelativeRenderer" type="Node" parent="."]
+script = ExtResource("4_camera_renderer")

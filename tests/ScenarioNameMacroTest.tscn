@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_scn_name_macro_test_01"]
+
+[ext_resource type="Script" path="res://tests/ScenarioNameMacroTest.gd" id="1_test"]
+
+[node name="ScenarioNameMacroTest" type="Node3D"]
+script = ExtResource("1_test")

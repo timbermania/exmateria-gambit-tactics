@@ -1,0 +1,55 @@
+Godot Engine v4.8.dev.custom_build.3e530a3e9 (2026-08-10 21:26:06 UTC) - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 5090
+
+[PartyRoster] Loaded 4 units from res://assets/roster/roster.json
+[PartyRoster] seeded from res://assets/roster/roster.json (no user:// save yet)
+[EnemyRoster] Loaded 4 units from res://assets/roster/enemy_roster.json
+[EnemyRoster] seeded from res://assets/roster/enemy_roster.json (no user:// save yet)
+[compositor-autopilot] ACTIVE — engine-fold on for every scene (compositor_layer supported)
+WavesetParser: loaded 177 instruments (169 active)
+[ExMateriaAudioEngine] ready — shared waveset + music/sfx SPUs (48 voices)
+[ExMateriaEffectSfx] ready — continuous SFX SPU (mode=UNLOCKED, units=1, threaded)
+[engine-fold] active on camera 'Camera' (Forward+ engine Pass B fold)
+[compositor-autopilot] attached engine-fold to camera 'Camera'
+ERROR: Printing last known breadcrumbs in reverse order (last executed first).
+Some of them might be inaccurate. Try running with --accurate-breadcrumbs for precise information.
+   at: print_lost_device_info (drivers/vulkan/rendering_device_driver_vulkan.cpp:7014)
+ERROR: Searching last breadcrumb. We've sent up to ID: 2
+ERROR: Last breadcrumb ID found: 1
+ERROR: Last known breadcrumb: UI_PASS
+ERROR: Last known breadcrumb: BLIT_PASS
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+ERROR: Last known breadcrumb: UNKNOWN_BREADCRUMB(0)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.8.dev.custom_build (3e530a3e9b6aa09164c28e42f877762f459049b3)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+Load address: 561679ff1000
+
+[1] 7fbfd963e6f0 (libc.so.6+3e6f0) - /usr/lib/libc.so.6(+0x3e6f0) [0x7fbfd963e6f0]
+[2] 7fbf755add60 (libnvidia-glcore.so.610.57.04+dadd60) - /usr/lib/libnvidia-glcore.so.610.57.04(+0xdadd60) [0x7fbf755add60]
+[3] 56167c8bb3d5 (main+28ca3d5) - RenderingDeviceDriverVulkan::on_device_lost() const at /home/curry/Repos/godot/drivers/vulkan/rendering_device_driver_vulkan.cpp:6938
+[4] 56167c8bc489 (main+28cb489) - RenderingDeviceDriverVulkan::print_lost_device_info() at /home/curry/Repos/godot/drivers/vulkan/rendering_device_driver_vulkan.cpp:7126
+[5] 56167c8a8923 (main+28b7923) - RenderingDeviceDriverVulkan::command_queue_execute_and_present(RenderingDeviceDriver::CommandQueueID, VectorView<RenderingDeviceDriver::SemaphoreID>, VectorView<RenderingDeviceDriver::CommandBufferID>, VectorView<RenderingDeviceDriver::SemaphoreID>, RenderingDeviceDriver::FenceID, VectorView<RenderingDeviceDriver::SwapChainID>) at /home/curry/Repos/godot/drivers/vulkan/rendering_device_driver_vulkan.cpp:3270
+[6] 56167f346476 (main+5355476) - RenderingDevice::execute_chained_cmds(bool, RenderingDeviceDriver::FenceID, RenderingDeviceDriver::SemaphoreID) at /home/curry/Repos/godot/servers/rendering/rendering_device.cpp:8174 (discriminator 8)
+[7] 56167f3467be (main+53557be) - RenderingDevice::_execute_frame(bool) at /home/curry/Repos/godot/servers/rendering/rendering_device.cpp:8201
+[8] 56167f347683 (main+5356683) - RenderingDevice::_flush_and_stall_for_all_frames(bool) at /home/curry/Repos/godot/servers/rendering/rendering_device.cpp:8312
+[9] 56167f3301d6 (main+533f1d6) - RenderingDevice::screen_prepare_for_drawing(int) at /home/curry/Repos/godot/servers/rendering/rendering_device.cpp:5409
+[10] 56167f6977e7 (main+56a67e7) - RendererCompositorRD::blit_render_targets_to_screen(int, RenderingServerTypes::BlitToScreen const*, int) at /home/curry/Repos/godot/servers/rendering/renderer_rd/renderer_compositor_rd.cpp:43 (discriminator 1)
+[11] 56167f2f243e (main+530143e) - RendererViewport::draw_viewports(bool) at /home/curry/Repos/godot/servers/rendering/renderer_viewport.cpp:981 (discriminator 4)
+[12] 56167f53bdc1 (main+554adc1) - RenderingServerDefault::_draw(bool, double) at /home/curry/Repos/godot/servers/rendering/rendering_server_default.cpp:112
+[13] 56167f53d8ec (main+554c8ec) - RenderingServerDefault::draw(bool, double) at /home/curry/Repos/godot/servers/rendering/rendering_server_default.cpp:453
+[14] 56167a8a768d (main+8b668d) - Main::iteration() at /home/curry/Repos/godot/main/main.cpp:4990
+[15] 56167a7986ee (main+7a76ee) - OS_LinuxBSD::run() at /home/curry/Repos/godot/platform/linuxbsd/os_linuxbsd.cpp:1000 (discriminator 1)
+[16] 56167a7aef3e (main+7bdf3e) - main at /home/curry/Repos/godot/platform/linuxbsd/godot_linuxbsd.cpp:122
+[17] 7fbfd9627781 (libc.so.6+27781) - /usr/lib/libc.so.6(+0x27781) [0x7fbfd9627781]
+[18] 7fbfd96278b9 (libc.so.6+278b9) - /usr/lib/libc.so.6(__libc_start_main+0x89) [0x7fbfd96278b9]
+[19] 56167a78d8e5 (main+79c8e5) - godot(+0x79c8e5) [0x56167a78d8e5]
+-- END OF C++ BACKTRACE --
+================================================================
+timeout: the monitored command dumped core

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b8st0camownr1"]
+
+[ext_resource type="Script" path="res://tests/EffectStudioCameraOwnershipTest.gd" id="1_test"]
+
+[node name="EffectStudioCameraOwnershipTest" type="Node"]
+script = ExtResource("1_test")

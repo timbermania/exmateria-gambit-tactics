@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+; The fleet sweeper's entry point — ADR-0275 dec. 13, issue #1130.
+;
+; Two nodes and no camera, because this arm renders nothing: the live arm (dec. 13's other
+; half) is where a human watches a cell, and this one measures every cell at once and prints.
+; `ProceduralMap` is instanced rather than declared, per ADR-0207 dec. 1 — it is the one
+; permitted mount for `MapComposer.gd`, and it is here only because a `Lattice` needs a
+; `Node3D` to be built by. Everything downstream of the lattice is hostless.
+
+[ext_resource type="Script" path="res://tools/gambit_fleet_sweep_main.gd" id="1_sweep"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="2_map"]
+
+[node name="GambitFleetSweep" type="Node3D"]
+script = ExtResource("1_sweep")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("2_map")]

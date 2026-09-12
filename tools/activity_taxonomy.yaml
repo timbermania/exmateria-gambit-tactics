@@ -1,0 +1,312 @@
+# activity_taxonomy.yaml
+#
+# Single source of truth for the Logical/Display activity taxonomy. The
+# generator (tools/gen_activity_taxonomy.py) reads this file and emits:
+#   - LOGICAL_ACTIVITY_* constants into src/gpu/shaders/combat_common.glslinc
+#   - LOGICAL_ACTIVITY_* + LOGICAL_ACTIVITY_NAMES into src/gpu/GPUConstants.gd
+#   - DisplayActivity.Activity enum into addons/exmateria_sprite_rig/state/DisplayActivity.gd
+#   - ActivityTranslator dispatch shell into src/gpu/ActivityTranslator.gd
+#   - (PR3) a rendered Markdown table into CONTEXT.md
+#
+# Vocabulary
+# ----------
+#   Logical activity   what the ENGINE thinks the unit is doing
+#                      (replaces GPU STATE_*; constants LOGICAL_ACTIVITY_*)
+#   Display activity   what the ANIMATION system should play
+#                      (replaces CPU UnitActivity; DisplayActivity.Activity)
+#   Unified name       canonical row identifier shared in docs + this YAML;
+#                      not a runtime enum
+#
+# Row schema
+# ----------
+#   unified:           string. Row identifier. Unique across all rows.
+#   logical:           string or null. LOGICAL_ACTIVITY_* member name (no
+#                      prefix). Null for Display-only rows.
+#   value:             int. Required when `logical` is set. The integer the
+#                      shader writes to U_STATE for this Logical activity.
+#                      Rows that share a `logical` (the ACTING split) must
+#                      share the same value. Values are a stable contract
+#                      with the GPU buffer; do not renumber without a
+#                      buffer-version bump.
+#   display:           string or null. DisplayActivity.Activity member name.
+#                      Null only for the REACTING row (overlay-only).
+#   routing:           string. One of the routings listed below.
+#   predicate:         optional string. Python-ish expression on a `state`
+#                      dict that discriminates among multiple rows that share
+#                      the same `logical` value (currently only ACTING).
+#                      Mechanically forwarded to GDScript as-is in PR3, so
+#                      keep it valid GDScript that operates on a Dictionary
+#                      named `state`.
+#   routing_params:    optional dict. Routing-specific extras (e.g. the
+#                      `parameterized` routing carries method + param_field).
+#   adr:               optional string. ADR number(s) for cross-reference.
+#   notes:             optional string. Free prose.
+#
+# Routings (7 active + 2 metadata)
+# --------------------------------
+# Active (emit a `_translate_<routing>` dispatch entry):
+#   direct             translator sets unit.activity to the display value.
+#   visualizer         movement visualizer authors the activity from move-
+#                      step writes; translator no-ops.
+#   transient          Logical-only state, translator no-ops; the GPU's
+#                      next-tick handler transitions out. Used by one-tick
+#                      gateways like PREEMPTIVE_COUNTER (Hamedo). Distinct
+#                      from `visualizer` (which is authored by the CPU-side
+#                      movement visualizer); transient transitions are
+#                      authored by the GPU state machine.
+#   attack_handler     translator calls the weapon-specific attack entry
+#                      (CombatLoop._start_attack_animation).
+#   cast_deferred      translator no-ops; CombatLoop._on_spell_cast_complete
+#                      sets SPELL_CASTING when the cast finishes.
+#   parameterized      translator calls a semantic method on the unit with
+#                      a runtime parameter pulled from `state` (see
+#                      routing_params.method / param_field).
+#   resolver_variant   translator sets unit.activity = display (the base);
+#                      AnimationResolutionMap picks the variant from world
+#                      state (e.g. IDLE_LOW_HEALTH from HP).
+#
+# Metadata (no dispatch code emitted):
+#   none               Display-only row; engine does not model yet.
+#   animation_lifecycle  transition driven by Display's own SEQ-end clock
+#                      (e.g. DYING -> DEAD corpse).
+#
+# Naming note
+# -----------
+# Logical names now match Display names wherever the concept is shared
+# (IDLE, WALKING, SPELL_CHARGING, DYING, CELEBRATING, AWAITING_IMPACT).
+# Names stay distinct where the CONCEPT differs:
+#   - Logical has WALKING / WALKING_TO_CAST / APPROACHING / RETREATING
+#     (four move types the simulation reasons about), all Display=WALKING.
+#   - Display has ATTACKING / SPELL_CASTING (two animation entries),
+#     both Logical=ACTING (predicate-split by casting_ability_id).
+# Integer `value:` pins the GPU buffer contract. The PR2 drift-collapse rename
+# left it at 0..9; RETREATING (ADR-0301) APPENDS 10 rather than renumbering, so
+# no buffer migration is needed then or now.
+
+rows:
+  # ---- Logical-side rows (11 STATE_* values, 12 rows after ACTING split) ----
+
+  - unified: IDLE
+    logical: IDLE
+    value: 0
+    display: IDLE
+    routing: resolver_variant
+    routing_params:
+      clear_ability_id: true   # IDLE drops any stale charge target
+    adr: "0026"
+    notes: >
+      Base IDLE. IDLE_LOW_HEALTH is Display-only (no Logical/GPU side):
+      AnimationResolutionMap.resolve_for_activity dispatches to
+      resolve_idle_low_health when the caller passes low_health=true, using
+      the FFT-faithful threshold hp < max_hp / 4 (the AutoPotion trigger in
+      stage_damage.glsl:187). Unit.update_animation precomputes the flag
+      from unit_stats.current_hp / max_hp and passes it; the translator stays
+      HP-agnostic. Explicit A.IDLE_LOW_HEALTH callers (animation viewer
+      dropdown) still get the variant directly.
+
+  - unified: WALKING
+    logical: WALKING
+    value: 1
+    display: WALKING
+    routing: visualizer
+    adr: "0024"
+    notes: >
+      Move visualizer drives the body activity from per-step writes; the
+      translator is a no-op.
+
+  - unified: WALKING_TO_CAST
+    logical: WALKING_TO_CAST
+    value: 5
+    display: WALKING
+    routing: visualizer
+    adr: "0024"
+    notes: Visualizer-driven, identical to WALKING; distinct logical so the
+      engine can fire the cast on arrival.
+
+  - unified: APPROACHING
+    logical: APPROACHING
+    value: 8
+    display: WALKING
+    routing: visualizer
+    adr: "0024"
+    notes: Unit-anchored MOVE; reposition without opportunistic attack.
+
+  - unified: RETREATING
+    logical: RETREATING
+    value: 10
+    display: WALKING
+    routing: visualizer
+    adr: "0301"
+    notes: One tile directly away from the unit the retreat is aimed at, then a
+      fresh gambit walk. Visualizer-driven like the other three moves; distinct
+      logical because it must NOT re-arm on arrival (WALKING and APPROACHING
+      both continue) and must NOT break off into an opportunistic attack
+      (WALKING does).
+
+  - unified: USING_ITEM
+    logical: ACTING
+    value: 2
+    display: USING_ITEM
+    routing: parameterized
+    routing_params:
+      method: use_item
+      param_field: casting_ability_id
+    predicate: "state.get('casting_ability_id', -1) >= 368 and state.get('casting_ability_id', -1) <= 381"
+    notes: >
+      Item-use ACTING-split row. Item-ability ids live in [368, 381] (see
+      combat_common.glslinc::is_item_ability). MUST appear before
+      ATTACKING / SPELL_CASTING in the YAML so the generated if/elif
+      ladder tests the item-range predicate FIRST; SPELL_CASTING's
+      `> 0` predicate would otherwise also match item ids and shadow
+      this row. Routing is parameterized: Unit.use_item(ability_id)
+      sets active_ability_id and resolves the per-sprite-type
+      USING_ITEM row from map.tres (TYPE1_ITEM_USE = 114 on humanoids).
+
+  - unified: ATTACKING
+    logical: ACTING
+    value: 2
+    display: ATTACKING
+    routing: attack_handler
+    predicate: "state.get('casting_ability_id', -1) <= 0"
+    notes: Weapon attack path (no active ability). Calls
+      _start_attack_animation, which consults WeaponAnimationSelector.
+
+  - unified: SPELL_CASTING
+    logical: ACTING
+    value: 2
+    display: SPELL_CASTING
+    routing: cast_deferred
+    predicate: "state.get('casting_ability_id', -1) > 0"
+    notes: >
+      Cast path. Translator is a no-op; SPELL_CASTING is set later by
+      CombatLoop._on_spell_cast_complete on the cast-complete signal so the
+      cast animation can't be cut short by a state change.
+      Predicate is intentionally strict greater-than: ability id 0 is the
+      "(Nothing)" sentinel in effects.json, and the shader writes only -1
+      (cleared) or a real ability_id to U_CASTING_ABILITY_ID, so both 0 and
+      -1 mean "no real cast" and must route to attack_handler.
+      Preserve exactly.
+
+  - unified: SPELL_CHARGING
+    logical: SPELL_CHARGING
+    value: 4
+    display: SPELL_CHARGING
+    routing: parameterized
+    routing_params:
+      method: charge_ability
+      param_field: casting_ability_id
+    adr: "0024"
+    notes: Parameterized activity; the resolver only fires through the
+      semantic method, not via a bare activity write.
+
+  - unified: PREEMPTIVE_COUNTER
+    logical: PREEMPTIVE_COUNTER
+    value: 3
+    display: ~
+    routing: transient
+    adr: "0033"
+    notes: >
+      One-tick queued-counter-strike gateway. Today Hamedo
+      (REACT_FIRST_STRIKE) is the only writer: stage_compute.glsl
+      check_pre_damage_reactions sets U_STATE = PREEMPTIVE_COUNTER and
+      U_TARGET = attacker when an IDLE defender with Hamedo is targeted.
+      The next-tick state handler at stage_compute.glsl runs
+      setup_attack_animation which writes U_STATE = ACTING, so the
+      defender's counter-strike then plays as a normal ATTACKING
+      animation under the existing attack_handler routing. Translator
+      no-ops on this row; the defender shows the IDLE pose for the one
+      gateway tick. No React overlay involvement -- the hit-flinch
+      overlay lives on the two ROM-faithful trigger pathways (SEQ opcode
+      0xffde via CombatLoop._trigger_physical_reaction, effect
+      keyframe action_flags 0x40 via CombatLoop._on_ability_react).
+      Counter (REACT_COUNTER) does NOT use this state today (issue #49,
+      faithfulness gap). See ADR-0033 and CONTEXT.md's Combat-event
+      resolution cluster.
+
+  - unified: DYING
+    logical: DYING
+    value: 6
+    display: DYING
+    routing: direct
+    notes: Death animation playing. Display transitions to DEAD corpse via
+      animation_lifecycle when the SEQ ends.
+
+  - unified: CELEBRATING
+    logical: CELEBRATING
+    value: 7
+    display: CELEBRATING
+    routing: direct
+    adr: "0026"
+    notes: >
+      Terminal; OVERRIDES dead/cast latch in CombatLoop. The override
+      guard stays at the CombatLoop call site - the translator only sees
+      a normal direct routing.
+
+  - unified: AWAITING_IMPACT
+    logical: AWAITING_IMPACT
+    value: 9
+    display: AWAITING_IMPACT
+    routing: direct
+    routing_params:
+      clear_ability_id: true   # firer returns to neutral; any prior charge target is stale
+    adr: "0032"
+    notes: Firer SEQ ended; projectile is in flight. Resolved through the
+      map to the unit's IDLE SEQ pair.
+
+  # ---- Display-only rows (no Logical side) ----
+
+  - unified: IDLE_LOW_HEALTH
+    logical: ~
+    display: IDLE_LOW_HEALTH
+    routing: none
+    notes: Display-only, no Logical/GPU side. Auto-picked by
+      AnimationResolutionMap as a variant of IDLE when
+      unit_stats.current_hp < max_hp / 4 (see Unit.update_animation
+      precomputing the low_health flag passed to resolve_for_activity).
+      No translator entry; the IDLE row's resolver_variant routing is
+      what produces this Display value.
+
+  - unified: DEAD_CORPSE
+    logical: ~
+    display: DEAD
+    routing: animation_lifecycle
+    notes: Terminal corpse. Reached from DYING when the death SEQ ends.
+
+  - unified: JUMPING
+    logical: ~
+    display: JUMPING
+    routing: none
+    notes: >
+      Cliff-hop air phase. NOT a separate Logical activity: cliff
+      traversal stays under LOGICAL_ACTIVITY_WALKING end-to-end (see
+      combat_common.glslinc::get_move_ticks branching on is_cliff_edge,
+      with LANDING_TICKS folded into the total). Already wired: the
+      move visualizer (GPUMovementVisualizer, driven by the WALKING /
+      WALKING_TO_CAST / APPROACHING rows' visualizer routing in
+      GPUVisualBridge._follow_visualizer) detects cliff vs flat in
+      start_movement(), and get_activity(timer) returns JUMPING during
+      both the wind-up and mid-arc phases. No GPU buffer change.
+
+  - unified: LANDING
+    logical: ~
+    display: LANDING
+    routing: none
+    notes: >
+      Cliff-hop touchdown phase. Sibling of JUMPING; same visualizer-
+      driven Display choice during one continuous WALKING Logical state.
+      LANDING_SEQ_FRAMES (18) is baked into the shader's cliff
+      move-tick total via LANDING_TICKS (combat_common.glslinc); the
+      visualizer derives the LANDING window from
+      MovementTimingConfig.get_cliff_landing_ticks() and emits Display=
+      LANDING in get_activity(timer) once `timer <= landing_ticks`.
+      Already wired (see GPUKnightBreakTest log: `LANDING ->
+      SPELL_CHARGING`).
+
+  - unified: GETTING_UP
+    logical: ~
+    display: GETTING_UP
+    routing: none
+    notes: >
+      Revival animation. Pure defer: Raise has no shader path today, so
+      there is nothing to promote. Wiring lands with the Raise ability
+      itself; reopen this row when that ability is implemented.

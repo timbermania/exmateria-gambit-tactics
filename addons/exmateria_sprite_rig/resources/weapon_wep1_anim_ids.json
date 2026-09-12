@@ -1,0 +1,110 @@
+{
+	"1": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Knife"
+	},
+	"2": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "NinjaBlade"
+	},
+	"3": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Sword"
+	},
+	"4": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "KnightSword"
+	},
+	"5": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Katana"
+	},
+	"6": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Axe"
+	},
+	"7": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Rod"
+	},
+	"8": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Staff"
+	},
+	"9": {
+		"high": 0,
+		"mid": 2,
+		"low": 4,
+		"name": "Flail"
+	},
+	"10": {
+		"high": 6,
+		"mid": 8,
+		"low": 10,
+		"name": "Gun"
+	},
+	"11": {
+		"high": 12,
+		"mid": 14,
+		"low": 16,
+		"name": "Crossbow"
+	},
+	"12": {
+		"high": 12,
+		"mid": 14,
+		"low": 16,
+		"name": "Bow"
+	},
+	"13": {
+		"high": 18,
+		"mid": 18,
+		"low": 18,
+		"name": "Instrument"
+	},
+	"14": {
+		"high": 20,
+		"mid": 20,
+		"low": 20,
+		"name": "Book"
+	},
+	"15": {
+		"high": 22,
+		"mid": 24,
+		"low": 26,
+		"name": "Polearm"
+	},
+	"16": {
+		"high": 22,
+		"mid": 24,
+		"low": 26,
+		"name": "Pole"
+	},
+	"17": {
+		"high": 88,
+		"mid": 90,
+		"low": 92,
+		"name": "Bag"
+	},
+	"18": {
+		"high": 88,
+		"mid": 90,
+		"low": 92,
+		"name": "Cloth"
+	}
+}

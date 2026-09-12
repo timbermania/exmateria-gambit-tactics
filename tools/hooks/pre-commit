@@ -1,0 +1,33 @@
+#!/bin/sh
+# Pre-commit guard: enforce ADR-0088 Amendment 2 §2 — every key-location
+# `<ns>.loc.<name>` is defined in ONE owner class — WITHOUT running the full test
+# suite. Fires only when staged files touch godot-learning source (the only place the
+# invariant can break); pure-stdlib Python, ~0.2s; silent on success.
+#
+# Bypass once with:  git commit --no-verify
+#
+# Install (from any worktree root) — copy into the shared hooks dir, do NOT set
+# core.hooksPath (that would disable the git-lfs hooks that live alongside):
+#   cp godot-learning/tools/hooks/pre-commit "$(git rev-parse --git-path hooks)/pre-commit"
+#   chmod +x "$(git rev-parse --git-path hooks)/pre-commit"
+
+root=$(git rev-parse --show-toplevel) || exit 0
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Only relevant when a src .gd (or the checker itself) is staged.
+echo "$staged" | grep -Eq '^godot-learning/(src/.*\.gd|tools/check_location_ownership\.py)$' || exit 0
+
+# This hook lives in the SHARED gitdir, so it runs in every worktree — including ones on
+# branches that don't have the checker yet. Skip cleanly there (enforcement activates the
+# moment such a branch merges the checker); never block a commit over a missing tool.
+[ -f "$root/godot-learning/tools/check_location_ownership.py" ] || exit 0
+
+out=$(cd "$root/godot-learning" && python3 tools/check_location_ownership.py --check 2>&1)
+if [ $? -ne 0 ]; then
+	printf '%s\n' "$out" >&2
+	echo >&2
+	echo >&2 "COMMIT BLOCKED: a key location is defined outside its owner class (ADR-0088 A2 §2)."
+	echo >&2 "Move the <ns>.loc.* literal back into its owner class (report above),"
+	echo >&2 "or bypass once with:  git commit --no-verify"
+	exit 1
+fi

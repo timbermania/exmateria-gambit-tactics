@@ -1,0 +1,26 @@
+{
+  "_comment": "THE LEVER SET (godot-learning ADR-0277). Hand-authored multipliers composed over the ROM tables, which stay immutable underneath. Read by src/balance/LeverSet.gd and baked into the ability buffer and the unit rows at load. This file ships EMPTY on purpose: #1106 decided the layer, and the first real factors belong to #1107 (attack period / per-weapon-type recovery) and #1108 (cooldown from CT), where the evidence for them will exist. The two pacing.* Tune slugs are a SEPARATE layer and are NOT in here — see ADR-0277 dec. 3.",
+
+  "_schema": {
+    "levers": "Array of levers. SPARSE — a category with no lever has factor 1.0. Absent means untouched; a deliberate no-op is an explicit 1.0 entry with an evidence class.",
+    "lever": {
+      "quantity": "One of: wp, weapon_range (CAPABILITY — floor 1, a lever may weaken a weapon and never disarm it) | cooldown_ticks, charge_time, mp_cost, w_ev (COST — floor 0). Closed enum; adding a seventh is a decision, not an edit.",
+      "by": "The namespace `key` lives in. all (global tier, no key, domain chosen by the quantity) | formula, ability_type (ability categories) | item_type (item category) | ability, item (record tier). A lever may only pair a category with a quantity from its own domain.",
+      "key": "The category or record id. Omitted when by is 'all'.",
+      "factor": "Strictly positive, in [0.05, 20.0]. Tiers MULTIPLY: effective = rom x global x category x record, so 1.0 is the identity at every tier. Baked with round-half-away-from-zero.",
+      "why": "REQUIRED and non-empty. A factor is a claim that the ROM number is wrong for this kernel; an unexplained one is a magic number with a category attached.",
+      "evidence": "measured | rom-faithful | placeholder. The rig reports how many factors are still placeholders."
+    },
+    "_partition": "A record has EXACTLY ONE category. formula is present on the 368 Normal abilities and absent on all 144 others, so {by: ability_type, key: Normal} matches nothing and is a guard ERROR. To move all Normal abilities, author {by: all} plus nine ability_type counter-rows.",
+    "_example": {
+      "quantity": "cooldown_ticks",
+      "by": "formula",
+      "key": 8,
+      "factor": 0.5,
+      "why": "placeholder shape only — this entry is documentation, not a lever",
+      "evidence": "placeholder"
+    }
+  },
+
+  "levers": []
+}

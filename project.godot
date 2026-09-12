@@ -1,0 +1,908 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="learning"
+run/main_scene="res://assets/scenes/GPUArena.tscn"
+config/features=PackedStringArray("4.8", "Forward Plus")
+config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="res://assets/audio/default_bus_layout.tres"
+
+[autoload]
+
+Tune="*res://src/core/Tune.gd"
+Focus="*res://src/core/Focus.gd"
+UI3Registry="*res://src/ui3/UI3Registry.gd"
+AssetManifest="*res://src/core/AssetManifest.gd"
+UserSettings="*res://src/core/UserSettings.gd"
+DebugConfig="*res://src/debug/DebugConfig.gd"
+DebugOverlay="*res://src/debug/DebugOverlay.gd"
+PerfMonitor="*res://src/debug/PerfMonitor.gd"
+GameLogger="*res://src/debug/GameLogger.gd"
+ScreenEffectOverlay="*res://addons/exmateria_effects/overlay/ScreenEffectOverlay.gd"
+TintedSurfaces="*res://addons/exmateria_effects/overlay/TintedSurfaces.gd"
+EventBus="*res://src/core/EventBus.gd"
+CharacterCatalog="*res://addons/exmateria_catalogue/registry/CharacterCatalog.gd"
+EffectMultiMeshPool="*res://addons/exmateria_effects/render/EffectMultiMeshPool.gd"
+CompositorAutopilot="*res://src/effects/CompositorAutopilot.gd"
+PSXDisplay="*res://addons/exmateria_platform/display_port/PSXDisplay.gd"
+MasterBus="*res://src/audio/MasterBus.gd"
+ExMateriaAudioEngine="*res://addons/exmateria_sound/runtime/audio_engine.gd"
+MusicPlayer="*res://src/audio/MusicPlayer.gd"
+ExMateriaEffectSfx="*res://addons/exmateria_sound/runtime/effect_sfx_engine.gd"
+AudioHostAdapter="*res://src/audio/AudioHostAdapter.gd"
+SfxRouter="*res://src/audio/SfxRouter.gd"
+Campaign="*res://src/scenarios/Campaign.gd"
+ScenarioLoader="*res://src/scenario/ScenarioLoader.gd"
+ScenarioDebugSession="*res://src/debug/ScenarioDebugSession.gd"
+SpriteRigContent="*res://src/data/SpriteRigContent.gd"
+
+[display]
+
+window/size/viewport_width=1024
+window/size/viewport_height=960
+window/size/window_width_override=1024
+window/size/window_height_override=960
+window/subwindows/embed_subwindows=false
+window/stretch/mode="viewport"
+
+[exmateria_battlefield]
+
+content_root="res://assets/"
+
+[exmateria_catalogue]
+
+content_root="res://assets/"
+
+[exmateria_effects]
+
+content_root="res://assets/"
+
+[exmateria_sprite_rig]
+
+content_root="res://assets/"
+
+[importer_defaults]
+
+texture={
+"compress/mode": 0,
+"detect_3d/compress_to": 0
+}
+
+[input]
+
+ui_accept={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194309,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194310,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 1,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+ui_cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194308,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 0,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+ui_focus_next={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": []
+}
+ui_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194319,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 65,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 13,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+ui_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194321,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 68,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 14,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+ui_up={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194320,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 87,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 11,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+ui_down={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194322,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 83,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 12,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+battle_start={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 32,
+"key_label": 0,
+"unicode": 32,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 6,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+battle_pause={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194305,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 4,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+unit_inspect={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194306,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 3,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+rotate_camera_cw={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 81,
+"key_label": 0,
+"unicode": 113,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 9,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+rotate_camera_ccw={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 69,
+"key_label": 0,
+"unicode": 101,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 10,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+camera_up={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 87,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194320,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 11,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+camera_down={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 83,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194322,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 12,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+camera_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 65,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194319,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 13,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+camera_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 68,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194321,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 14,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+formation_sort_next={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 93,
+"key_label": 0,
+"unicode": 93,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadMotion,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"axis": 5,
+"axis_value": 1.0,
+"script": null
+)]
+}
+formation_sort_prev={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 91,
+"key_label": 0,
+"unicode": 91,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadMotion,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"axis": 4,
+"axis_value": 1.0,
+"script": null
+)]
+}
+formation_start_menu={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194306,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 3,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+world_map_start_menu={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194306,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 3,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 6,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+cursor_confirm={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194309,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194310,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+), Object(InputEventJoypadButton,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"button_index": 1,
+"pressure": 0.0,
+"pressed": false,
+"script": null
+)]
+}
+turn_recenter={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,
+"resource_local_to_scene": false,
+"resource_name": "",
+"device": -1,
+"window_id": 0,
+"alt_pressed": false,
+"shift_pressed": false,
+"ctrl_pressed": false,
+"meta_pressed": false,
+"pressed": false,
+"keycode": 0,
+"physical_keycode": 4194317,
+"key_label": 0,
+"unicode": 0,
+"location": 0,
+"echo": false,
+"script": null
+)]
+}
+
+[rendering]
+
+renderer/rendering_method.mobile="forward_plus"
+
+[shader_globals]
+
+psx_dither_enabled={
+"type": "bool",
+"value": true
+}
+psx_gamma={
+"type": "float",
+"value": 1.4
+}
+pixel_aspect={
+"type": "float",
+"value": 1.0
+}
+psx_cursor_stretch={
+"type": "float",
+"value": 1.0
+}
+psx_fx_stretch={
+"type": "float",
+"value": 1.0
+}
+unit_stretch={
+"type": "float",
+"value": 1.0
+}
+psx_camera_angle={
+"type": "int",
+"value": 0
+}

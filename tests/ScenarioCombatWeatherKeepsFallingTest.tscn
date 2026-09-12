@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c8n2rqk7wv3xp"]
+
+[ext_resource type="Script" path="res://tests/ScenarioCombatWeatherKeepsFallingTest.gd" id="1"]
+
+[node name="ScenarioCombatWeatherKeepsFallingTest" type="Node"]
+script = ExtResource("1")

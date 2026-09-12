@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_map_host_test"]
+
+[ext_resource type="Script" path="res://tests/FormationMapHostTest.gd" id="1_test"]
+
+[node name="FormationMapHostTest" type="Node3D"]
+script = ExtResource("1_test")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_ability_remove_test"]
+
+[ext_resource type="Script" path="res://tests/FormationAbilityRemoveTest.gd" id="1_test"]
+
+[node name="FormationAbilityRemoveTest" type="Node3D"]
+script = ExtResource("1_test")

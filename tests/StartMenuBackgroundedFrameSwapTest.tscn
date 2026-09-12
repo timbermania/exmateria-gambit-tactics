@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://start_menu_backgrounded_frame_swap_test"]
+
+[ext_resource type="Script" path="res://tests/StartMenuBackgroundedFrameSwapTest.gd" id="1_test"]
+
+[node name="StartMenuBackgroundedFrameSwapTest" type="Node3D"]
+script = ExtResource("1_test")

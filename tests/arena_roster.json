@@ -1,0 +1,251 @@
+{
+  "team0": [
+    {
+      "name": "Knight",
+      "job_id": "4c",
+      "pos_x": 1, "pos_z": 1,
+      "hp": 200, "max_hp": 200,
+      "pa": 9, "ma": 5, "wp": 5,
+      "brave": 50, "faith": 50,
+      "mp": 20, "max_mp": 20,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 1,
+      "weapon_id": 19,
+      "body_sprite_id": 100,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "Archer",
+      "job_id": "4d",
+      "pos_x": 1, "pos_z": 3,
+      "hp": 150, "max_hp": 150,
+      "pa": 7, "ma": 5, "wp": 4,
+      "brave": 50, "faith": 50,
+      "mp": 20, "max_mp": 20,
+      "move": 4, "jump": 3,
+      "weapon_range": 5, "weapon_flags": 4, "weapon_type": 11,
+      "weapon_id": 83,
+      "body_sprite_id": 102,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "BlackMage",
+      "job_id": "50",
+      "pos_x": 2, "pos_z": 5,
+      "hp": 120, "max_hp": 120,
+      "pa": 4, "ma": 12, "wp": 1,
+      "brave": 50, "faith": 50,
+      "mp": 80, "max_mp": 80,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 0,
+      "body_sprite_id": 108,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 1,
+          "action_id": 16,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "Chemist",
+      "job_id": "4b",
+      "pos_x": 2, "pos_z": 7,
+      "hp": 140, "max_hp": 140,
+      "pa": 5, "ma": 8, "wp": 1,
+      "brave": 50, "faith": 50,
+      "mp": 30, "max_mp": 30,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 0,
+      "body_sprite_id": 98,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 3,
+          "conditions": [{"type": 1, "value": 90}],
+          "action_type": 2,
+          "action_id": 368,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    }
+  ],
+  "team1": [
+    {
+      "name": "EnemySquire",
+      "job_id": "4a",
+      "pos_x": 8, "pos_z": 1,
+      "hp": 180, "max_hp": 180,
+      "pa": 7, "ma": 5, "wp": 5,
+      "brave": 50, "faith": 50,
+      "mp": 20, "max_mp": 20,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 1,
+      "weapon_id": 19,
+      "body_sprite_id": 97,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 4,
+          "action_id": 148,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "EnemyKnight",
+      "job_id": "4c",
+      "pos_x": 8, "pos_z": 3,
+      "hp": 200, "max_hp": 200,
+      "pa": 9, "ma": 5, "wp": 5,
+      "brave": 50, "faith": 50,
+      "mp": 20, "max_mp": 20,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 1,
+      "weapon_id": 19,
+      "body_sprite_id": 101,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "EnemyMage",
+      "job_id": "50",
+      "pos_x": 7, "pos_z": 5,
+      "hp": 120, "max_hp": 120,
+      "pa": 4, "ma": 12, "wp": 1,
+      "brave": 50, "faith": 50,
+      "mp": 80, "max_mp": 80,
+      "move": 4, "jump": 3,
+      "weapon_range": 1, "weapon_flags": 1, "weapon_type": 0,
+      "body_sprite_id": 109,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 1,
+          "action_id": 16,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    },
+    {
+      "name": "EnemyArcher",
+      "job_id": "4d",
+      "pos_x": 7, "pos_z": 7,
+      "hp": 150, "max_hp": 150,
+      "pa": 7, "ma": 5, "wp": 4,
+      "brave": 50, "faith": 50,
+      "mp": 20, "max_mp": 20,
+      "move": 4, "jump": 3,
+      "weapon_range": 5, "weapon_flags": 4, "weapon_type": 11,
+      "weapon_id": 83,
+      "body_sprite_id": 103,
+      "gambits": [
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        },
+        {
+          "enabled": true,
+          "cond_target_type": 1,
+          "conditions": [{"type": 0, "value": 0}],
+          "action_type": 0,
+          "action_id": 0,
+          "action_target_type": 7
+        }
+      ]
+    }
+  ]
+}

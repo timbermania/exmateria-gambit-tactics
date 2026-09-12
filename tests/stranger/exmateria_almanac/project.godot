@@ -1,0 +1,44 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_schema/project.godot`; this is that rig pointed at
+; the SIXTH in-walk addon, not a sixth invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; `config/name` is not decoration: `tests/stranger/shared/stranger_install.gd`
+; reads it to learn which of the staged addons is the SUBJECT. This rig stages
+; two — the subject plus the one `plugin.cfg` declares as a dep
+; (`exmateria_platform`, for `JsonAsset`) — so "the only addon here" is not a
+; reading that works.
+;
+; THE ADDON IS NOT ENABLED HERE, and for this addon that is the whole claim
+; rather than a formality. `plugin.gd` does nothing on purpose: the almanac
+; registers no autoload, no singleton and no editor UI, so a consumer uses it by
+; naming `ExMateriaAlmanac` — the addon's ONE global (ADR-0244 dec. 3) — and by
+; nothing else. A table that installed itself into the host would be a port.
+;
+; 🔴 THE THIRTEEN JSON PAYLOADS ARE INSIDE THE ADDON, AND THAT IS WHAT THIS RIG
+; MEASURES (ADR-0244 dec. 2). Every database reads its table by a
+; `res://addons/exmateria_almanac/...` path, so a stranger project that ships no
+; `assets/` at all still gets working tables. Had the payloads stayed in the
+; host, this rig would come up and every `_ensure_loaded()` would find nothing —
+; which is precisely the silent-empty failure ADR-0146 dec. 1 ruled against when
+; `fold_layer.tres` travelled with `Fold.gd`.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_almanac"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

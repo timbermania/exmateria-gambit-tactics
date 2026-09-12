@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bc5uw6j1k8vb5"]
+
+[ext_resource type="Script" path="res://tests/CaptureTriangleAim.gd" id="1"]
+
+[node name="CaptureTriangleAim" type="Node"]
+script = ExtResource("1")

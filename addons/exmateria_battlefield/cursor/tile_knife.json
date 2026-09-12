@@ -1,0 +1,32 @@
+{
+  "tile_knife": {
+    "format": "step_table",
+    "source": {
+      "binary": "BATTLE.BIN",
+      "function": "FUN_8007e304",
+      "offset_table_va": "0x80067798",
+      "hold_table_va": "0x800677B8"
+    },
+    "tile_unit": 28,
+    "offsets": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      3,
+      2,
+      1
+    ],
+    "holds": [
+      16,
+      8,
+      2,
+      2,
+      6,
+      4,
+      4,
+      10
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_timeline_solo_mute_test"]
+
+[ext_resource type="Script" path="res://tests/EffectTimelineSoloMuteTest.gd" id="1_test"]
+
+[node name="EffectTimelineSoloMuteTest" type="Node"]
+script = ExtResource("1_test")

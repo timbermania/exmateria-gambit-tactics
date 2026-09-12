@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_dialogue_box_asm_01"]
+
+[ext_resource type="Script" path="res://src/ui3/assemblies/DialogueBox.gd" id="1_dialogue_box"]
+
+[node name="DialogueBox" type="Node3D"]
+script = ExtResource("1_dialogue_box")

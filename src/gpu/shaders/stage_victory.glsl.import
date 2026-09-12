@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bk4tqal11ak"
+path="res://.godot/imported/stage_victory.glsl-b417f24779749b16aeb5a69b319f2721.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_victory.glsl"
+dest_files=["res://.godot/imported/stage_victory.glsl-b417f24779749b16aeb5a69b319f2721.res"]
+
+[params]
+

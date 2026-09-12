@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b2mdxcrcehh2g"]
+
+[ext_resource type="Script" path="res://tests/ReferenceRenderDirectionTest.gd" id="1_refrdt"]
+
+[node name="ReferenceRenderDirectionTest" type="Node"]
+script = ExtResource("1_refrdt")

@@ -1,0 +1,5 @@
+{
+  "wrapper": { "a": 1, "b": 2 },
+  "list_under_key": [10, 20, 30],
+  "nested": { "inner": { "x": 9 } }
+}

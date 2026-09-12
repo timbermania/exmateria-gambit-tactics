@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cmx2uop1kdh8q"
+path="res://.godot/imported/stage_resolve.glsl-a40a41639b608b257d3d3f7e59b7a427.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_resolve.glsl"
+dest_files=["res://.godot/imported/stage_resolve.glsl-a40a41639b608b257d3d3f7e59b7a427.res"]
+
+[params]
+

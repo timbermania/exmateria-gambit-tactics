@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://hujj1h6ooxsa"]
+
+[ext_resource type="Script" path="res://tests/EffectStudioSpriteMuxAcceptanceTest.gd" id="1"]
+
+[node name="EffectStudioSpriteMuxAcceptanceTest" type="Node"]
+script = ExtResource("1")

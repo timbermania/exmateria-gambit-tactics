@@ -1,0 +1,41 @@
+# Verbatim excerpt of tests/logs/GambitScenarioRunnerTest.log, 2026-08-23 full run
+# (410-test run, /tmp/e2-suite-postmerge-2026-08-23.log). Five XFAIL scenarios and
+# the aggregate summary. The runner scored this log FAIL; the test reports green.
+
+[H4/reacting_does_not_reeval] verdict=XFAIL
+  - [FAIL] state_inhibited(unit='Knight', during_state='REACTING') — unknown state 'REACTING' (expected one of ["IDLE", "WALKING", "ACTING", "PREEMPTIVE_COUNTER", "SPELL_CHARGING", "WALKING_TO_CAST", 
+  xfail_reason: Shader has no LOGICAL_ACTIVITY_REACTING state. Flinch is driven by U_REACTION_TIMER without gating gambit eval; H4 is uncovered until a REACTING state lands or the rule is reframed aga
+
+
+  - [ok] by_tick(200): unit('Wizard').committed(ATTACK) — first commit at tick 16
+  - [FAIL] damage_dealt_to(target='BleedingKnight', by_tick=300) — no damaging hp_event for 'BleedingKnight' by tick 300 (observed: tick=42 unit=1(BeefyKnight) delta=-48, tick=62 unit=1(BeefyKnight) d
+  - [FAIL] no_damage_dealt_to(target='BeefyKnight', by_tick=300) — expected no damage but 'BeefyKnight' took delta=-48 at tick 42
+  xfail_reason: The gambit picks the right unit and the swing lands on a different one. Pass 2 pivots to rank-1 (BleedingKnight) and execute_gambit_action writes U_TARGET to it, but the damage arrives
+
+[B6/wizard_fire_los_blocked_by_terrain] verdict=XFAIL
+  - [FAIL] by_tick(50): unit('Wizard').committed(ATTACK) — no commit by tick 50 (final_tick=411)
+  - [ok] no_stuck(unit='Wizard', max_idle_ticks=10, given='any_enemy_alive') — longest_idle_run=1 (max 10); worst run started tick 299
+  xfail_reason: B6 LOS variant — Fire's arc LOS check rejects the line across the (3,5)/(3,6) ridge; today the shader keeps retrying slot 0 instead of falling through within K=10. The Wizard does even
+
+  - [ok] damage_dealt_to(target='BleedingKnight', by_tick=150) — first damaging hit at tick 42 (delta=0)
+  - [FAIL] no_damage_dealt_to(target='FullHpKnight', by_tick=150) — expected no damage but 'FullHpKnight' took delta=-56 at tick 61
+  xfail_reason: Same open bug as B7 (see its xfail_reason). MOST_CRITICAL correctly picks BleedingKnight and the Wizard does hit it at tick 42 — for delta=0 — and then hits FullHpKnight for -56 at tic
+
+
+  [PASS] D5/and_combine_both_pass_slot_fires
+  [PASS] G6/two_allies_contend_for_same_attack_tile_map100
+  [PASS] G5/pass_through_fails_closed_east
+  [PASS] G5/pass_through_fails_closed_west
+  [PASS] G3/impassable_east_chokepoint_forces_detour
+  [PASS] G3/impassable_west_chokepoint_forces_detour
+  [PASS] fixture/noran_sentinel
+--------------------------------------
+  PASS:  77
+  FAIL:  0
+  XFAIL: 4
+  XPASS: 1
+  ERROR: 0
+  NORAN: 0
+======================================
+[PASS] GambitScenarioRunner: 82 scenarios green (XFAIL/XPASS soft)
+[VERDICT] PASS

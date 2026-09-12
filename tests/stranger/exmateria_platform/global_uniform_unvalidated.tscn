@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/stranger/exmateria_platform/global_uniform_unvalidated.gd" id="1"]
+
+[node name="GlobalUniformUnvalidated" type="Node"]
+script = ExtResource("1")

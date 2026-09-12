@@ -1,0 +1,26 @@
+{
+  "_comment": "EXAMPLE template.json (ADR-0072, wayfinder #200). Illustrative reference for the character-alignment transform (#201) + runtime loaders (#203). The real files live in the GITIGNORED res://assets/characters/templates/<token>/ tree, regenerated from the ROM extract. Schema: docs/TEMPLATE_JSON_SCHEMA.md. This example is a story unique (Ramza, Form 3 = special_name 3, folder token ramza_3). Every asset key is individually optional (omit = absent); animation TYPE is REFERENCED by name, all visuals are OWNED sliced files with their own palette.",
+
+  "template_key": "3",
+  "category": "unique",
+
+  "body":      { "sprite": "body.tga",      "palette": "body.palette.tga" },
+  "portrait":  { "sprite": "portrait.tga",  "palette": "portrait.palette.tga" },
+  "formation": { "sprite": "formation.tga", "palette": "formation.palette.tga" },
+
+  "events": {
+    "face": [
+      { "index": 0, "tag": "neutral", "sprite": "events/face/00.tga", "palette": "events/face/00.palette.tga" },
+      { "index": 1, "tag": "blink",   "sprite": "events/face/01.tga", "palette": "events/face/01.palette.tga" }
+    ],
+    "chr": [
+      { "index": 0, "tag": "carry_pose", "sprite": "events/chr/00.tga", "palette": "events/chr/00.palette.tga" },
+      { "index": 1,                       "sprite": "events/chr/01.tga", "palette": "events/chr/01.palette.tga" }
+    ]
+  },
+
+  "animation": { "seq": "type1", "shp": "type1" },
+
+  "flying": false,
+  "height": 40
+}

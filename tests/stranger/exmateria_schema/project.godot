@@ -1,0 +1,34 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). The wording and the
+; shape are `exmateria-sound/workspace/acceptance/stranger_sound/project.godot`'s;
+; this is the same rig generalised to an in-walk addon, not a second invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root. `stranger_sound`
+; stages flat and can, because no guard in that package reads its tree. Here
+; `tools/check_res_paths.py` reads every quoted `res://` source literal in
+; `godot-learning/` and resolves it against the HOST root: staged flat, all three
+; of this rig's own literals are unresolved there and the guard is red on a
+; correct checkout, which is how a guard gets ignored. Mirroring the layout makes
+; every path true in BOTH projects and costs one `--parents` in run.sh.
+;
+; The addon is NOT enabled here. `exmateria_schema` installs nothing — no
+; autoload, no singleton, no editor UI (its own README says so) — so a consumer
+; uses it by referencing the ONE `class_name` it registers, `ExMateriaSchema`
+; (ADR-0212 dec. 1), and `#include`ing its shader seams, which is exactly what
+; this project does and all it may do.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_schema"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_end_model_test"]
+
+[ext_resource type="Script" path="res://tests/EffectEndModelTest.gd" id="1_test"]
+
+[node name="EffectEndModelTest" type="Node"]
+script = ExtResource("1_test")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/EffectStudioFramesetLayoutTest.gd" id="1_layout"]
+
+[node name="EffectStudioFramesetLayoutTest" type="Node"]
+script = ExtResource("1_layout")

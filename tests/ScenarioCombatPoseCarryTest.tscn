@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://scenario_combat_pose_carry_test"]
+
+[ext_resource type="Script" path="res://tests/ScenarioCombatPoseCarryTest.gd" id="1_test"]
+
+[node name="ScenarioCombatPoseCarryTest" type="Node"]
+script = ExtResource("1_test")

@@ -1,0 +1,59 @@
+src	dst	kind	source	disposition	lines	anchors
+assets/scenes/PlayerCamera.tscn	addons/exmateria_battlefield/camera/PlayerCamera.tscn	scene	scene (#561 dec. 4 — no census can see it)	move	39	
+assets/scenes/TileCursor.tscn	addons/exmateria_battlefield/cursor/TileCursor.tscn	scene	scene (#561 dec. 4 — no census can see it)	move	8	
+assets/shaders/black_unlit.gdshader	addons/exmateria_battlefield/terrain/black_unlit.gdshader	shader	census	move	35	
+assets/shaders/cursor_clut_preview.gdshader	addons/exmateria_battlefield/cursor/cursor_clut_preview.gdshader	shader	census	returned	24	
+assets/shaders/cursor_fold.gdshaderinc	addons/exmateria_battlefield/cursor/cursor_fold.gdshaderinc	shader	census	move	66	Display Space Blend Fold
+assets/shaders/cursor_fold_add.gdshader	addons/exmateria_battlefield/cursor/cursor_fold_add.gdshader	shader	census	move	7	
+assets/shaders/cursor_fold_mix.gdshader	addons/exmateria_battlefield/cursor/cursor_fold_mix.gdshader	shader	census	move	7	
+assets/shaders/cursor_fold_sub.gdshader	addons/exmateria_battlefield/cursor/cursor_fold_sub.gdshader	shader	census	move	7	
+assets/shaders/fft_visible_angles.gdshaderinc	addons/exmateria_battlefield/terrain/fft_visible_angles.gdshaderinc	shader	census	move	65	
+assets/shaders/grid_overlay.gdshader	addons/exmateria_battlefield/debug/grid_overlay.gdshader	shader	census	move	27	
+assets/shaders/indexed_color.gdshader	addons/exmateria_battlefield/texturing/indexed_color.gdshader	shader	census	move	340	Color Tint Luma Modes;Display Space Blend Fold;Map Tint;Scenario Camera Framing
+assets/shaders/screen_background.gdshader	addons/exmateria_battlefield/camera/screen_background.gdshader	shader	census	move	41	Background Opcode
+assets/shaders/tile_cursor.gdshaderinc	addons/exmateria_battlefield/cursor/tile_cursor.gdshaderinc	shader	census	move	79	
+assets/shaders/tile_cursor_opaque.gdshader	addons/exmateria_battlefield/cursor/tile_cursor_opaque.gdshader	shader	census	move	16	
+assets/shaders/tile_decal_fold.gdshader	addons/exmateria_battlefield/overlay/tile_decal_fold.gdshader	shader	census	move	43	
+assets/shaders/tile_overlay.gdshaderinc	addons/exmateria_battlefield/overlay/tile_overlay.gdshaderinc	shader	census	move	128	Display Space Blend Fold;Tile Overlay
+assets/shaders/tile_overlay_mode0.gdshader	addons/exmateria_battlefield/overlay/tile_overlay_mode0.gdshader	shader	census	move	22	
+assets/shaders/tile_overlay_opaque.gdshader	addons/exmateria_battlefield/overlay/tile_overlay_opaque.gdshader	shader	census	move	26	
+src/core/MapIlluminationDDA.gd	addons/exmateria_battlefield/texturing/MapIlluminationDDA.gd	script	census	move	131	Combat Color Appliers;Map Tint
+src/debug/DeadzoneBoxOverlay.gd	addons/exmateria_battlefield/camera/DeadzoneBoxOverlay.gd	script	census	move	34	
+src/debug/MapGridOverlay.gd	addons/exmateria_battlefield/debug/MapGridOverlay.gd	script	census	move	143	GTE World-to-Screen Transform
+src/effects/TileCursorCompositor.gd	addons/exmateria_battlefield/cursor/TileCursorCompositor.gd	script	census	move	105	
+src/effects/TileOverlayColor.gd	addons/exmateria_battlefield/overlay/TileOverlayColor.gd	script	arm 1 (booked Effects; not in the pass-5 census)	move	61	
+src/effects/TileOverlayCompositor.gd	addons/exmateria_battlefield/overlay/TileOverlayCompositor.gd	script	census	move	198	
+src/map/Doodad.gd	addons/exmateria_battlefield/doodad/Doodad.gd	script	census	move	146	
+src/map/DoodadLibrary.gd	addons/exmateria_battlefield/doodad/DoodadLibrary.gd	script	census	move	206	
+src/map/DynamicGeometryBuilder.gd	addons/exmateria_battlefield/terrain/DynamicGeometryBuilder.gd	script	census	move	626	Display Space Blend Fold;Map Tint;Terrain Render Pipeline
+src/map/DynamicTerrainBuilder.gd	addons/exmateria_battlefield/terrain/DynamicTerrainBuilder.gd	script	census	move	207	
+src/map/IndexedAtlasDilator.gd	addons/exmateria_battlefield/texturing/IndexedAtlasDilator.gd	script	census	move	61	
+src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd	script	census	move	717	Color Tint Luma Modes;Event Opcode Catalog;Map Animation Systems;Map Darkness Opcode;Map State Selection
+src/map/MapConstants.gd	addons/exmateria_battlefield/lattice/MapConstants.gd	script	census	move	37	
+src/map/MapLightingConfig.gd	addons/exmateria_battlefield/assembly/MapLightingConfig.gd	script	census	move	163	Map Darkness Opcode
+src/map/MapStateSelector.gd	addons/exmateria_battlefield/assembly/MapStateSelector.gd	script	census	move	47	Map Darkness Opcode;Map State Selection
+src/map/MapTextureAnimator.gd	addons/exmateria_battlefield/texturing/MapTextureAnimator.gd	script	census	move	352	Map Animation Systems
+src/map/PaletteTextureGenerator.gd	addons/exmateria_battlefield/texturing/PaletteTextureGenerator.gd	script	census	move	98	
+src/map/SceneTreeManager.gd	addons/exmateria_battlefield/assembly/SceneTreeManager.gd	script	census	move	56	
+src/map/SkirtConfig.gd	addons/exmateria_battlefield/terrain/SkirtConfig.gd	script	census	move	100	
+src/map/SkirtGeometryGenerator.gd	addons/exmateria_battlefield/terrain/SkirtGeometryGenerator.gd	script	census	move	827	
+src/map/TerrainIndex.gd	addons/exmateria_battlefield/lattice/TerrainIndex.gd	script	census	move	70	
+src/map/Tile.gd	addons/exmateria_battlefield/lattice/Tile.gd	script	census	move	252	Display Space Blend Fold;Tile Overlay
+src/map/TileOverlayConfig.gd	addons/exmateria_battlefield/overlay/TileOverlayConfig.gd	script	census	move	295	Color Screen Opcode;Tile Overlay
+src/map/VisualGeometryIndex.gd	addons/exmateria_battlefield/terrain/VisualGeometryIndex.gd	script	census	move	300	
+src/scenarios/EventPathfinder.gd	addons/exmateria_battlefield/pathfinding/EventPathfinder.gd	script	census	move	148	Walk To Opcode
+src/scenes/CursorController.gd	addons/exmateria_battlefield/cursor/CursorController.gd	script	census	move	123	
+src/scenes/PlayerCamera.gd	addons/exmateria_battlefield/camera/PlayerCamera.gd	script	census	move	821	Scenario Camera Framing
+src/scenes/TileCursor.gd	addons/exmateria_battlefield/cursor/TileCursor.gd	script	census	move	613	Display Space Blend Fold;Tile Overlay
+src/scenes/TileCursorBob.gd	addons/exmateria_battlefield/cursor/TileCursorBob.gd	script	census	move	94	
+	addons/exmateria_battlefield/lattice/Lattice.gd	script	new (ADR-0192 dec. 4 — the port, written at pass 6; its `original` is the store it wraps)	new	184	
+	addons/exmateria_battlefield/overlay/TileHighlights.gd	script	new (ADR-0164 dec. 1 — the highlight PUBLISH, written at pass 6; the capability existed on `Tile`, this is its address)	new	67	
+	addons/exmateria_battlefield/install/BattlefieldContent.gd	script	new (ADR-0202 dec. 5 / ADR-0203 dec. 1 — the Class B INJECT seam, written at pass 12; its "original" is nine `res://assets/` literals spread over five files, not one file that moved)	new	111	
+	addons/exmateria_battlefield/cursor/CursorRig.gd	script	new (ADR-0206 dec. 1 — the cursor PORT, written at pass 12; its `original` is the two implementations it wraps, `TileCursor.gd` and `CursorController.gd`, both of which lost their `class_name` in the same commit)	new	130	
+	addons/exmateria_battlefield/exmateria_battlefield.gd	script	new (ADR-0211 dec. 2 — the addon's ONE global `class_name`, written at pass 13. Its `original` is the thirty `class_name` registrations it replaces: fourteen are re-published as constants here, sixteen were internal and are now unnameable from outside. Nothing moved on disk — this row is a WRITE, and the deletions it pays for are edits to files already on this manifest.)	new	125	
+	addons/exmateria_battlefield/lattice/TerrainFixture.gd	script	new (ADR-0218 dec. 2 — the lattice's TEST SEAM, written at the ADR-0218 pass. Its `original` is the ten hand-written doubles it deletes: six `extends Lattice` overrides and four `class *Map extends Node` wrappers, spread over eight host `tests/` files. Nothing moved on disk — this row is a WRITE, and the deletions it pays for are edits to host files this manifest does not hold.)	new	241	
+	addons/exmateria_battlefield/texturing/PaletteAnimationTable.gd	script	new (the per-palette animation SCHEDULE, written at the Igros-waterfall fix. Its `original` is `DynamicGeometryBuilder._get_palette_animation_config()`, which collapsed a map's heterogeneous palette animations into one contiguous range sharing entry [0]'s parameters. Nothing moved on disk — this row is a WRITE, and the deletion it pays for is an edit to `DynamicGeometryBuilder.gd`, already on this manifest.)	new	109	
+	addons/exmateria_battlefield/motion/RomWalkStepper.gd	script	new (ADR-0225 — the `{28} Walk To` RENDER half, transcribed from research/scenario29_walk_vs_jump/evidence/rom_walk_render.py; EventPathfinder's sibling, and like it it has no host original)	new	1154	
+	addons/exmateria_battlefield/terrain/RomTerrain.gd	script	new (ADR-0226 — the map file as the ROM's own eight-byte tiles, PSX coordinates and all; the input BOTH halves of `{28} Walk To` need and a `TerrainCell` cannot state. Second copy of the exporter's two enum tables, guarded by tools/check_rom_terrain_tables.py)	new	256	
+	addons/exmateria_battlefield/overlay/tile_overlay_clut.gdshaderinc	shader	new (the CLUT-sampling half of tile_overlay.gdshaderinc, split out 2026-09-08 when the active-cursor tile became a fold member. Its `original` is that file, already on this manifest, which keeps the sRGB->linear pow the fold may not reach: `check_no_pow_in_fold.py` scans a fold's whole include closure, so the shared sampling had to live below the pow, not beside it. Nothing moved on disk — this row is a WRITE, and the deletion it pays for is an edit to a file already here.)	new	111	Tile Overlay;Range Overlay Tile Palettes
+	addons/exmateria_battlefield/overlay/tile_overlay_add_fold.gdshader	shader	new (the TEXTURED routed tile's compositor_layer material, written 2026-09-08. Its `original` is tile_overlay_opaque.gdshader, which stays for SELECTED: the active-cursor tile left blend 4 for the ROM's additive tpage 0x3F and now folds, and it cannot ride tile_decal_fold — that carrier is untextured solid colour and the cursor is the one overlay that samples the sheet.)	new	68	Tile Overlay

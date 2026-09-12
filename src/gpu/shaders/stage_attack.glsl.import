@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://blhguiy11pry0"
+path="res://.godot/imported/stage_attack.glsl-ca2aa118ce022aa533b0e7a9863d1309.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_attack.glsl"
+dest_files=["res://.godot/imported/stage_attack.glsl-ca2aa118ce022aa533b0e7a9863d1309.res"]
+
+[params]
+

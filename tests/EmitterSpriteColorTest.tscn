@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dwhsn006yvn17"]
+
+[ext_resource type="Script" path="res://tests/EmitterSpriteColorTest.gd" id="1"]
+
+[node name="EmitterSpriteColorTest" type="Node"]
+script = ExtResource("1")

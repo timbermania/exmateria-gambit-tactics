@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_stepper_clamp_test"]
+
+[ext_resource type="Script" path="res://tests/FormationStepperClampTest.gd" id="1_test"]
+
+[node name="FormationStepperClampTest" type="Node3D"]
+script = ExtResource("1_test")

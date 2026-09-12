@@ -1,0 +1,2258 @@
+// =============================================================================
+// combat_common.glslinc — shared layer for every combat compute stage
+//
+// Included by every stage shader via `#include "res://src/gpu/shaders/combat_common.glslinc"`.
+// Contains everything that's not pass-specific:
+//   - Workgroup layout, struct field offsets, gameplay constants
+//   - All SSBO declarations (set=0, bindings 0-7)
+//   - Buffer accessors (read/write unit, battle header, ping-pong helpers)
+//   - Map & pathfinding cost helpers
+//   - Ability / status / MP / HP helpers
+//
+// No `#version` and no `#[compute]` here — the including stage provides those.
+// All stages currently share local_size_x=64; if a stage ever wants a different
+// workgroup size, move this layout into the per-stage file.
+// =============================================================================
+
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+// Shader version — increment when making structural changes. This and the offset
+// tables below are the authoritative combat buffer layout; the GDScript mirror in
+// GPUBatchSimulator.gd is generated from here by tools/gen_gpu_layout.py.
+const int SHADER_VERSION = 35;
+
+const int MAX_UNITS_PER_BATTLE = 8;
+const int MAX_TICKS = 100000;
+const int MAX_GAMBITS = 6;  // 5 authored + 1 encoder-injected safety net (ADR-0048)
+const int MAX_GAMBIT_CONDITIONS = 4;
+
+// Unit struct size (in ints). Per-tick state only — copy_unit_to_next runs
+// UNIT_SIZE per tick per unit, so per-commit data (cooldown_ready_at) lives
+// in its own SSBO (binding 9) rather than inline. See issue #85.
+const int UNIT_SIZE = 104;
+
+// Unit field offsets (READ fields - current state)
+const int U_POS_X = 0;
+const int U_POS_Z = 1;
+const int U_HP = 2;
+const int U_MAX_HP = 3;
+const int U_PA = 4;
+const int U_MA = 5;
+const int U_WP = 6;
+const int U_BRAVE = 7;
+const int U_FAITH = 8;
+const int U_SPEED = 9;
+const int U_MOVE = 10;
+const int U_JUMP = 11;
+const int U_TEAM = 12;
+const int U_STATE = 13;
+const int U_TARGET = 14;
+const int U_TIMER = 15;
+const int U_DEST_X = 16;
+const int U_DEST_Z = 17;
+const int U_FLAGS = 18;
+const int U_C_EV = 19;
+const int U_S_EV = 20;
+const int U_W_EV = 21;
+const int U_REACTION_TIMER = 22;
+const int U_WEAPON_RANGE = 23;
+const int U_WEAPON_FLAGS = 24;
+const int U_HEIGHT = 25;
+const int U_PENDING_DAMAGE = 26;
+const int U_PROPOSED_X = 27;
+const int U_PROPOSED_Z = 28;
+const int U_DAMAGE_TARGET = 29;
+const int U_DAMAGE_AMOUNT = 30;
+const int U_DBG_CONFLICT_BLOCKED = 31;
+const int U_DBG_CONFLICT_BLOCKER = 32;
+const int U_DBG_PROPOSED_ACCEPTED = 33;
+const int U_DBG_STATE_REASON = 34;
+const int U_DBG_PATH_TRAVERSE = 35;
+const int U_DBG_PATH_JUMP = 36;
+const int U_DBG_PATH_UNOCC = 37;
+const int U_DBG_PATH_DIST = 38;
+const int U_DBG_BEST_DIST = 39;
+const int U_DBG_NEXT_X = 40;
+const int U_DBG_NEXT_Z = 41;
+const int U_ANIM_ID = 42;
+const int U_ANIM_FRAME = 43;
+const int U_DAMAGE_FRAME = 44;
+const int U_TOTAL_FRAMES = 45;
+const int U_ANIM_FLAGS = 46;
+const int U_WEAPON_TYPE = 47;
+const int U_PROJECTILE_FRAME = 69;
+const int U_MP = 48;
+const int U_MAX_MP = 49;
+const int U_CASTING_ABILITY_ID = 50;
+const int U_CAST_TARGET = 51;
+const int U_CAST_TIMER = 52;
+const int U_ABILITY_FLAGS = 53;
+const int U_STATUS_FLAGS_LO = 54;
+const int U_STATUS_FLAGS_HI = 55;
+// The status countdowns: eight ints holding SIXTEEN 16-bit counters, indexed by
+// the status's own timer slot (`status_timer_slot`) and NOT by arrival order.
+// #1116 changed the shape, and the reason is the ROM: `Status_CT_Set`
+// (SCUS 0x8005DB70) writes a status's duration to `unit+0x5D + (status - 24)`
+// behind `sltiu (status - 24), 0x10`, so FFT gives each of its sixteen timed
+// statuses a FIXED byte and has no pool to run out of. A first-come pool of
+// eight (bit, ticks) pairs, which is what these ints held before, has a ninth
+// case the ROM does not: a flag set with no slot left, permanent and silent.
+// Sixteen counters fit the same eight ints because the longest duration in the
+// ROM table is Sleep at 60 CT, and even at the lever's ceiling that is far
+// inside 16 bits.
+const int U_STATUS_TIMER_0 = 56;
+const int U_STATUS_TIMER_1 = 57;
+const int U_STATUS_TIMER_2 = 58;
+const int U_STATUS_TIMER_3 = 59;
+const int U_STATUS_TIMER_4 = 60;
+const int U_STATUS_TIMER_5 = 61;
+const int U_STATUS_TIMER_6 = 62;
+const int U_STATUS_TIMER_7 = 63;
+// ⚠️ NOT `STATUS_COUNTDOWN_SLOTS`: `StatusRegistryTest::_test_shader_parity`
+// treats every `const int STATUS_*` in this file as a status BIT and reds on one
+// the registry has no name for. The prefix is a namespace, not a topic.
+const int COUNTDOWN_SLOTS = 16;
+const int U_CURRENT_GAMBIT = 64;
+const int U_GAMBIT_COOLDOWN = 65;
+const int U_REACTION_ABILITY = 66;
+const int U_SUPPORT_ABILITY = 67;
+const int U_MOVEMENT_ABILITY = 68;
+const int U_PENDING_HEAL_TARGET = 70;
+const int U_PENDING_HEAL_AMOUNT = 71;
+const int U_AOE_CENTER_X = 72;
+const int U_AOE_CENTER_Z = 73;
+const int U_AOE_ABILITY_ID = 74;
+const int U_S_EV_MAG = 75;
+const int U_EVADE_TYPE = 76;
+const int U_DECISION_HIST_0 = 77;
+const int U_DECISION_HIST_1 = 78;
+const int U_DECISION_HIST_2 = 79;
+const int U_DECISION_META = 80;
+const int U_PREV_MOVE_POS = 81;
+const int U_MOVE_TOTAL_TICKS = 82;
+const int U_MOVE_STEP_ID = 83;
+// Stage 2b scaffolding (Phase 1) — decision-stage output carried to
+// pathfind/attack/spell sub-stages. ACTION_NONE = no action this tick.
+// Not yet read by any consumer; reserved for the deferred-execution
+// refactor described in docs/stage_2b_implementation_plan.md.
+const int U_PENDING_ACTION_TYPE = 84;
+// Monotonic counter bumped each time a unit enters LOGICAL_ACTIVITY_ACTING — every action
+// instance (cast, ability, or attack), twin of U_MOVE_STEP_ID. The CPU combat
+// interpreter dedups CastBegan against it (emitting only when casting_ability_id
+// >= 0, so pure attacks bump it harmlessly), so it holds no invented "is a cast
+// live" latch. See docs/adr/0018-...md.
+const int U_CAST_STEP_ID = 85;
+// Cinematic-spell orchestrator (issue #53; ref-count + per-unit timer in #118).
+// U_PAUSED: ref-count of overlapping cinematic-spell pauses. Each
+//   cast_cinematic_spell / start_reraise_cinematic increments U_PAUSED on
+//   every other unit; the matching cinematic_teardown decrements. Any
+//   non-zero value means "skip per-tick state work" — read sites use
+//   `read_unit(..., U_PAUSED) != 0` so the boolean and ref-count semantics
+//   collapse. Convert to ref-count, never write a raw 0/1, so concurrent
+//   cinematics from independent casters don't trample each other (#118).
+// U_AOE_PENDING_CASTER / U_AOE_PENDING_FIRE_FRAME: per-target stamp the
+//   caster's orchestrator loop writes at cinematic-enter, so each AoE
+//   target fires damage on its own beat (first_hit_frame + N*for_each_delay).
+const int U_PAUSED = 86;
+const int U_AOE_PENDING_CASTER = 87;
+const int U_AOE_PENDING_FIRE_FRAME = 88;
+// Equipped weapon's on-hit inflict mask + mode (issue #98). Populated from
+// items.json `weapon.inflict_statuses` / `inflict_mode` by
+// GPUBatchSimulator._extract_unit_config via StatusEncoder. Zero / NONE for
+// any unit without an inflict-bearing weapon (the majority).
+const int U_WEAPON_INFLICT_MASK = 89;
+const int U_WEAPON_INFLICT_MODE = 90;
+// Per-unit element-defense masks (issue #110). Each bit indexed by the spell's
+// AB_ELEMENT (values 1..8 -- bit 0 unused, matches GPUAbilityLoader.ELEMENT_MAP).
+// Composed by GPUBatchSimulator._extract_unit_config as the union of every
+// equipped item's items.json `attributes.{absorb,cancel,half,weak}_elements`.
+// Precedence at apply time (stage_damage Phase 3 / element_multiplier):
+// absorb > cancel > half > weak > 1x. strengthen_elements is caster-side and
+// deliberately not represented here.
+const int U_ELEMENT_ABSORB_MASK = 91;
+const int U_ELEMENT_CANCEL_MASK = 92;
+const int U_ELEMENT_HALF_MASK = 93;
+const int U_ELEMENT_WEAK_MASK = 94;
+// Equipped right-hand weapon's AB_ELEMENT (1..8 per ElementEncoder.ELEMENT_MAP)
+// or 0 for a non-elemental / unarmed weapon (issue #116). Populated from
+// items.json `weapon.elements` by GPUBatchSimulator._extract_unit_config via
+// ElementEncoder.mask_from_names -- collapsed to a single element_id since a
+// basic attack carries one weapon's element (FFT canon: weapons carry zero or
+// one element). Consumed by apply_weapon_element_defense at the basic-attack
+// damage queue site (stage_compute apply_attack_damage); deliberately NOT
+// fed through apply_element_defense's status overlay -- mirrors BATTLE.BIN
+// FUN_80186FD0 at ram:80186FD0 (the no-overlay sibling of FUN_80186FF8 at
+// ram:80186FF8 that the spell path uses).
+const int U_WEAPON_ELEMENT = 95;
+// Attacker-side Strengthen-Elem (BoostElem) mask -- OR-fold of every
+// equipped item's `strengthen_elements` byte (#117 follow-up to #110/#116).
+// Mirrors BATTLE.BIN unit `+0x71` populated by the SCUS aggregation loop at
+// ram:8005C788 from each item's ItemAttributes[i].BoostElem (`+0x18`). Tested
+// by FUN_80185FFC at ram:80185FFC, which scales CurrentAbilityData.AbPower by
+// 5/4 (1.25x) when the mask AND the spell/weapon element overlap. Consumed
+// at every queue site that holds an attacker_id + element_id pair, BEFORE
+// the target-side defense step (research/working_documents/
+// status_element_interplay.md S0.3 item 1: attacker-side pre-mitigation
+// runs before FUN_80184E98). Bit indexing matches U_ELEMENT_*_MASK
+// (Fire=1..Dark=8); 0 means "no Strengthen-bearing gear equipped" (the hot
+// path -- most units have no strengthen).
+const int U_STRENGTHEN_MASK = 96;
+// Per-unit cinematic-spell frame counter (issue #118). Sentinel -1 = no
+// cinematic active for this unit. cast_cinematic_spell writes 0 on the
+// caster; run_cinematic_orchestrator increments it each tick; cinematic_
+// teardown resets it back to -1. Replaces the battle-scoped BH_CINEMATIC_
+// CASTER_IDX / BH_CINEMATIC_TIMER pair so two casters can finish charging
+// on the same tick without racing for one storage slot. Reraise cinematics
+// share the same field (start_reraise_cinematic also writes 0 here).
+const int U_CINEMATIC_TIMER = 97;
+// The unit's own LEVEL, and the level of the two positions that persist across
+// ticks beside it (ADR-0224 dec. 4). `U_LEVEL` joins `U_POS_X`/`U_POS_Z`,
+// `U_DEST_LEVEL` joins `U_DEST_X`/`U_DEST_Z`, `U_PROPOSED_LEVEL` joins
+// `U_PROPOSED_X`/`U_PROPOSED_Z` -- 0 is the ground, 1 the bridge/roof plane
+// (ExMateriaSchema.TerrainCell.LEVEL_COUNT).
+//
+// THREE, NOT ONE. Dest and proposed are independent positions that can
+// legitimately sit at a different level from current, so deriving them at read
+// time would re-run a climb decision in two places from data that may have moved.
+//
+// APPENDED, NOT INTERLEAVED WITH THEIR PAIRS. Slotting `U_LEVEL` in at offset 2
+// would renumber every field after it and every packed record already on the
+// device; the pairing is a fact about what the fields MEAN, not about where they
+// sit. `SHADER_VERSION` goes to 30 with `UNIT_SIZE` to 101.
+//
+// ⚠️ NOTHING READS THESE YET. The map buffer carries two planes (ADR-0224 dec. 2)
+// but every accessor below still column-indexes, so the twelve level-1 deployment
+// slots ADR-0224 measures misbehave exactly as they did before. The reader is the
+// shader pass, and it is a separate PR.
+const int U_LEVEL = 98;
+const int U_DEST_LEVEL = 99;
+const int U_PROPOSED_LEVEL = 100;
+// The TURN METER (ADR-0236): the unit's progress toward its next
+// reconfiguration turn. `compute_unit_state` adds `max(1, U_SPEED)` to it every
+// tick; at `TURN_METER_FULL` the unit is READY and stops accumulating, and the
+// host subtracts `TURN_METER_FULL` when the turn is actually taken, CARRYING the
+// overshoot (resetting to zero would quantize turn spacing and drift fast units
+// off their true Speed ratio). Readiness is therefore a pure function of this
+// one field -- `turn_meter >= TURN_METER_FULL` -- with no companion flag to keep
+// in sync.
+//
+// NOT "CT". FFT calls both this and an ability's charge time CT; this kernel
+// already spends that spelling on the second one (`AB_CHARGE_TIME`,
+// `U_CAST_TIMER`, `get_ability_charge_time`), and a second unrelated CT packed
+// into the same unit block would propagate the collision into the generated
+// layout and every citation. Not "turn charge"/"turn timer" either: `charge` IS
+// the cast-time word here, and every `*_TIMER` in this block counts DOWN.
+//
+// THE KERNEL NEVER READS IT. Combat rules are unchanged -- nothing branches on
+// the meter, so a GambitBattle turn cannot alter what a GPUArena battle does.
+// It lives on the GPU anyway so it round-trips inside a battle snapshot for
+// free, is correct inside every rollout battle, and is visible to the value
+// function ("who is about to act" is a real feature of a position). A CPU
+// accumulator would be a second copy that drifts.
+//
+// ONLY DEATH STOPS IT. Not U_PAUSED (a cinematic is a presentation beat that
+// pauses everyone but its caster -- gating the clock on it would hand the
+// caster free meter), not casting, not moving: a unit mid-cast still gets its
+// turn, because the turn IS the reconfiguration and mid-cast is exactly when
+// you want to re-tune what happens next. Gating the clock on an activity is
+// also what would make the turn queue non-computable (ADR-0236 dec. 5).
+const int U_TURN_METER = 101;
+
+// THE ATTACK PERIOD (ADR-0279, #1107). Two fields, and they are different kinds
+// of thing: one is AUTHORED and baked at load, the other is SCRATCH written per
+// swing.
+//
+// 🔴 THE PERIOD ALREADY EXISTED — #1107 opened on the premise that it did not.
+// `setup_attack_animation` ends on `U_TIMER = max(MIN_ATTACK_DURATION,
+// total_frames_seq)` and `compute_unit_state` returns early while `timer > 0`,
+// so the SEQ length IS the rate limit: 38 ticks for all nine melee types, 40
+// unarmed, 44 Gun, 52 Crossbow/Bow, plus a `max(dist * 10, 15)` flight tail the
+// firer waits out in AWAITING_IMPACT. A Bow at its native range 5 is 76 ticks
+// against a sword's 38. What was missing is that none of it is AUTHORABLE.
+//
+// U_ATTACK_PERIOD_FACTOR_Q8 — the lever layer's `attack_period` effective factor
+// for this unit's right hand, Q8 (256 == 1.0x), baked by GPUCombatPacker at pack
+// time like every other weapon quantity (ADR-0277 dec. 2). 256 is the identity
+// and is what an unarmed unit and every un-levered weapon carry, so with the
+// shipped empty lever set this whole mechanism is a no-op tick for tick.
+//
+// U_ATTACK_RECOVERY — the ticks THIS swing owes after its animation ends,
+// written by `setup_attack_animation` and consumed on the IDLE edge. Scratch,
+// not configuration: it is re-derived per swing because the factor is per-unit
+// but the base is per-ANIMATION, and a unit can change weapon mid-battle.
+//
+// ⚠️ RECOVERY, NOT A LONGER ANIMATION. ADR-0032 defines LOGICAL_ACTIVITY_ACTING
+// as covering SEQ playback ONLY, so stretching the ACTING timer would have the
+// playback state claim ticks in which no SEQ is playing. The tail is instead
+// U_TIMER on the IDLE edge -- the same idiom TICKS_GAMBIT_REEVAL already uses at
+// four sites, where IDLE-with-a-timer means a unit that exists but is not yet
+// choosing.
+const int U_ATTACK_PERIOD_FACTOR_Q8 = 102;
+const int U_ATTACK_RECOVERY = 103;
+
+// The meter value at which a unit is READY to take its turn.
+//
+// THE METER IS A DWELL CLOCK, NOT AN ACTION BUDGET (ADR-0260). A turn is an
+// opportunity to RECONFIGURE a unit, not to make it act -- so what this number
+// sets is how long a gambit config stays committed before the player may change
+// it. A config that can be re-tuned faster than it can express itself is a turn
+// that means nothing. The dwell is 600 ticks (10 s at 60/s, two full 300-tick
+// ability cooldowns), so at the base Speed of 6 that is 600 * 6 = 3600.
+//
+// It was 100 -- a fifth of a second of dwell, ~24 reconfiguration turns per
+// action taken, and a whole Gariland fight in 244 stops.
+const int TURN_METER_FULL = 3600;
+
+// Unit activity (Logical) -- LOGICAL_ACTIVITY_* constants below.
+// Source of truth: tools/activity_taxonomy.yaml. Pre-PR2 this lived in a
+// hand-authored STATE_* block; the activity-taxonomy generator now owns it.
+//
+// LOGICAL_ACTIVITY_APPROACHING: unit-anchored MOVE, repositioning toward a
+//   target unit without opportunistic attack (ADR-0024). Distinct from
+//   LOGICAL_ACTIVITY_WALKING so handle_moving_state's opportunistic attack
+//   does not fire for a pure reposition.
+// LOGICAL_ACTIVITY_AWAITING_IMPACT: firer waits for an in-flight projectile
+//   to land (ADR-0032). Entered from LOGICAL_ACTIVITY_ACTING when the attack
+//   SEQ ends before damage fires (damage_frame > anim_frame). U_TIMER is
+//   repurposed to count flight ticks; apply_attack_damage runs at the
+//   timer-zero edge.
+
+// === BEGIN GENERATED: logical-activity (tools/gen_activity_taxonomy.py) ===
+// Source of truth: tools/activity_taxonomy.yaml
+// Names/values are generated - DO NOT edit them here.
+// Regenerate: (cd tools && uv run python gen_activity_taxonomy.py)
+
+const int LOGICAL_ACTIVITY_IDLE = 0;
+const int LOGICAL_ACTIVITY_WALKING = 1;
+const int LOGICAL_ACTIVITY_ACTING = 2;
+const int LOGICAL_ACTIVITY_PREEMPTIVE_COUNTER = 3;
+const int LOGICAL_ACTIVITY_SPELL_CHARGING = 4;
+const int LOGICAL_ACTIVITY_WALKING_TO_CAST = 5;
+const int LOGICAL_ACTIVITY_DYING = 6;
+const int LOGICAL_ACTIVITY_CELEBRATING = 7;
+const int LOGICAL_ACTIVITY_APPROACHING = 8;
+const int LOGICAL_ACTIVITY_AWAITING_IMPACT = 9;
+const int LOGICAL_ACTIVITY_RETREATING = 10;
+// === END GENERATED ===
+
+// Action types
+const int ACTION_ATTACK = 0;
+const int ACTION_SPELL = 1;
+const int ACTION_ITEM = 2;
+const int ACTION_WAIT = 3;
+const int ACTION_ABILITY = 4;
+const int ACTION_MOVE_TO = 5;
+const int ACTION_NONE = -1;
+// Reserved for Stage 2b Phase 2+: signals that decide stage saw LOGICAL_ACTIVITY_SPELL_CHARGING
+// timer expire and the spell sub-stage should run complete_spell_cast().
+const int ACTION_COMPLETE_SPELL = 6;
+const int ACTION_PATHFIND_MOVE = 7;
+const int ACTION_PATHFIND_CAST = 8;
+// Unit-anchored gambit MOVE (ADR-0024): reposition toward the unit resolved by
+// action_target_type (action_id unused), re-pathing each tick and stopping
+// adjacent without attacking. Distinct from ACTION_MOVE_TO, which moves to an
+// absolute tile packed in action_id (the program-built command path).
+const int ACTION_MOVE_TO_UNIT = 9;
+// ONE TILE DIRECTLY AWAY FROM THE UNIT IT IS AIMED AT, THEN A FRESH GAMBIT WALK
+// (ADR-0301). U_TARGET carries the unit being fled; U_DEST_X/Z/LEVEL carry the
+// ADJACENT cell the decide stage already picked and validated, so the pathfind
+// body is a single `write_movement_step` and no path is ever committed.
+//
+// It is NOT ACTION_MOVE_TO with a near destination and NOT ACTION_MOVE_TO_UNIT
+// with the field inverted. Both of those enter a walking state that OUTLIVES the
+// step -- `handle_moving_state` would break the flee off into an opportunistic
+// attack on the very unit being fled, and `execute_move_to_unit_gambit` would
+// re-path toward a destination every tick. A retreat re-DECIDES after each tile;
+// that is the whole of the answer #1103 records.
+const int ACTION_RETREAT_STEP = 10;
+
+// Gambit target types
+const int TARGET_SELF = 0;
+const int TARGET_NEAREST_ENEMY = 1;
+const int TARGET_NEAREST_ALLY = 2;
+const int TARGET_LOWEST_HP_ALLY = 3;
+const int TARGET_HIGHEST_HP_ENEMY = 4;
+const int TARGET_LOWEST_HP_ENEMY = 5;
+const int TARGET_HIGHEST_HP_ALLY = 6;
+const int TARGET_THEM = 7;
+// The ONLY pool that can see a KO'd unit. Every other target type routes through
+// `find_unit_by_criteria`, which skips `is_unit_dead` candidates unconditionally — so
+// `COND_IS_DEAD` was decidable but not REACHABLE before this type existed (#1102).
+// Deliberately KO-INCLUSIVE, not KO-only: the pool says who the slot may LOOK at and the
+// condition says what must be true, so `COND_IS_DEAD` / `COND_IS_ALIVE` stay the thing that
+// discriminates. A KO-only pool would move deadness into the target type and leave both
+// conditions vacuous again. Existing gambits are untouched: `TARGET_NEAREST_ALLY` keeps its
+// filter, and this is reached only when the author asks for it.
+const int TARGET_NEAREST_ALLY_OR_KO = 8;
+
+// STRICT depth: the ONE unit the search names, and no walk past it (ADR-0285).
+//
+// The search is byte-identical to TARGET_NEAREST_ENEMY / TARGET_NEAREST_ALLY — the same
+// `find_unit_by_criteria(..., mode=0, ...)` call, the same path metric, the same self-skip.
+// What differs is the RETRY POLICY, and it differs by OMISSION: Pass 2's `target_type !=`
+// guard in `stage_compute.glsl` lists the retryable types, and these two are not on it, so
+// they take the existing `VERDICT_NOT_RETRYABLE` branch with no new clause and no new verdict.
+//
+// That is the whole point. `TARGET_NEAREST_ALLY` is retried at ranks 1, 2, 3… so it has always
+// meant *"an ally — try the nearest one first"*, and the surface's `Nearest Ally` label was
+// describing rank 0 of a walk that never stopped there. These types are the label made true:
+// the rank-0 candidate is the only candidate, and if it fails the slot's conditions the slot
+// does not fire. Existing saves carry the existing types and are untouched by construction.
+const int TARGET_NEAREST_ALLY_ONLY = 9;
+const int TARGET_NEAREST_ENEMY_ONLY = 10;
+
+// Gambit condition types
+const int COND_ALWAYS = 0;
+const int COND_HP_BELOW = 1;
+const int COND_HP_ABOVE = 2;
+const int COND_DISTANCE_LESS = 3;
+const int COND_DISTANCE_GREATER = 4;
+const int COND_HAS_STATUS = 5;
+const int COND_NOT_STATUS = 6;
+const int COND_IS_DEAD = 7;
+const int COND_IS_ALIVE = 8;
+const int COND_MP_ABOVE = 9;
+const int COND_MP_BELOW = 10;
+const int COND_TEAM_ALLY = 11;
+const int COND_TEAM_ENEMY = 12;
+// Would THIS GAMBIT'S OWN ACTION land on the candidate from where the actor stands, with no
+// walking? The value word is unused: the reach is read off the action, not off the condition
+// (ADR-0268 dec. 11). `target_in_action_range` in combat_combat.glslinc is the predicate.
+const int COND_IN_RANGE = 13;
+
+// 🔴 THREE DISTANCES, THREE QUESTIONS — do not collapse them (#1102, ADR-0272).
+//   `COND_DISTANCE_LESS` / `_GREATER`  → `manhattan_distance`: planar, level-blind, walls-blind.
+//       The raw grid question an author asks ("enemy within 3 tiles"), and FFT's own range
+//       metric, which is |dx| + |dz| with vertical priced separately.
+//   `TARGET_NEAREST_*`                 → `get_distance`: the precomputed path field. Travel
+//       COST, level-aware, `-1` when unreachable.
+//   `COND_IN_RANGE`                    → `target_in_action_range`: can THIS action land.
+// `condition_value` for the two DISTANCE conditions is a tile count, planar.
+
+// Status effect bits (U_STATUS_FLAGS_LO / HI). The verdicts below are MEASURED,
+// not aspirational -- docs/status-conformance.md (#1105) carries the citation for
+// every bit. Legend:
+//   live      -- at least one kernel site reads the bit and changes behaviour.
+//   UNREAD    -- declared, never read. The rule was never written.
+//   UNREACHED -- the rule exists, but no shipped ability/weapon can set the bit.
+//   RESERVED  -- a name FFT does not have, or one with a live rival. Don't build on it.
+//
+// WHAT DECAYS IS THE ROM'S BUSINESS, NOT A ROW'S (#1116). `apply_inflict_all`
+// now registers a countdown for every bit it sets, and the duration comes from
+// the status-attribute table in SCUS (`status_default_ct` below, extracted by
+// `tools/extract_status_attributes.py`). Eleven of the bits here have one; the
+// rest are permanent for the battle — which is FFT's own answer, not a gap: a
+// status the ROM gives no countdown byte to is cured, not waited out.
+const int STATUS_DEAD = 0;          // RESERVED -- death is FLAG_DEAD in U_FLAGS, and
+                                    //   is_unit_dead reads THAT. `HAS_STATUS(&"dead")`
+                                    //   encodes cleanly and never fires. Slated for deletion.
+const int STATUS_UNDEAD = 1;        // live -- inverts heal<->damage (stage_damage/spell/compute)
+const int STATUS_CHARGING = 2;      // UNREAD -- set/cleared around a cast, but every consumer
+                                    //   gates on U_STATE == LOGICAL_ACTIVITY_SPELL_CHARGING
+const int STATUS_JUMP = 3;          // UNREAD -- out of scope: no Jump action exists
+const int STATUS_DEFENDING = 4;     // UNREAD -- out of scope: no Defend action exists
+const int STATUS_PERFORMING = 5;    // UNREAD -- out of scope: performer-side Dance/Song state
+const int STATUS_PETRIFY = 6;       // live -- blocks gambit evaluation
+const int STATUS_STOP = 7;          // live -- blocks gambit evaluation
+const int STATUS_SLEEP = 8;         // live -- blocks gambit evaluation (no wake-on-damage)
+const int STATUS_IMMOBILIZE = 9;    // live -- vetoes MOVE_TO / MOVE_TO_UNIT
+const int STATUS_DISABLE = 10;      // live -- blocks gambit evaluation
+const int STATUS_BLIND = 11;        // RESERVED -- not an FFT status name; Darkness (29) is
+                                    //   FFT's blindness. Slated for deletion.
+const int STATUS_BERSERK = 12;      // live -- overrides the gambit list, forces ATTACK
+const int STATUS_CHICKEN = 13;      // UNREAD -- out of scope: FFT derives it from Brave < 10,
+                                    //   and U_BRAVE is itself never read by the kernel
+const int STATUS_FROG = 14;         // UNREAD -- should be built: 18 shipped sources set it
+const int STATUS_POISON = 15;       // live -- max_hp/8 every 30 ticks, for 36 CT (#1116).
+                                    //   ⚠️ the INTERVAL is still this kernel's own: FFT bleeds a
+                                    //   poisoned unit once per its TURN, so 36 CT is ~3 hits at
+                                    //   Speed 8 and 43 here. #1116's comment carries the numbers
+const int STATUS_REGEN = 16;        // live -- the same tick with the sign flipped, same 36 CT
+const int STATUS_PROTECT = 17;      // live -- halves physical damage and counters
+const int STATUS_SHELL = 18;        // live -- halves magic damage (formulas 8/12/32/36/78)
+const int STATUS_HASTE = 19;        // live -- halves move / cast ticks
+const int STATUS_SLOW = 20;         // live -- doubles move / cast ticks
+const int STATUS_FLOAT = 21;        // live -- cancels ELEMENT_EARTH outright
+const int STATUS_RERAISE = 22;      // live -- capture-and-revive; the ONLY clearer of FLAG_DEAD
+const int STATUS_TRANSPARENT = 23;  // UNREACHED -- 15 kernel sites, and NO shipped record grants
+                                    //   it (all 4 data refs are `cancel`). Seed-only today.
+const int STATUS_CONFUSION = 24;    // UNREAD -- should be built: 20 shipped sources. BERSERK is
+                                    //   the working template for a behaviour-hijack status.
+const int STATUS_SILENCE = 25;      // live -- vetoes SPELL / ABILITY (items still pass)
+const int STATUS_BLOOD_SUCK = 26;   // UNREAD -- should be built: the POISON tick with a
+                                    //   beneficiary
+const int STATUS_CURSE = 27;        // RESERVED -- not an FFT status name. Slated for deletion.
+const int STATUS_INVITE = 28;       // UNREAD -- deferred: flipping U_TEAM mid-battle changes the
+                                    //   victory condition, so it is not a status rule
+const int STATUS_DARKNESS = 29;     // UNREAD -- should be built, but BLOCKED: the most-inflicted
+                                    //   status in the database (24 sources) is an accuracy
+                                    //   debuff, and roll_evasion is defender-side only. There is
+                                    //   no attacker accuracy term for it to reduce.
+const int STATUS_OIL = 30;          // live -- doubles ELEMENT_FIRE
+const int STATUS_FAITH = 31;        // UNREAD -- should be built: the STAT U_FAITH is live at two
+                                    //   sites (magic damage, status hit roll); the BIT is not
+
+// ONE FFT CLOCK TICK, IN KERNEL TICKS (#1116). FFT decrements every status
+// counter by 1 per clock tick -- the same clock on which a unit accrues Speed
+// toward 100 and acts. This kernel's only statement of that clock is the turn
+// meter (ADR-0236): `max(1, U_SPEED)` per tick, full at TURN_METER_FULL. So a
+// clock tick costs TURN_METER_FULL / 100 ticks here, and the ratio is DERIVED
+// rather than chosen: rescale the meter and the durations follow it instead of
+// quietly disagreeing with it.
+//
+// ⚠️ NOT the 30 that `GPUAbilityLoader` multiplies an ability's CT by. Charge CT
+// and status CT are the same unit in FFT but not in this kernel -- charge is
+// speed-independent here (a flat 30 ticks per CT), and that divergence predates
+// this and is not widened by it. The two numbers being close is a coincidence of
+// TURN_METER_FULL = 3600; they are different claims.
+const int TICKS_PER_CLOCK_TICK = TURN_METER_FULL / 100;
+
+// The status's default duration in FFT CT units, 0 meaning "no countdown" --
+// the ROM's status-attribute table, byte +0x00 of the record at
+// 0x80065DE7 + 0x10*status (#1116). `tools/extract_status_attributes.py` dumps
+// it with its three citations; `tests/StatusRegistryTest.gd` holds this copy to
+// `StatusRegistry.DEFAULT_CT`, so the shader and the almanac cannot drift.
+//
+// 🔴 ZERO IS A ROM ANSWER, NOT A HOLE. Sixteen of FFT's forty statuses get a
+// countdown byte (`unit+0x5D + (status - 24)`); the other twenty-four have
+// nowhere to count down, so Darkness, Silence, Oil, Frog, Confusion, Berserk,
+// Petrify, Blood Suck, Float, Reraise and Transparent are permanent until
+// something cancels them. Writing a duration for any of them would be invention.
+//
+// FIVE of the ROM's sixteen have no bit in this kernel yet -- Wall (24 CT),
+// Innocent (32), Charm (32), Reflect (32) and Death Sentence (3) are the names
+// `StatusEncoder.UNMAPPED_NAMES` still skips (#99). Their slots are reserved
+// below so adding them moves nothing.
+int status_default_ct(int status_bit) {
+    switch (status_bit) {
+        case STATUS_POISON:     return 36;
+        case STATUS_REGEN:      return 36;
+        case STATUS_PROTECT:    return 32;
+        case STATUS_SHELL:      return 32;
+        case STATUS_HASTE:      return 32;
+        case STATUS_SLOW:       return 24;
+        case STATUS_STOP:       return 20;
+        case STATUS_FAITH:      return 32;
+        case STATUS_SLEEP:      return 60;
+        case STATUS_IMMOBILIZE: return 24;   // FFT "Don't Move"
+        case STATUS_DISABLE:    return 24;   // FFT "Don't Act"
+        default:                return 0;
+    }
+}
+
+// Which of the sixteen countdown slots this status owns, or -1 for a status the
+// ROM never times. The indices are the ROM's own (`status - 24` in FFT's status
+// order), so the five bits #99 still owes land in the gaps -- 7 Wall, 9
+// Innocent, 10 Charm, 14 Reflect, 15 Death Sentence -- without renumbering a
+// single live counter.
+int status_timer_slot(int status_bit) {
+    switch (status_bit) {
+        case STATUS_POISON:     return 0;
+        case STATUS_REGEN:      return 1;
+        case STATUS_PROTECT:    return 2;
+        case STATUS_SHELL:      return 3;
+        case STATUS_HASTE:      return 4;
+        case STATUS_SLOW:       return 5;
+        case STATUS_STOP:       return 6;
+        case STATUS_FAITH:      return 8;
+        case STATUS_SLEEP:      return 11;
+        case STATUS_IMMOBILIZE: return 12;
+        case STATUS_DISABLE:    return 13;
+        default:                return -1;
+    }
+}
+
+// AB_ELEMENT values (1..8) mirror GPUAbilityLoader.ELEMENT_MAP / ElementEncoder.
+// Only Fire / Earth participate in the status-driven overlay (issue #112); the
+// rest don't need named constants here.
+const int ELEMENT_FIRE = 1;
+const int ELEMENT_EARTH = 5;
+
+// Reaction ability IDs
+const int REACT_NONE = -1;
+const int REACT_COUNTER = 0;
+const int REACT_FIRST_STRIKE = 1;
+const int REACT_ABSORB_MP = 2;
+const int REACT_AUTO_POTION = 3;
+const int REACT_BLADE_GRASP = 4;
+const int REACT_ARROW_GUARD = 5;
+const int REACT_MANA_SHIELD = 6;
+
+// State change reasons (parity debugging)
+const int REASON_NONE = 0;
+const int REASON_TIMER_EXPIRED = 1;
+const int REASON_CAN_ATTACK = 2;
+const int REASON_START_MOVING = 3;
+const int REASON_START_ATTACKING = 4;
+const int REASON_CONFLICT_BLOCKED = 5;
+const int REASON_NO_PATH = 6;
+const int REASON_ARRIVED = 7;
+const int REASON_ATTACK_ENDED = 8;
+const int REASON_WAITING_TARGET = 9;
+const int REASON_GAMBIT_FAILED = 10;
+const int REASON_SPELL_FAILED = 11;
+const int REASON_NO_GAMBIT = 12;
+const int REASON_THRASH_ABORT = 13;
+const int REASON_TARGET_DEAD = 14;
+// The turn brake (ADR-0239 + the turn-brake decision): this battle stops for
+// turns, this unit's meter is full, so the kernel refuses to start it on
+// anything new. Not a failure — the unit is WAITING to be handed its turn.
+const int REASON_TURN_PENDING = 15;
+
+const int MAX_BACKTRACKS = 2;
+const int REACHABILITY_CANDIDATES = 3;
+
+// Unit flags
+const int FLAG_DEAD = 1;
+
+// Attack types
+const int ATTACK_STRIKING = 0;
+const int ATTACK_LUNGING = 1;
+const int ATTACK_DIRECT = 2;
+const int ATTACK_ARCING = 3;
+
+// Weapon flag bits
+const int WFLAG_STRIKING = 1;
+const int WFLAG_LUNGING = 2;
+const int WFLAG_DIRECT = 4;
+const int WFLAG_ARC = 8;
+
+// Vertical tolerance in half-steps
+const int VERTICAL_UP_HALFSTEPS = 2;
+const int VERTICAL_DOWN_HALFSTEPS = 3;
+
+// Battle result
+const int RESULT_ONGOING = -1;
+const int RESULT_TEAM_0_WINS = 0;
+const int RESULT_TEAM_1_WINS = 1;
+const int RESULT_DRAW = 2;
+
+// --- The per-battle RESULT RECORD (ADR-0237 dec. 7) -------------------------
+// `stage_victory` writes one of these per ongoing battle EVERY tick, and
+// `GPUBatchSimulator.read_all_results` reads the whole buffer in one 0.11 ms
+// call. That is the only affordable way to get state out of a rollout fleet:
+// `read_unit_column` is a blocking readback PER BATTLE and costs 33-51 ms for a
+// single column across 1024 battles. So the value function's features live
+// HERE, and widening this record is how a feature gets added — the record is
+// write-only from the shader's side, so a new field touches no combat rule.
+//
+// The record is shader-authoritative like every other layout in this file
+// (ADR-0001): `tools/gen_gpu_layout.py` emits `GPUCombatPacker.RESULT_SIZE`
+// and `GPUCombatPacker.ResultField` from these names. Nothing hand-mirrors
+// them, because `out_offset = battle_id * 4` next to a GD-side `RESULT_SIZE`
+// was two copies of one number with nothing holding them together.
+//
+// 🔴 ALIVE HERE MEANS `!FLAG_DEAD`, WHICH IS *NOT* `check_victory`'s TALLY.
+// The victory rule counts a FLAG_DEAD + STATUS_RERAISE carrier as alive until
+// Stage B clears the bit (issue #107); this record does not, because such a
+// unit contributes 0 to R_TEAM*_HP. A standing count that disagreed with the HP
+// total in the same record would describe no battle that exists.
+const int R_RESULT       = 0;   // RESULT_ONGOING / RESULT_TEAM_*_WINS / RESULT_DRAW
+const int R_TICKS        = 1;   // battle tick this record was written at
+const int R_TEAM0_HP     = 2;   // sum of HP over living team-0 units
+const int R_TEAM1_HP     = 3;   // sum of HP over living team-1 units
+const int R_TEAM0_ALIVE  = 4;   // standing count, team 0
+const int R_TEAM1_ALIVE  = 5;   // standing count, team 1
+const int R_TEAM0_MP     = 6;   // sum of MP over living team-0 units
+const int R_TEAM1_MP     = 7;   // sum of MP over living team-1 units
+const int R_TEAM0_MAX_HP = 8;   // sum of MAX HP over ALL team-0 slots, living or not
+const int R_TEAM1_MAX_HP = 9;   // sum of MAX HP over ALL team-1 slots, living or not
+const int R_TEAM0_ENGAGE = 10;  // sum over living team-0 units of manhattan distance to team 1's centroid
+const int R_TEAM1_ENGAGE = 11;  // and the mirror; both 0 once either team is wiped
+const int R_TEAM0_MAX_MP = 12;  // sum of MAX MP over ALL team-0 slots, living or not
+const int R_TEAM1_MAX_MP = 13;  // sum of MAX MP over ALL team-1 slots, living or not
+const int RESULT_SIZE    = 14;
+
+// The engagement term is PER TEAM rather than one battle-wide sum, and the
+// reason is the value function's symmetry. `f` is fit and read from a team's
+// PERSPECTIVE, so every feature has to have a mirror: swap the team roles and
+// the vector must describe the same battle seen from the other side. A single
+// battle-wide distance is identical under that swap, so it can say how engaged
+// a battle is but never who is winning — and mirrored training rows would just
+// drive its coefficient to zero. Per team, it mirrors cleanly. The denominators
+// are already in the record: R_TEAM0_ALIVE and R_TEAM1_ALIVE.
+//
+// R_TEAM*_MAX_HP and R_TEAM*_MAX_MP sum EVERY slot, dead included, on purpose:
+// they are the DENOMINATORS of the HP and MP fractions, and a denominator that
+// shrank as units died would make a team's health read as full at the moment it
+// lost its last unit. Both are constant over a battle, which is also what makes
+// them usable normalisers for a record read at an arbitrary tick.
+//
+// The MP denominator is in the record rather than derived because `f` has to be
+// evaluable at ROLLOUT time from ONE record. A calibration script can normalise
+// MP against the battle's own first sample; the AI reading a fleet slot has no
+// history to normalise against, and a raw MP sum is not comparable between two
+// battles with different rosters. A feature the calibrator can use and the
+// consumer cannot is not a feature.
+
+// Timing constants (must match CPU for parity)
+const int TICKS_PER_REACTION = 80;
+const int TICKS_PATH_RETRY = 30;
+const int TICKS_GAMBIT_REEVAL = 10;
+
+// Per-tick HP delta cadence (FFT canon — see status_system.md §2 "Per-tick HP
+// delta" row). POISON loses max_hp / 8 every 30 ticks; REGEN heals the same
+// amount on the same cadence (the two share a single Phase 1.5 hook in
+// stage_damage). 30 ticks = 0.5s real-time; a 200 max_hp unit dies in ~6
+// poison fires (~3s) absent healing, regen-heals to full in the same window.
+const int POISON_TICK_INTERVAL = 30;
+const int POISON_HP_DIVISOR = 8;
+
+// RERAISE revive fraction (FFT canon — see status_system.md §2 "Re-targeting"
+// row). On lethal damage, restore HP to max_hp / 10, clear the bit + timer
+// slot, do NOT kill. Subsequent lethal damage kills normally — RERAISE is
+// one-shot per apply, consumed on trigger. The wiki documents it as "a small
+// amount of HP"; 1/10 lines up with the visible feel in shipped builds.
+const int RERAISE_HP_DIVISOR = 10;
+
+// Ticks the carrier spends visibly dying before the E007 Reraise cinematic
+// fires (issue #107). Stage A of try_consume_reraise stamps
+// current_tick + RERAISE_REVIVE_DELAY_TICKS into U_TIMER on the now-dead
+// carrier; the dead-unit's stage_spell thread polls it and opens a self-
+// targeted cinematic once current_tick catches up. Held at 1 (effectively
+// next tick) so the cinematic takes over immediately — its camera/particle
+// takeover masks the dying pose, no need to play it out first.
+const int RERAISE_REVIVE_DELAY_TICKS = 1;
+
+// Variable movement timing constants
+const int TICKS_PER_SEQ_FRAME = 2;
+const int LANDING_SEQ_FRAMES = 18;
+const float ARC_SPEED = 6.0;
+const float WALK_SPEED = 2.0;
+const float GPU_TICKS_PER_SECOND = 60.0;
+const float ARC_QUARTER_CIRCLE = 0.785;
+const float GLOBAL_SPEED_DIVISOR = 1.0;
+
+const int HORIZONTAL_MOVE_SEQ_SPEED = 1;
+const int VERTICAL_MOVE_SEQ_SPEED = 2;
+const int CHARGE_SEQ_SPEED = 1;
+const int ABILITY_SEQ_SPEED = 1;
+
+const int LANDING_TICKS = LANDING_SEQ_FRAMES * TICKS_PER_SEQ_FRAME;
+
+// Animation timing constants
+const int MAX_DISTANCE = 9999;
+const int MIN_ATTACK_DURATION = 30;
+const int DEFAULT_CAST_DURATION = 60;
+const int PASSTHROUGH_MAX_TILES = 8;
+const int FLIGHT_TICKS_PER_TILE = 10;
+const int MIN_FLIGHT_TICKS = 15;
+const int HP_PERCENT_SENTINEL = 101;
+const int AUTO_POTION_HEAL_AMOUNT = 50;
+
+// =============================================================================
+// SHADER PASS MODES
+// =============================================================================
+
+const int PASS_COMPUTE_STATE = 0;
+const int PASS_RESOLVE_CONFLICTS = 1;
+const int PASS_POST_CONFLICT_ATTACKS = 2;
+const int PASS_APPLY_DAMAGE = 3;
+const int PASS_CHECK_VICTORY = 4;
+
+// =============================================================================
+// BUFFERS
+// =============================================================================
+
+layout(set = 0, binding = 0, std430) buffer SimConfig {
+    int num_battles;
+    int units_per_battle;
+    int map_width;
+    int map_height;
+    int seed_base;
+    int movement_only;
+    int pass_mode;
+    int current_buffer;
+    int test_mode;
+    // Pacing fudge factors, Q8 fixed point (256 == 1.0x). See `scale_move_ticks`
+    // / `scale_hp_transfer` below for why they live HERE and not in GDScript.
+    int move_ticks_scale_q8;
+    int damage_scale_q8;
+    // THE TURN BRAKE. The battle index that stops for turns, or -1 for none.
+    //
+    // A battle whose host freezes on a turn (`TurnDirector.stops_the_world`) must
+    // not have its taker start a NEW movement step once its meter is full: the
+    // logical position is the DESTINATION for the whole duration of a step
+    // (stage_resolve.glsl's "CPU updates position at START of movement"), so a
+    // freeze landing mid-step puts the sprite a tile short of the cell the camera
+    // and every `_unit_at_grid` reader place it on. Braking first makes the
+    // freeze land on a settled unit by construction.
+    //
+    // 🔴 IT IS A CONFIG UNIFORM AND NOT A UNIT FIELD OR A HEADER BIT, and that is
+    // the whole point. `RolloutHarness` forks candidates with
+    // `restore_battle(k, snapshot_battle(0))`, which copies the header and every
+    // unit block verbatim into fleet slots. Nothing consumes turns in a candidate
+    // battle, so every unit there pins at TURN_METER_FULL forever — a brake that
+    // rode in the snapshot would stop the entire rollout fleet from walking and
+    // quietly poison the value function. This lives in no SSBO and cannot ride a
+    // fork.
+    int turn_brake_battle;
+    // THE SETTLE BRAKE. The battle index that settles before it declares a
+    // winner, or -1 for none.
+    //
+    // `stage_victory` reports a win only when every survivor is CELEBRATING, so
+    // it is ALREADY an all-survivors-settled handshake. What made it a lie is
+    // the by-fiat flip in `stage_compute` ("THE FIGHT IS OVER, SO NOTHING A UNIT
+    // WAS MID-WAY THROUGH MATTERS", #897): it writes CELEBRATING over a unit
+    // mid-step, and `GPUVisualBridge` answers a state that left the movement set
+    // by dropping the visualizer and snapping the sprite to the GPU tile -- which
+    // is the DESTINATION of the abandoned step. The unit teleports the rest of
+    // the way, one tick before the host is even told the battle ended.
+    //
+    // This field buys the flip back for the states a unit can still be seen
+    // finishing: while it names a battle, a unit that is WALKING /
+    // WALKING_TO_CAST / APPROACHING / ACTING is left alone by the flip, and
+    // braked at dispatch so it starts nothing new. It finishes the step or swing
+    // it is on, drains into IDLE, and the flip catches it there -- standing
+    // exactly on its own tile. Because the flip is what `stage_victory` counts,
+    // the win is then reported only once the LAST unit has settled, and every
+    // consumer of `victory` inherits the wait for free.
+    //
+    // 🔴 SAME REASON AS `turn_brake_battle` FOR LIVING IN THE CONFIG BLOCK AND
+    // NOT IN A UNIT FIELD: `RolloutHarness` forks candidates with
+    // `restore_battle(k, snapshot_battle(0))`, which copies every unit block
+    // verbatim into fleet slots. A brake that rode the snapshot would stop the
+    // whole fleet. This lives in no SSBO and cannot ride a fork.
+    int settle_brake_battle;
+} config;
+
+layout(set = 0, binding = 1, std430) readonly buffer MapData {
+    int tile_data[];
+} map_data;
+
+layout(set = 0, binding = 2, std430) readonly buffer DistanceField {
+    int distances[];
+} dist_field;
+
+layout(set = 0, binding = 3, std430) buffer BattleData {
+    int data[];
+} battles;
+
+layout(set = 0, binding = 4, std430) buffer Results {
+    int results[];
+} output_results;
+
+// Animation timings lookup table (pre-computed from SEQ JSON)
+//   [anim_id * 2]     = damage_frame (PostGenericAttack tick)
+//   [anim_id * 2 + 1] = total_frames (animation duration)
+//   [512 + anim_id]   = move_start_frame (MoveUp2 tick for movement animations)
+//   [768 + wep_id*2]  = projectile_frame
+//   [768 + wep_id*2+1]= total_frames for WEP1
+layout(set = 0, binding = 5, std430) readonly buffer AnimTimings {
+    int timings[];
+} anim_timings;
+
+const int WEP1_TIMING_OFFSET = 768;
+
+// Per-unit gambit storage: MAX_GAMBITS gambits x 16 ints = 96 ints per unit
+// Indexed [unit_id * 96 + gambit_slot * 16 + field]
+// 🔴 NOT `readonly` SINCE ADR-0275 dec. 5, AND THAT IS A REAL LOSS STATED OUT
+// LOUD. It used to be a compiler-enforced guarantee that a unit's gambit
+// program cannot be modified mid-tick; it is now a convention. What is written
+// is the per-slot VERDICT and nothing else -- see "THE PER-SLOT GAMBIT VERDICT"
+// below. Single-buffering is safe for it on the same argument the cooldown
+// buffer already makes: each thread writes only its own unit's slots, and
+// nothing reads them within the tick.
+layout(set = 0, binding = 6, std430) buffer GambitData {
+    int gambits[];
+} gambit_data;
+
+// 512 abilities x 16 ints each. Indexed [ability_id * 16 + field]
+layout(set = 0, binding = 7, std430) readonly buffer AbilityData {
+    int abilities[];
+} ability_data;
+
+const int MAX_ABILITIES = 512;
+
+// Per-effect cinematic timings (issue #53). Three ints per effect id:
+//   [effect_id * 3]     = first_hit_frame
+//   [effect_id * 3 + 1] = for_each_delay
+//   [effect_id * 3 + 2] = total_frames
+// Wired and uploaded at boot; no shader consumer yet -- the cinematic-spell
+// orchestrator lands in a later phase of the same refactor.
+layout(set = 0, binding = 8, std430) readonly buffer EffectTimings {
+    int timings[];
+} effect_timings;
+
+const int EFFECT_TIMING_FIELDS = 3;
+const int MAX_EFFECTS = 512;
+
+// Per-(unit, ability_id) real-time cooldown floor (ADR-0047 / issue #85).
+// Indexed `unit_global_idx * MAX_COOLDOWN_ABILITIES + ability_id`, where
+// `unit_global_idx = battle_id * units_per_battle + unit_id` (mirrors the
+// gambit_data convention above).
+// Single-buffered: each unit's compute thread is the only writer to its
+// own slice, and the gambit-eval read happens after any prior same-tick
+// commit's write (passes are RD-synced). Zero-init at battle start.
+layout(set = 0, binding = 9, std430) buffer CooldownData {
+    int data[];
+} cooldown_data;
+
+// THERE IS NO LONGER A CEILING BELOW THE ABILITY TABLE (#1108, map #1101).
+// This was 128, and `ability_id >= MAX_COOLDOWN_ABILITIES` fell through the
+// veto as a no-op, justified as "summons / cinematic spells have
+// CT-or-projectile-bounded natural rate limits". That justification did not
+// survive being counted: of the 384 ability ids above 128, 240 are ordinary
+// `Normal` abilities, not summons — an ungated tail wider than the gated head.
+// It was a fair reading only while every cooldown was the same 300 ticks; once
+// the floor is derived per ability (tools/parse_abilities.py), an ungated tail
+// is a live balance hole.
+//
+// MEASURED BEFORE RAISING IT, because the ticket's worry was that the flat
+// indexing makes the buffer expensive: it does not. The cost is
+// `total_units * MAX_COOLDOWN_ABILITIES * 4` bytes, so the default 1024x8
+// fleet goes 4 MiB -> 16 MiB of VRAM, and the per-beat rollout upload rides
+// `RolloutHarness.fill_ms`, which the budget bench recorded at 0.73 ms of a
+// 318.87 ms beat (tests/logs/rollout_budget_attack_all.csv) — 0.23%, so even
+// quadrupled it stays far inside ADR-0237's 250 ms cap. The buffer is NOT in
+// `copy_unit_to_next` (ADR-0047 dec. 4 kept it out of the unit struct on
+// purpose), so there is no per-tick cost at all.
+//
+// KEEP THIS A LITERAL INTEGER. ADR-0277 dec. 8 derives cooldown reachability by
+// regex-scanning this line out of this file (`src/balance/LeverSet.gd`), and an
+// unread ceiling is an ERROR there rather than "everything is reachable" —
+// spelling it `= MAX_ABILITIES` would silently break that scan.
+// Must equal MAX_ABILITIES (line ~749). Guarded host-side in
+// GPUBatchSimulator, which reads its own copy of both numbers.
+const int MAX_COOLDOWN_ABILITIES = 512;
+
+// =============================================================================
+// PACING FUDGE FACTORS
+// =============================================================================
+// FFT calibrated its numbers against a TURN: ~3 hits to kill was a good pace
+// because a unit only swung once per turn. This kernel is turnless, so the same
+// numbers land far faster. These two knobs re-time the ROM's balance for
+// continuous combat instead of re-authoring it.
+//
+// Q8 fixed point (256 == 1.0x), fed from the `pacing.*` tunables through
+// SimConfig. They live in the CONFIG BUFFER and not on the GDScript side
+// because the enemy rollouts fork the live battle through this same kernel: a
+// CPU-side fudge would leave the AI advising on a world whose pacing is not the
+// one being played, and that divergence is invisible.
+//
+// Fixed point rather than integer division because 10% of a PA5/WP5 swing (25)
+// is 2 -- at that resolution ROUNDING, not the formula, decides which ability
+// hits harder, and the ROM's relative structure between abilities is exactly
+// what these knobs exist to preserve.
+
+// Multiplies the duration of one movement step. >1.0 = slower travel, which
+// lengthens the approach relative to the action period and hands ranged units
+// the advantage. Applied inside `get_move_ticks` (the single derivation all
+// three movement call sites share) so U_MOVE_TOTAL_TICKS carries the scaled
+// budget and the CPU visualizer's `gpu_total_ticks` override stretches the walk
+// animation to match for free.
+int scale_move_ticks(int ticks) {
+    if (config.move_ticks_scale_q8 == 256) return ticks;
+    return max(1, (ticks * config.move_ticks_scale_q8) / 256);
+}
+
+// Multiplies the HP TRANSFER, not the pool: heals ride the same knob (a heal is
+// negative pending), so the damage:heal ratio the ROM authored survives, as do
+// the %-max-HP and fixed-damage formulas, which a max-HP inflation would each
+// distort in a different direction.
+//
+// Sign-preserving `max(1, ...)`: an ability scaled to zero would make its target
+// INVULNERABLE to it rather than merely resistant, which is a different game.
+int scale_hp_transfer(int amount) {
+    if (config.damage_scale_q8 == 256 || amount == 0) return amount;
+    int scaled = max(1, (abs(amount) * config.damage_scale_q8) / 256);
+    return amount > 0 ? scaled : -scaled;
+}
+
+// Effect-timing accessors. Sentinels in the buffer are -1 for "no on-disk
+// timeline.json" -- accessors clamp to sane neutral values so the orchestrator
+// (issue #53) walks a degenerate one-tick cinematic instead of NaN-ing.
+int get_effect_first_hit_frame(int effect_id) {
+    if (effect_id < 0 || effect_id >= MAX_EFFECTS) return 0;
+    int v = effect_timings.timings[effect_id * EFFECT_TIMING_FIELDS];
+    return v < 0 ? 0 : v;
+}
+
+int get_effect_for_each_delay(int effect_id) {
+    if (effect_id < 0 || effect_id >= MAX_EFFECTS) return 1;
+    int v = effect_timings.timings[effect_id * EFFECT_TIMING_FIELDS + 1];
+    return v < 1 ? 1 : v;
+}
+
+int get_effect_total_frames(int effect_id) {
+    if (effect_id < 0 || effect_id >= MAX_EFFECTS) return 0;
+    int v = effect_timings.timings[effect_id * EFFECT_TIMING_FIELDS + 2];
+    return v < 0 ? 0 : v;
+}
+
+// Ability field offsets
+const int AB_MP_COST = 0;
+const int AB_CHARGE_TIME = 1;
+const int AB_RANGE = 2;
+const int AB_FORMULA_ID = 3;
+const int AB_FORMULA_Y = 4;
+const int AB_EFFECT_AREA = 5;
+const int AB_FORMULA_X = 6;
+const int AB_ELEMENT = 7;
+const int AB_FLAGS = 8;
+const int AB_EFFECT_ANIM_ID = 9;
+const int AB_VERTICAL = 10;
+const int AB_EFFECT_ID = 11;
+// Real-time ability cooldown in GPU ticks (ADR-0047, derived per ability by
+// #1108). 0 disables. The value is DERIVED in tools/parse_abilities.py
+// (`derive_cooldown_ticks`), not hand-authored: a CT-bearing ability gets its
+// own charge period (`ct * 30`) so the floor is non-binding at factor 1.0, a
+// free-and-instant one gets its JP price mapped onto the same scale, and
+// everything the ROM does not price keeps the 300-tick #92/#93 fall-through
+// window. 17 distinct values across the 512 abilities.
+//   (This comment said "hand-authors a 60-tick default" until #1108. It was
+//    300, not 60 — wrong by 5x, and it had been read as fact.)
+const int AB_COOLDOWN_TICKS = 12;
+// Inflict status mask + mode (issue #98). Mask is a 32-bit OR of STATUS_*
+// bits resolved by StatusEncoder at the encode boundary; mode is one of the
+// INFLICT_MODE_* constants below. AB_INFLICT_MASK = 0 / AB_INFLICT_MODE = 0
+// (INFLICT_MODE_NONE) means "no inflict effect" -- the default for the
+// majority of abilities.
+const int AB_INFLICT_MASK = 13;
+const int AB_INFLICT_MODE = 14;
+
+// Inflict modes (from FFTPatcher inflict_mode string at the encode
+// boundary -- see src/data/StatusEncoder.gd).
+//   ALL      -- on hit, OR every bit in the mask onto target.status_flags.
+//   RANDOM   -- (issue #1117) pick one listed bit uniformly and apply it.
+//   SEPARATE -- (issue #1117) roll each listed bit independently at 24%.
+//   CANCEL   -- (issue #100) AND-NOT the mask off target.status_flags.
+const int INFLICT_MODE_NONE = 0;
+const int INFLICT_MODE_ALL = 1;
+const int INFLICT_MODE_RANDOM = 2;
+const int INFLICT_MODE_SEPARATE = 3;
+const int INFLICT_MODE_CANCEL = 4;
+
+// Ability flags. ABFLAG_HEALING is the HP-write-direction predicate (heal
+// adds HP / damage queues pending_damage); it is NOT a team gate. Per-ability
+// team membership is the hit policy below (ADR-0049 / CONTEXT.md
+// §"Ability hit policy").
+const int ABFLAG_REFLECTABLE = 1;
+const int ABFLAG_EVADEABLE = 2;
+const int ABFLAG_HEALING = 4;
+const int ABFLAG_MP_DAMAGE = 8;
+const int ABFLAG_WEAPON_RANGE = 16;
+const int ABFLAG_THROW_RANGE = 32;
+const int ABFLAG_VERTICAL_TOLERANCE = 64;
+// Hit policy carve-outs (ADR-0049). FFT canon is friendly fire on by
+// default; an AOE hits every living unit in radius unless one of these
+// flags excludes them. Mirror items.json ability_attributes 1:1.
+const int ABFLAG_HIT_NO_ENEMIES = 128;
+const int ABFLAG_HIT_NO_ALLIES = 256;
+const int ABFLAG_HIT_NO_CASTER = 512;
+
+// Gambit field offsets (16 ints per gambit)
+const int GM_ENABLED = 0;
+const int GM_COND_TARGET_TYPE = 1;
+const int GM_COND_COUNT = 2;
+const int GM_COND_TYPE_0 = 3;
+const int GM_COND_TYPE_1 = 4;
+const int GM_COND_TYPE_2 = 5;
+const int GM_COND_TYPE_3 = 6;
+const int GM_COND_VAL_0 = 7;
+const int GM_COND_VAL_1 = 8;
+const int GM_COND_VAL_2 = 9;
+const int GM_COND_VAL_3 = 10;
+const int GM_ACTION_TYPE = 11;
+const int GM_ACTION_ID = 12;
+const int GM_ACTION_TARGET_TYPE = 13;
+const int GM_RESERVED_14 = 14;
+const int GM_RESERVED_15 = 15;
+
+const int GAMBIT_SIZE = 16;
+const int GAMBITS_PER_UNIT = 96;  // MAX_GAMBITS * GAMBIT_SIZE
+
+// =============================================================================
+// THE PER-SLOT GAMBIT VERDICT (ADR-0275 dec. 4)
+// =============================================================================
+// `evaluate_gambits_up_to` has TEN distinct failure points and, before this,
+// exactly one of them stamped a reason (`REASON_GAMBIT_FAILED`) into a
+// per-UNIT field that every later slot's attempt overwrote. Group-B
+// fall-through was therefore debugged by inference.
+//
+// The verdict is written into the two reserved ints of the slot's OWN gambit
+// row, so it is addressed `(battle, unit, slot)` for free -- `gambit_data` is
+// already indexed by `global_unit_id = battle_id * units_per_battle + unit_id`.
+// Zero buffer growth, no `SHADER_VERSION` move.
+//
+// It is a DEVELOPMENT INSTRUMENT and gameplay never reads it. It is written
+// always-on, including by the rollout fleet, because the rollout runs this
+// same kernel entry point and a write gated off in the fleet would make the
+// rollout debugger a kernel redesign rather than a gate flip (dec. 6), and
+// because a bench arm measuring a gated-off write measures nothing (dec. 7).
+//
+// Vocabulary: a TRANSCRIPTION of the ten existing source lines, not a design.
+// Deliberately coarse -- the number that lost lives in int B, so a fine
+// per-opcode enum would restate what the opcode field already says and would
+// have to be maintained in lockstep with the condition table forever.
+//
+// A code is added only when a NEW failure point is added to the walk, and
+// `GambitVerdictReader.EXPECTED_CODE_COUNT` plus a cell in
+// `GambitVerdictCellsTest` move with it. `VERDICT_NO_RETREAT` is the one such
+// addition since (ADR-0301): a retreat that finds no cell is the only failure
+// the kernel can only discover by looking at the MAP, so no existing code says
+// it.
+const int VERDICT_NONE            = 0;   // slot not reached this evaluation
+const int VERDICT_FIRED           = 1;   // this slot committed the action
+const int VERDICT_DISABLED        = 2;   // GM_ENABLED == 0
+const int VERDICT_NO_CANDIDATE    = 3;   // select_target found nobody
+const int VERDICT_CONDITION_FALSE = 4;   // a condition said no (see ci/op/payload)
+const int VERDICT_NO_FINAL_TARGET = 5;   // action's own target type resolved to -1
+const int VERDICT_SILENCED        = 6;   // SPELL/ABILITY vetoed by STATUS_SILENCE
+const int VERDICT_IMMOBILIZED     = 7;   // MOVE_TO/MOVE_TO_UNIT/RETREAT_STEP vetoed by STATUS_IMMOBILIZE
+const int VERDICT_MP_SHORT        = 8;   // spell_pre_validate said no
+const int VERDICT_ON_COOLDOWN     = 9;   // cooldown_pre_validate said no (ADR-0047 B8)
+const int VERDICT_NOT_RETRYABLE   = 10;  // pass 2 skipped it: target type has no alternates
+const int VERDICT_RANKS_EXHAUSTED = 11;  // pass 2 walked find_nth_nearest to the end
+const int VERDICT_NO_RETREAT      = 12;  // RETREAT found no cell that opens distance (ADR-0301)
+
+// Int A bit layout. Pass 1 gets the full detail; pass 2 gets a summary,
+// because pass 2 walks RANKS and only the last one could ever be recorded in a
+// fixed-width field anyway.
+//
+//   bits  0.. 3  pass-1 verdict
+//   bits  4.. 5  pass-1 failing condition INDEX (0..3)
+//   bits  6..11  pass-1 failing condition OPCODE (COND_*)
+//   bits 12..15  pass-1 EVALUATED MASK -- one bit per condition actually run.
+//                Without it, "condition 2 failed" reads as if 2 were the only
+//                one checked. Only the FIRST failure is reported because the
+//                kernel genuinely stops there; conditions after it have no answer.
+//   bits 16..19  pass-2 verdict (VERDICT_NONE == pass 2 never reached this slot)
+//   bits 20..21  pass-2 failing condition INDEX
+//   bits 22..27  pass-2 failing condition OPCODE
+//   bits 28..30  pass-2 RANK reached, clamped 0..7 (`find_nth_nearest` has a
+//                hard `int unit_ids[8]`, so rank 8 can never resolve)
+//   bit  31      unused -- keeps int A non-negative on the host side
+//
+// 🔴 THE PASS SPLIT IS AN AMENDMENT TO dec. 4, NOT ITS TEXT. dec. 4 specifies
+// one `{failure_point, condition_index, condition_opcode, evaluated_mask}`.
+// Implementing it revealed that a single field REPRODUCES THE DEFECT the ADR
+// exists to remove: pass 2 revisits every slot, so its `VERDICT_NOT_RETRYABLE`
+// would overwrite pass 1's real reason for exactly the slots whose reason is
+// most wanted. Two nibbles cost nothing and keep both. Pass 2's evaluated mask
+// is the one field dropped for width.
+const int VERDICT_A_P1_SHIFT      = 0;
+const int VERDICT_A_P1_CI_SHIFT   = 4;
+const int VERDICT_A_P1_OP_SHIFT   = 6;
+const int VERDICT_A_P1_MASK_SHIFT = 12;
+const int VERDICT_A_P2_SHIFT      = 16;
+const int VERDICT_A_P2_CI_SHIFT   = 20;
+const int VERDICT_A_P2_OP_SHIFT   = 22;
+const int VERDICT_A_P2_RANK_SHIFT = 28;
+// Everything pass 2 owns, for the read-modify-write that merges it in.
+const int VERDICT_A_P2_FIELDS     = 0x7FFF0000;
+
+// Int B is the MEASURED PAYLOAD of the pass-1 verdict -- the number that lost,
+// full width and signed. `condition_false, actual 62, threshold 50` ends an
+// investigation. Pass 2 does not write it: for a nearest-type slot pass 1 IS
+// rank 0, so int B already carries that slot's payload.
+//   HP_BELOW/ABOVE  -> target HP percent        MP_ABOVE/BELOW -> actor MP percent
+//   DISTANCE_*      -> manhattan distance       IN_RANGE       -> manhattan distance
+//   HAS/NOT_STATUS  -> target U_STATUS_FLAGS_LO IS_DEAD/ALIVE  -> target HP
+//   TEAM_*          -> target team              ALWAYS         -> 0 (cannot fail)
+// For the verdicts that are not about a condition it carries the SUBJECT instead:
+//   NO_CANDIDATE -> the TARGET_* pool that came back empty
+//   FIRED / NO_FINAL_TARGET / SILENCED / IMMOBILIZED / MP_SHORT / ON_COOLDOWN
+//                -> the resolved candidate unit id
+//   DISABLED / NONE -> 0
+
+// =============================================================================
+// BATTLE DATA ACCESS
+// =============================================================================
+
+// Battle-header field offsets. The cinematic header pair that used to live
+// here (BH_CINEMATIC_CASTER_IDX / BH_CINEMATIC_TIMER) was retired in #118 in
+// favor of per-unit U_CINEMATIC_TIMER, so two simultaneous casters can each
+// run their own orchestrator instead of racing for one slot.
+const int BH_TICK = 0;
+const int BH_RESULT = 1;
+const int BH_FLAGS = 2;
+const int BH_SEED = 3;
+
+const int BATTLE_HEADER_SIZE = 4;  // tick, result, flags, seed
+
+int get_battle_size() {
+    return BATTLE_HEADER_SIZE + config.units_per_battle * UNIT_SIZE;
+}
+
+int get_single_buffer_size() {
+    return config.num_battles * get_battle_size();
+}
+
+int get_buffer_offset(int buffer_id) {
+    return buffer_id * get_single_buffer_size();
+}
+
+int get_battle_offset_in_buffer(int battle_id) {
+    return battle_id * get_battle_size();
+}
+
+int read_battle_header(int battle_id, int field) {
+    int offset = get_buffer_offset(config.current_buffer) + get_battle_offset_in_buffer(battle_id);
+    return battles.data[offset + field];
+}
+
+void write_battle_header(int battle_id, int field, int value) {
+    int next_buffer = 1 - config.current_buffer;
+    int offset = get_buffer_offset(next_buffer) + get_battle_offset_in_buffer(battle_id);
+    battles.data[offset + field] = value;
+}
+
+int get_battle_tick(int battle_id) {
+    return read_battle_header(battle_id, BH_TICK);
+}
+
+void set_battle_tick(int battle_id, int tick) {
+    write_battle_header(battle_id, BH_TICK, tick);
+}
+
+int get_battle_result(int battle_id) {
+    return read_battle_header(battle_id, BH_RESULT);
+}
+
+void set_battle_result(int battle_id, int result) {
+    write_battle_header(battle_id, BH_RESULT, result);
+}
+
+int get_battle_seed(int battle_id) {
+    return read_battle_header(battle_id, BH_SEED);
+}
+
+int get_unit_offset_read(int battle_id, int unit_id) {
+    int offset = get_buffer_offset(config.current_buffer) + get_battle_offset_in_buffer(battle_id);
+    return offset + BATTLE_HEADER_SIZE + unit_id * UNIT_SIZE;
+}
+
+int get_unit_offset_write(int battle_id, int unit_id) {
+    int next_buffer = 1 - config.current_buffer;
+    int offset = get_buffer_offset(next_buffer) + get_battle_offset_in_buffer(battle_id);
+    return offset + BATTLE_HEADER_SIZE + unit_id * UNIT_SIZE;
+}
+
+int read_unit(int battle_id, int unit_id, int field) {
+    return battles.data[get_unit_offset_read(battle_id, unit_id) + field];
+}
+
+void write_unit(int battle_id, int unit_id, int field, int value) {
+    battles.data[get_unit_offset_write(battle_id, unit_id) + field] = value;
+}
+
+// Same-buffer read/write (for conflict resolution pass that reads proposed, writes final)
+int read_unit_next(int battle_id, int unit_id, int field) {
+    return battles.data[get_unit_offset_write(battle_id, unit_id) + field];
+}
+
+// AN UNFILLED UNIT SLOT IS NOT A CORPSE (#1113).
+//
+// `GPUBatchSimulator.set_battle_units` writes the roster into the low slots and then marks
+// every slot past it `FLAG_DEAD` + `HP 0`, leaving the rest of the record zeroed — U_TEAM
+// included. So a 2v1 scenario in an 8-slot battle carries FIVE phantom team-0 corpses
+// standing at (0, 0), and the packer's own comment says why that was fine: "this prevents
+// ghost units from interfering with target selection", which was true for exactly as long as
+// EVERY pool filtered the dead.
+//
+// 🔴 #1102'S KO-INCLUSIVE ALLY POOL IS THE FIRST ONE THAT DOES NOT, and the phantoms sit at
+// (0, 0) — usually nearer than the real corpse, so they win the rank walk. A `KO'd?` slot
+// therefore fires on tick ~20 of a battle in which nobody has died, aimed at a slot that was
+// never a unit. That is the whole reason #1113's first two scenarios failed.
+//
+// U_MAX_HP is the discriminator, and it is not a trick: the packer writes a max HP for every
+// real unit and zeroes every empty slot, and a combatant with no maximum HP is not a
+// combatant under any other rule in this kernel either. FLAG_DEAD cannot be the
+// discriminator, because telling "empty slot" from "KO'd unit" is precisely what it can no
+// longer do.
+bool is_unit_slot_filled(int battle_id, int unit_id) {
+    return read_unit(battle_id, unit_id, U_MAX_HP) > 0;
+}
+
+bool is_unit_dead(int battle_id, int unit_id) {
+    return (read_unit(battle_id, unit_id, U_FLAGS) & FLAG_DEAD) != 0;
+}
+
+// #1107 — spend this swing's recovery on the IDLE edge, then clear it.
+//
+// Called from BOTH attack exits in `compute_unit_state`: the ACTING edge (melee
+// and any attack whose damage already landed in-SEQ) and the AWAITING_IMPACT
+// edge (a projectile that has just arrived). Both write IDLE immediately above,
+// and the dispatch below only runs at `timer == 0`, so setting U_TIMER here is
+// exactly "this unit exists but may not choose yet for N ticks".
+//
+// 🔴 ZERO IS THE WHOLE POINT. `U_ATTACK_RECOVERY` is 0 for every unit whose
+// `attack_period` factor is the identity, which — with the lever set shipping
+// empty — is every unit in the game today. The early return means the pre-#1107
+// fallthrough survives byte for byte, so this mechanism costs nothing until
+// somebody authors a factor.
+//
+// CLEARED, NOT LEFT STANDING: the field is per-swing scratch, and a stale value
+// would be spent again by a later attack that was never levered — a unit that
+// swapped to an un-levered weapon mid-battle is the case that finds it.
+void consume_attack_recovery(int battle_id, int unit_id) {
+    int recovery = read_unit(battle_id, unit_id, U_ATTACK_RECOVERY);
+    if (recovery <= 0) return;
+    write_unit(battle_id, unit_id, U_TIMER, recovery);
+    write_unit(battle_id, unit_id, U_ATTACK_RECOVERY, 0);
+}
+
+void kill_unit(int battle_id, int unit_id) {
+    int flags = read_unit(battle_id, unit_id, U_FLAGS);
+    write_unit(battle_id, unit_id, U_FLAGS, flags | FLAG_DEAD);
+    write_unit(battle_id, unit_id, U_HP, 0);
+}
+
+// THE SETTLE-AWAITED SET: the states in which a unit is still visibly finishing
+// something, so declaring it victorious would cut that something off on screen.
+//
+// It is ONE set with TWO readers and they must stay one set: `stage_compute`'s
+// victory flip skips these states while `config.settle_brake_battle` names the
+// battle, and `stage_victory` then counts the unit as not-yet-victorious for
+// exactly as long. A host reading `victory` is therefore told the battle ended
+// only once this set is empty -- see `CombatLoop.settling_units`, which reports
+// the same population back to a human by name.
+//
+// WALKING / WALKING_TO_CAST / APPROACHING is `TurnDirector._is_movement_state`'s
+// trio -- the states whose logical position is a DESTINATION rather than where
+// the sprite is. ACTING is the swing or cast animation, whose effect has ALREADY
+// fired; what is left is the picture.
+//
+// SPELL_CHARGING and AWAITING_IMPACT are deliberately NOT here: a charge is a CT
+// clock with nothing playing, and AWAITING_IMPACT is a wait on a projectile whose
+// firer's animation already ended. Both are abandoned rather than awaited.
+// DYING is not here either because it never needed to be -- the flip has exempted
+// it since #897, unconditionally.
+bool settle_awaited_state(int state) {
+    return state == LOGICAL_ACTIVITY_WALKING
+        || state == LOGICAL_ACTIVITY_WALKING_TO_CAST
+        || state == LOGICAL_ACTIVITY_APPROACHING
+        || state == LOGICAL_ACTIVITY_RETREATING
+        || state == LOGICAL_ACTIVITY_ACTING;
+}
+
+bool is_enemy_team_dead(int battle_id, int unit_id) {
+    int my_team = read_unit(battle_id, unit_id, U_TEAM);
+    for (int u = 0; u < config.units_per_battle; u++) {
+        // Issue #107: a unit holding FLAG_DEAD + STATUS_RERAISE is in the
+        // visible-dying window before Stage B opens the revive cinematic.
+        // Counting it as "dead for victory" lets the opposing team celebrate
+        // (and stage_victory then declare a winner) within those 90+ ticks,
+        // which would terminate the battle before Stage B ever fires. Keep
+        // them in the "still kicking" tally until the bit drops at
+        // cinematic teardown. has_status is defined later in this file, so
+        // inline the bit check directly (LO only -- STATUS_RERAISE = 22).
+        // Only pay the extra LO read when the unit is actually dead -- the
+        // common alive path keeps its original cost.
+        if (is_unit_dead(battle_id, u)) {
+            int flags_lo = read_unit(battle_id, u, U_STATUS_FLAGS_LO);
+            if ((flags_lo & (1 << STATUS_RERAISE)) == 0) continue;
+        }
+        if (read_unit(battle_id, u, U_TEAM) != my_team) return false;
+    }
+    return true;
+}
+
+void copy_unit_to_next(int battle_id, int unit_id) {
+    int read_offset = get_unit_offset_read(battle_id, unit_id);
+    int write_offset = get_unit_offset_write(battle_id, unit_id);
+    for (int i = 0; i < UNIT_SIZE; i++) {
+        battles.data[write_offset + i] = battles.data[read_offset + i];
+    }
+}
+
+void copy_header_to_next(int battle_id) {
+    int read_offset = get_buffer_offset(config.current_buffer) + get_battle_offset_in_buffer(battle_id);
+    int next_buffer = 1 - config.current_buffer;
+    int write_offset = get_buffer_offset(next_buffer) + get_battle_offset_in_buffer(battle_id);
+    for (int i = 0; i < BATTLE_HEADER_SIZE; i++) {
+        battles.data[write_offset + i] = battles.data[read_offset + i];
+    }
+}
+
+// =============================================================================
+// MAP & PATHFINDING
+// =============================================================================
+
+// THE MAP BUFFER IS LEVEL-MAJOR AND TWENTY PLANES (ADR-0224 dec. 2/3). With
+// `T = map_width * map_height` -- the PER-LEVEL tile count, which is what
+// `total_tiles` keeps meaning throughout this file (dec. 1) -- level `L`'s block
+// starts at `L * MAP_PLANES_PER_LEVEL * T` and holds:
+//
+//     +0*T   heights                  [idx]
+//     +1*T   traversable              [idx]
+//     +2*T   cliff edge -> level 0    [idx * MAP_CLIFF_DIRECTIONS + dir]
+//     +6*T   cliff edge -> level 1    [idx * MAP_CLIFF_DIRECTIONS + dir]
+//
+// The writer is `GPUBatchSimulator.build_map_data`, whose `#region Map Buffer
+// Layout` docstring is the contract; these three constants are the shader's half
+// of it and are mirrored into GDScript by `tools/gen_gpu_layout.py` (ADR-0001).
+const int MAP_LEVEL_COUNT = 2;
+// The plane a column-addressed answer means. Named rather than written as a bare
+// `0` so that every site still answering for the ground SAYS it is doing so --
+// ADR-0224's whole objection to a default-argument overload is that it would let
+// ~100 call sites keep a level-0 answer without stating one.
+const int MAP_GROUND_LEVEL = 0;
+const int MAP_CLIFF_DIRECTIONS = 4;
+const int MAP_PLANES_PER_LEVEL = 10;
+
+// `trace_stitched_path`'s visited set, sized in the two units it is used in.
+// A bit per NODE, and a node is a cell, so this is `MAP_LEVEL_COUNT` planes of
+// 256 columns. MAP125 is 16x16 = exactly 256, so the pre-ADR-0224 `visited[8]`
+// was full to its last bit -- the second plane had nowhere to go but a wider
+// array. ADR-0224 P7 names this (plus `stack_l[32]`) as the ~40 ints of added
+// private storage to suspect first if `GPUPerfBenchmark` moves.
+const int PATH_VISITED_INTS = 16;
+const int PATH_VISITED_BITS = 512;
+
+// The first int of level `L`'s block.
+int map_level_base(int level) {
+    return level * MAP_PLANES_PER_LEVEL * (config.map_width * config.map_height);
+}
+
+// A CELL's node id in the distance field: `level * T + z * width + x`
+// (ADR-0224 dec. 1). Dense over `MAP_LEVEL_COUNT` planes -- level 1 is sparse in
+// the data, but a sparse numbering would put an indirection table in the
+// innermost loop of the mover to save 0.7 MB, which dec. 1 refuses.
+int map_node_index(int x, int z, int level) {
+    return level * (config.map_width * config.map_height) + z * config.map_width + x;
+}
+
+// ⚠️ `level` IS A LEVEL, and `z` IS A GRID Z. On the GDScript side the same pair
+// is `cell.grid.y` and `cell.grid.z`, which is the single most expensive naming
+// confusion in this line of work. Nothing here takes a `Vector3i`; the two are
+// always separate arguments and always in this order.
+int get_tile_height(int x, int z, int level) {
+    if (x < 0 || x >= config.map_width || z < 0 || z >= config.map_height) {
+        return -1;
+    }
+    if (level < 0 || level >= MAP_LEVEL_COUNT) {
+        return -1;
+    }
+    return map_data.tile_data[map_level_base(level) + z * config.map_width + x];
+}
+
+bool is_tile_traversable(int x, int z, int level) {
+    if (x < 0 || x >= config.map_width || z < 0 || z >= config.map_height) {
+        return false;
+    }
+    if (level < 0 || level >= MAP_LEVEL_COUNT) {
+        return false;
+    }
+    int offset = config.map_width * config.map_height;
+    return map_data.tile_data[map_level_base(level) + offset + z * config.map_width + x] != 0;
+}
+
+// THE CELL OF A COLUMN A WALKER LANDS ON, and the ONE place the rule is stated.
+//
+// A column holds up to `MAP_LEVEL_COUNT` cells (ADR-0224 dec. 1), so "step east"
+// does not name a cell — this picks it: the first admissible one, LOW TO HIGH,
+// gated by `abs(height - from_h) <= jump` against the height being stepped FROM.
+// That is dec. 5's enqueue order, the order `EventPathfinder` floods `cells_at`
+// in and the order `DistanceFieldGenerator._compute_neighbors` appends in.
+// Picking by smallest height delta instead would read as more physical and would
+// be a rule no decision states.
+//
+// `find_passthrough_destination` in all three movement stages walks a line with
+// this, and `get_move_ticks` below prices that line with it, so the cost of a
+// pass-through cannot come to disagree with the path it was charged for.
+//
+// Returns `ivec2(level, height)`; `.x < 0` is "no cell of this column is reachable
+// from `from_h`".
+ivec2 walkable_step_cell(int x, int z, int from_h, int jump) {
+    for (int l = 0; l < MAP_LEVEL_COUNT; l++) {
+        if (!is_tile_traversable(x, z, l)) continue;
+        int lh = get_tile_height(x, z, l);
+        if (abs(lh - from_h) > jump) continue;
+        return ivec2(l, lh);
+    }
+    return ivec2(-1, 0);
+}
+
+// The field's matrix stride moved from `total_tiles` to the NODE count when the
+// field grew its second plane, so this address is different from the one every
+// caller computed before ADR-0224 even when both levels are 0. That is why the
+// field could not be widened inertly and why it lands in this PR rather than the
+// storage one (dec. 2).
+//
+// The bounds guard is new. `GPUBatchSimulator`'s own bounds check guards a real
+// past crash (the index-936 crash) and ADR-0224's Consequences say widening the
+// index space makes it more necessary, not less: an out-of-range level here would
+// read a neighbouring battle's distances rather than a wrong tile's. `-1` is the
+// array's existing "unreachable" encoding, which every caller already tests for.
+int get_distance(int from_x, int from_z, int from_level, int to_x, int to_z, int to_level) {
+    if (from_x < 0 || from_x >= config.map_width || from_z < 0 || from_z >= config.map_height) {
+        return -1;
+    }
+    if (to_x < 0 || to_x >= config.map_width || to_z < 0 || to_z >= config.map_height) {
+        return -1;
+    }
+    if (from_level < 0 || from_level >= MAP_LEVEL_COUNT) {
+        return -1;
+    }
+    if (to_level < 0 || to_level >= MAP_LEVEL_COUNT) {
+        return -1;
+    }
+    int nodes = config.map_width * config.map_height * MAP_LEVEL_COUNT;
+    int from_idx = map_node_index(from_x, from_z, from_level);
+    int to_idx = map_node_index(to_x, to_z, to_level);
+    return dist_field.distances[from_idx * nodes + to_idx];
+}
+
+int manhattan_distance(int x1, int z1, int x2, int z2) {
+    return abs(x2 - x1) + abs(z2 - z1);
+}
+
+// =============================================================================
+// CLIFF EDGE DETECTION & MOVEMENT TIMING
+// =============================================================================
+
+// Direction encoding: 0=N(+X), 1=E(+Z), 2=S(-X), 3=W(-Z)
+int get_move_direction(int from_x, int from_z, int to_x, int to_z) {
+    int dx = to_x - from_x;
+    int dz = to_z - from_z;
+    if (dx > 0) return 0;
+    if (dz > 0) return 1;
+    if (dx < 0) return 2;
+    return 3;
+}
+
+// Map buffer layout, per level block of `MAP_PLANES_PER_LEVEL * W*H` ints
+// (GPUBatchSimulator's Map Buffer Layout region, ADR-0224 dec. 2/3):
+//   +0*T heights | +1*T traversability | +2*T cliff->level 0 | +6*T cliff->level 1
+// LEVEL-MAJOR, so level 0's first six planes are byte-for-byte the buffer this
+// file has always read and the offsets below are unchanged. The accessors here
+// still address a COLUMN and therefore always answer for level 0; threading the
+// level through them is the shader pass, not this one.
+// Eight verdicts per cell, one per (direction, TARGET level) -- ADR-0224 dec. 3.
+// A step now has up to two possible destinations per direction, so a four-wide
+// per-cell table cannot state the answer.
+//
+// The verdict itself is still the port's (`Lattice.is_cliff_edge`, ADR-0164
+// dec. 2): it is decided from `tile_vertices` and the tile transform, terrain
+// facts no shader can see. This only reads the table.
+//
+// The two 4-wide groups are laid out BY TARGET LEVEL rather than as one 8-wide
+// group per cell, and that is load-bearing: with `from_level == 0` and
+// `to_level == 0` the offset below reduces to `total_tiles * 2 + tile_idx * 4 +
+// dir`, exactly the expression this function computed before ADR-0224. An
+// 8-wide group would have moved the stride to `tile_idx * 8` and forced this
+// edit into the storage commit, destroying dec. 2's staging property.
+bool is_cliff_edge(int from_x, int from_z, int from_level, int to_x, int to_z, int to_level) {
+    if (from_x < 0 || from_x >= config.map_width || from_z < 0 || from_z >= config.map_height) {
+        return false;
+    }
+    if (from_level < 0 || from_level >= MAP_LEVEL_COUNT) {
+        return false;
+    }
+    if (to_level < 0 || to_level >= MAP_LEVEL_COUNT) {
+        return false;
+    }
+    int dir = get_move_direction(from_x, from_z, to_x, to_z);
+    int total_tiles = config.map_width * config.map_height;
+    int tile_idx = from_z * config.map_width + from_x;
+    int cliff_offset = map_level_base(from_level)
+        + total_tiles * 2
+        + to_level * MAP_CLIFF_DIRECTIONS * total_tiles
+        + tile_idx * MAP_CLIFF_DIRECTIONS + dir;
+    return map_data.tile_data[cliff_offset] != 0;
+}
+
+float calculate_arc_distance(int from_x, int from_z, int from_level,
+                             int to_x, int to_z, int to_level) {
+    int from_h = get_tile_height(from_x, from_z, from_level);
+    int to_h = get_tile_height(to_x, to_z, to_level);
+    float height_delta = abs(float(to_h - from_h));
+    float horizontal_dist = 1.0;
+    return horizontal_dist + height_delta + ARC_QUARTER_CIRCLE;
+}
+
+int get_move_start_frame(int anim_id) {
+    if (anim_id < 0 || anim_id >= 256) return -1;
+    return anim_timings.timings[512 + anim_id];
+}
+
+int calculate_cliff_move_ticks(int from_x, int from_z, int from_level,
+                               int to_x, int to_z, int to_level) {
+    float arc_dist = calculate_arc_distance(from_x, from_z, from_level, to_x, to_z, to_level);
+    int arc_ticks = int(ceil(arc_dist / ARC_SPEED * GPU_TICKS_PER_SECOND * GLOBAL_SPEED_DIVISOR)) / VERTICAL_MOVE_SEQ_SPEED;
+    int move_start_frame = get_move_start_frame(60);
+    int jumping_ticks = (move_start_frame * TICKS_PER_SEQ_FRAME) / VERTICAL_MOVE_SEQ_SPEED;
+    return jumping_ticks + arc_ticks + LANDING_TICKS / VERTICAL_MOVE_SEQ_SPEED;
+}
+
+int calculate_flat_move_ticks(float distance) {
+    if (distance <= 0.0) return 1;
+    return int(ceil(distance / WALK_SPEED * GPU_TICKS_PER_SECOND * GLOBAL_SPEED_DIVISOR)) / HORIZONTAL_MOVE_SEQ_SPEED;
+}
+
+// One TILE EDGE, between two genuinely adjacent cells. The cliff table is
+// direction-keyed and holds a verdict per neighbour, so it can only answer about
+// a pair one step apart -- which is the whole reason `get_move_ticks` below has
+// to decompose before it can ask.
+int edge_move_ticks(int from_x, int from_z, int from_level,
+                    int to_x, int to_z, int to_level) {
+    if (is_cliff_edge(from_x, from_z, from_level, to_x, to_z, to_level)) {
+        return calculate_cliff_move_ticks(from_x, from_z, from_level, to_x, to_z, to_level);
+    }
+    int dist = abs(to_x - from_x) + abs(to_z - from_z);
+    if (dist < 1) dist = 1;
+    return calculate_flat_move_ticks(float(dist));
+}
+
+// 🔴 A MOVEMENT STEP CAN SPAN MORE THAN ONE TILE, and its cost is the cost of
+// WALKING it, edge by edge -- not one edge measured end to end.
+//
+// `find_passthrough_destination` lands a unit PAST an ally, up to
+// `PASSTHROUGH_MAX_TILES` away, in a straight line. Read end to end, a
+// pass-through over a raised tile and back down to the starting height priced as
+// a flat one-tile stroll: `is_cliff_edge` answered about the FIRST neighbour
+// only, `calculate_arc_distance` hardcodes `horizontal_dist = 1.0`, and the
+// height delta it measured was the ENDPOINTS' -- zero. The unit was given the
+// ticks for a stroll and `GPUMovementVisualizer`, reading the same two cells,
+// lerped it in a straight line through the tile it should have hopped onto and
+// off. That is the "units walk through walls" report; the visualizer walks the
+// same line by the same rule now, and this is the half that pays for it.
+//
+// A one-tile step runs the loop once and is unchanged, which is every step that
+// is not a pass-through.
+int get_move_ticks(int from_x, int from_z, int from_level,
+                   int to_x, int to_z, int to_level, int jump) {
+    int span = abs(to_x - from_x) + abs(to_z - from_z);
+    if (span <= 1) {
+        return scale_move_ticks(edge_move_ticks(from_x, from_z, from_level, to_x, to_z, to_level));
+    }
+
+    int dir_x = sign(to_x - from_x);
+    int dir_z = sign(to_z - from_z);
+    int cx = from_x, cz = from_z, cl = from_level;
+    int ticks = 0;
+    for (int i = 1; i <= span && i <= PASSTHROUGH_MAX_TILES; i++) {
+        int nx = from_x + dir_x * i;
+        int nz = from_z + dir_z * i;
+        int nl = to_level;
+        if (nx != to_x || nz != to_z) {
+            // The intermediate cells are the ones the destination does not name,
+            // and this is the rule that chose them on the way out.
+            ivec2 crossed = walkable_step_cell(nx, nz, get_tile_height(cx, cz, cl), jump);
+            // Unreachable in practice -- the mover just walked this line -- but a
+            // shader has no way to say so, and a bogus level would price the rest
+            // of the line off a height read from another cell. Charge the edge as
+            // flat and keep the cursor where it is.
+            if (crossed.x < 0) {
+                ticks += calculate_flat_move_ticks(1.0);
+                continue;
+            }
+            nl = crossed.x;
+        }
+        ticks += edge_move_ticks(cx, cz, cl, nx, nz, nl);
+        cx = nx; cz = nz; cl = nl;
+    }
+    return scale_move_ticks(max(ticks, 1));
+}
+
+// =============================================================================
+// ABILITY DATA ACCESS
+// =============================================================================
+
+const int ABILITY_SIZE = 16;
+
+int get_ability_field(int ability_id, int field) {
+    if (ability_id < 0 || ability_id >= MAX_ABILITIES) return 0;
+    return ability_data.abilities[ability_id * ABILITY_SIZE + field];
+}
+
+int get_ability_mp_cost(int ability_id)      { return get_ability_field(ability_id, AB_MP_COST); }
+int get_ability_charge_time(int ability_id)  { return get_ability_field(ability_id, AB_CHARGE_TIME); }
+int get_ability_cooldown_ticks(int ability_id) { return get_ability_field(ability_id, AB_COOLDOWN_TICKS); }
+
+// ADR-0047 / issue #85 — per-(unit, ability_id) cooldown_ready_at slot
+// accessors backed by the binding-9 SSBO. Out-of-range ability_id reads
+// return 0 (off-cooldown) and writes are no-ops so callers don't need to
+// guard the range twice. Same single-buffered semantics either way.
+int get_cooldown_ready_at(int battle_id, int unit_id, int ability_id) {
+    if (ability_id < 0 || ability_id >= MAX_COOLDOWN_ABILITIES) return 0;
+    int unit_global_idx = battle_id * config.units_per_battle + unit_id;
+    return cooldown_data.data[unit_global_idx * MAX_COOLDOWN_ABILITIES + ability_id];
+}
+
+void set_cooldown_ready_at(int battle_id, int unit_id, int ability_id, int value) {
+    if (ability_id < 0 || ability_id >= MAX_COOLDOWN_ABILITIES) return;
+    int unit_global_idx = battle_id * config.units_per_battle + unit_id;
+    cooldown_data.data[unit_global_idx * MAX_COOLDOWN_ABILITIES + ability_id] = value;
+}
+int get_ability_range(int ability_id)        { return get_ability_field(ability_id, AB_RANGE); }
+int get_ability_formula_id(int ability_id)   { return get_ability_field(ability_id, AB_FORMULA_ID); }
+int get_ability_formula_y(int ability_id)    { return get_ability_field(ability_id, AB_FORMULA_Y); }
+int get_ability_formula_x(int ability_id)    { return get_ability_field(ability_id, AB_FORMULA_X); }
+int get_ability_flags(int ability_id)        { return get_ability_field(ability_id, AB_FLAGS); }
+int get_ability_vertical(int ability_id)     { return get_ability_field(ability_id, AB_VERTICAL); }
+int get_ability_inflict_mask(int ability_id) { return get_ability_field(ability_id, AB_INFLICT_MASK); }
+int get_ability_inflict_mode(int ability_id) { return get_ability_field(ability_id, AB_INFLICT_MODE); }
+
+// THE ABILITY DATA IS THE PERMISSION (#1113). FFT carries no "may target the
+// dead" flag; it carries an inflict list, and the abilities that undo death are
+// exactly the ones whose list names `Dead` under mode `cancel`. Over the shipped
+// database that is FIVE and only five: Raise (5), Raise2 (6), Revive (107),
+// Oink (312), and — through the chemist item's own inflict block, which
+// GPUAbilityLoader substitutes for an ITEM ability — PhoenixDown (381). Both
+// fields are already packed into the ability SSBO (AB_INFLICT_MASK /
+// AB_INFLICT_MODE), so no `ABFLAG_` was invented and ADR-0013's deferred-flag
+// guard has nothing new to police.
+//
+// 🔴 THIS READS THE ABILITY'S MASK BIT, NOT THE UNIT'S STATUS BIT. STATUS_DEAD
+// is hollow (see its row in the status block above) and stays that way — #1105
+// keeps its call. What bit 0 means HERE is "this ability's ROM inflict list
+// names Dead", a fact about the ability table and nothing about any unit.
+bool ability_revives(int ability_id) {
+    if (ability_id < 0) return false;
+    if (get_ability_inflict_mode(ability_id) != INFLICT_MODE_CANCEL) return false;
+    return (get_ability_inflict_mask(ability_id) & (1 << STATUS_DEAD)) != 0;
+}
+
+// THE ONE PLACE FLAG_DEAD IS CLEARED (#1113). Both revives route here: the
+// RERAISE orchestrator's timer-driven one (stage_spell's Stage B) and a CAST of
+// a cancel-Dead ability. Keeping it at one site is the claim worth defending —
+// two would be two places a unit can come back, and only one of them would ever
+// be found by someone reading `FLAG_DEAD`.
+//
+// `hp` is the caller's, because the two callers get it from different places
+// and neither can borrow the other's: RERAISE hard-codes
+// max_hp / RERAISE_HP_DIVISOR (a lethal-damage capture has no ability to read a
+// formula from), while a cast passes calculate_spell_damage's result, which for
+// formula 0x0D is Y% of the target's max HP — Raise Y=50, Raise2 Y=100. Clamped
+// into [1, max_hp] so no caller can revive a unit into 0 HP for stage_damage to
+// re-kill, and so a 100% revive cannot overshoot.
+//
+// U_STATE/U_TIMER return the unit to gambit evaluation: a revived unit that
+// stayed in whatever activity it died in would never pick an action again.
+void revive_unit(int battle_id, int unit_id, int hp) {
+    int max_hp = read_unit(battle_id, unit_id, U_MAX_HP);
+    write_unit(battle_id, unit_id, U_HP, clamp(hp, 1, max_hp));
+    int flags = read_unit(battle_id, unit_id, U_FLAGS);
+    write_unit(battle_id, unit_id, U_FLAGS, flags & ~FLAG_DEAD);
+    write_unit(battle_id, unit_id, U_STATE, LOGICAL_ACTIVITY_IDLE);
+    write_unit(battle_id, unit_id, U_TIMER, TICKS_GAMBIT_REEVAL);
+}
+
+int get_effective_ability_range(int battle_id, int unit_id, int ability_id) {
+    int base_range = get_ability_range(ability_id);
+    if (base_range == 0) {
+        return read_unit(battle_id, unit_id, U_WEAPON_RANGE);
+    }
+    int flags = get_ability_flags(ability_id);
+    if ((flags & ABFLAG_THROW_RANGE) != 0) {
+        int speed = read_unit(battle_id, unit_id, U_SPEED);
+        return speed / 2 + 1;
+    }
+    return base_range;
+}
+
+bool is_ability_healing(int ability_id) {
+    return (get_ability_flags(ability_id) & ABFLAG_HEALING) != 0;
+}
+
+int get_ability_effect_anim_id(int ability_id) {
+    return get_ability_field(ability_id, AB_EFFECT_ANIM_ID);
+}
+
+// E### file number (the EffectTimings SSBO key). Distinct from
+// effect_anim_id, which indexes SEQ animations for the cast pose;
+// effect_id keys the per-effect timeline.json (and thus this SSBO).
+int get_ability_effect_id(int ability_id) {
+    return get_ability_field(ability_id, AB_EFFECT_ID);
+}
+
+int get_ability_effect_area(int ability_id) {
+    return get_ability_field(ability_id, AB_EFFECT_AREA);
+}
+
+int get_anim_damage_frame(int anim_id) {
+    return anim_timings.timings[anim_id * 2];
+}
+
+int get_anim_total_frames(int anim_id) {
+    return anim_timings.timings[anim_id * 2 + 1];
+}
+
+bool is_item_ability(int ability_id) {
+    return ability_id >= 368 && ability_id <= 381;
+}
+
+// Animation IDs (TYPE1 SEQ numbers)
+const int TYPE1_ITEM_USE = 114;
+const int TYPE1_UNARMED_ATTACK = 122;
+const int TYPE1_MELEE_SWING = 128;
+const int TYPE1_THROW_WEAPON = 152;
+const int TYPE1_GUN = 160;
+const int TYPE1_BOW = 166;
+
+// WEP1 animation offsets
+const int WEP1_MELEE = 0;
+const int WEP1_GUN = 6;
+const int WEP1_BOW = 12;
+
+// Weapon types
+const int WEAPON_TYPE_GUN = 10;
+const int WEAPON_TYPE_CROSSBOW = 11;
+const int WEAPON_TYPE_BOW = 12;
+
+// Ability ID ranges for equipment breaks
+const int BREAK_SHIELD_ID = 140;
+const int BREAK_WEAPON_ID = 141;
+
+int get_cast_animation_duration(int ability_id) {
+    int cast_anim_id;
+    if (is_item_ability(ability_id)) {
+        cast_anim_id = TYPE1_THROW_WEAPON;
+    } else {
+        int effect_anim_id = get_ability_effect_anim_id(ability_id);
+        if (effect_anim_id <= 0) return DEFAULT_CAST_DURATION;
+        cast_anim_id = effect_anim_id * 2;
+    }
+    int total_frames_seq = get_anim_total_frames(cast_anim_id);
+    // SEQ runs at ~45fps, GPU at 60fps. Ratio = 60/45 = 4/3. Round up via (n*4+2)/3.
+    return max(MIN_ATTACK_DURATION, (total_frames_seq * 4 + 2) / 3);
+}
+
+// =============================================================================
+// STATUS EFFECT HELPERS
+// =============================================================================
+
+bool has_status(int battle_id, int unit_id, int status_bit) {
+    if (status_bit < 32) {
+        int flags_lo = read_unit(battle_id, unit_id, U_STATUS_FLAGS_LO);
+        return (flags_lo & (1 << status_bit)) != 0;
+    } else {
+        int flags_hi = read_unit(battle_id, unit_id, U_STATUS_FLAGS_HI);
+        return (flags_hi & (1 << (status_bit - 32))) != 0;
+    }
+}
+
+// NEXT-buffer variant for stages that read post-write state (e.g. stage_damage
+// after upstream stages may have applied set_status / clear_status).
+bool has_status_next(int battle_id, int unit_id, int status_bit) {
+    if (status_bit < 32) {
+        int flags_lo = read_unit_next(battle_id, unit_id, U_STATUS_FLAGS_LO);
+        return (flags_lo & (1 << status_bit)) != 0;
+    } else {
+        int flags_hi = read_unit_next(battle_id, unit_id, U_STATUS_FLAGS_HI);
+        return (flags_hi & (1 << (status_bit - 32))) != 0;
+    }
+}
+
+void set_status(int battle_id, int unit_id, int status_bit) {
+    if (status_bit < 32) {
+        int flags_lo = read_unit(battle_id, unit_id, U_STATUS_FLAGS_LO);
+        write_unit(battle_id, unit_id, U_STATUS_FLAGS_LO, flags_lo | (1 << status_bit));
+    } else {
+        int flags_hi = read_unit(battle_id, unit_id, U_STATUS_FLAGS_HI);
+        write_unit(battle_id, unit_id, U_STATUS_FLAGS_HI, flags_hi | (1 << (status_bit - 32)));
+    }
+}
+
+void clear_status(int battle_id, int unit_id, int status_bit) {
+    if (status_bit < 32) {
+        int flags_lo = read_unit(battle_id, unit_id, U_STATUS_FLAGS_LO);
+        write_unit(battle_id, unit_id, U_STATUS_FLAGS_LO, flags_lo & ~(1 << status_bit));
+    } else {
+        int flags_hi = read_unit(battle_id, unit_id, U_STATUS_FLAGS_HI);
+        write_unit(battle_id, unit_id, U_STATUS_FLAGS_HI, flags_hi & ~(1 << (status_bit - 32)));
+    }
+}
+
+// Forward decls. The first two are defined below in the "Status duration
+// countdowns" section: CANCEL frees the countdown the bit was running so the
+// cleared state is immediate rather than waiting for an orphan to tick out; ALL
+// arms one, which is the producer #1105 found missing. `rand_int` is defined in
+// the RNG section further down and is what RANDOM / SEPARATE roll with (#1117).
+void clear_status_timer(int battle_id, int unit_id, int status_bit);
+void arm_status_default_duration(int battle_id, int unit_id, int status_bit);
+int rand_int(int battle_id, int unit_id, int tick, int max_val);
+
+// Hit policy predicate (ADR-0049): does an AOE ability's effect actually land
+// on this unit? FFT-canonical default is "yes for every living unit in
+// radius"; the three ABFLAG_HIT_NO_* bits carve out enemies / allies /
+// caster individually. The unit-id check is intentional — dont_hit_caster
+// excludes the SPECIFIC caster, not "anyone on the caster's team."
+bool hit_policy_allows(int ability_id, int caster_id, int caster_team,
+                       int target_id, int target_team) {
+    int flags = get_ability_flags(ability_id);
+    if (target_id == caster_id && (flags & ABFLAG_HIT_NO_CASTER) != 0) return false;
+    if (target_team == caster_team) {
+        if ((flags & ABFLAG_HIT_NO_ALLIES) != 0) return false;
+    } else {
+        if ((flags & ABFLAG_HIT_NO_ENEMIES) != 0) return false;
+    }
+    return true;
+}
+
+// The flat per-status chance a SEPARATE-mode inflict lands each status it lists,
+// in percent (#1117). THE ROM'S OWN NUMBER, AND IT IS NOT DERIVED FROM THE
+// ABILITY: an inflict record is six bytes -- one mode byte plus a five-byte
+// status set (SCUS `InflictStatusList` @ `0x80063FC4`, 128 entries) -- and
+// carries no probability column at all, so there is nothing per-status to read.
+// `pass_fail_roll(100, 0x18)` at BATTLE.BIN `0x801880E8` is where the odds
+// actually live. 24 and not 25: the ROM keeps the status when its roll over
+// `0..99` comes in UNDER 24 (`pass_fail_roll` returns `roll >= threshold`, and
+// the true branch is the one that XORs the bit back OFF).
+const int INFLICT_SEPARATE_KEEP_PCT = 24;
+
+// Keeps the inflict rolls off the hit roll's hash. `rand_int` folds its second
+// argument into the seed, and the status hit roll at this same (caster, target,
+// tick) already seeds on `caster * 100 + target` (`roll_break_hit`) -- so an
+// unsalted inflict roll would be that same draw read again at a new modulus,
+// which correlates "did it hit" with "which status".
+const int INFLICT_RNG_SALT = 7919;
+
+// Narrow an inflict set to the bits THIS cast lands (#1117). Pure: it draws from
+// the RNG and writes nothing. Returns 0 when the cast lands nothing, which
+// includes INFLICT_MODE_NONE -- the mode `StatusEncoder.mode_from_string` decodes
+// every unrecognised value to.
+//
+// THE ROM RESOLVES THE MODE TO A MASK BEFORE IT TOUCHES THE UNIT: `FUN_80187F24`
+// (BATTLE.BIN `0x80187F24`) filters the five-byte scratch copy in place and only
+// then ORs it onto the target, which is why this is one narrowing step rather
+// than a per-mode apply branch.
+// ⚠️ BOTH LOOPS WALK THE SET BITS, NOT 0..31, AND THAT IS A COMPILE-TIME
+// DECISION. This is inlined at nine call sites; a `for (b = 0; b < 32; b++)`
+// here is a 32x unrolled body at every one of them, and the first version of
+// this function measured **+2.5 s on a cold pipeline build** against a
+// comment-only control at the same commit (11.1 s vs 8.8 s for
+// `warm_pipelines_async`'s eight stages). That is not free: the driver's
+// pipeline cache is cold on any shader edit, and 11 s of async compile outlives
+// a short test's `quit()` and trips a teardown race. `m &= m - 1` clears the
+// lowest set bit and `findLSB` names it, so the trip count is the number of
+// statuses LISTED -- one to nine in the shipped data, never thirty-two.
+int resolve_inflict_mask(int battle_id, int caster_id, int target_id,
+                         int mask, int mode, int tick) {
+    // ALL lands the lot. CANCEL's mask is a REMOVAL list, so there is nothing
+    // to roll for either -- the ROM's CANCEL branch does no rolling at all.
+    if (mode == INFLICT_MODE_ALL || mode == INFLICT_MODE_CANCEL) return mask;
+    int stream = caster_id * 100 + target_id;
+    if (mode == INFLICT_MODE_RANDOM) {
+        // ROM: collect the set statuses into a stack array and index it with ONE
+        // draw (`FUN_8018EEA0() * count >> 15`). Uniform over the bits PRESENT --
+        // so a mask short of the ROM's set skews the pick instead of losing a
+        // status. Muramasa and Nightmare both list Death Sentence, which has no
+        // bit in this kernel yet (#1119), so their "pick one of two" is currently
+        // a pick of one.
+        int pick = rand_int(battle_id, stream + INFLICT_RNG_SALT, tick,
+                            bitCount(mask));
+        int m = mask;
+        while (pick > 0) { m &= m - 1; pick--; }   // drop the first `pick` bits
+        return 1 << findLSB(m);                    // and take the next one
+    }
+    if (mode == INFLICT_MODE_SEPARATE) {
+        // ROM: one `pass_fail_roll(100, 24)` per listed status, each independent,
+        // and a failing roll XORs that status back out of the scratch set. So the
+        // ability's own hit rate gates whether we are here AT ALL; it does not
+        // scale this roll. A 9-status set (GrandCross) lands ~2.2 statuses.
+        int kept = 0;
+        for (int m = mask; m != 0; m &= m - 1) {
+            int b = findLSB(m);
+            int roll = rand_int(battle_id, stream + INFLICT_RNG_SALT * (b + 1),
+                                tick, 100);
+            if (roll < INFLICT_SEPARATE_KEEP_PCT) kept |= (1 << b);
+        }
+        return kept;
+    }
+    return 0;
+}
+
+// Issue #98 tracer (extended for #100 and #1117): apply an ability's inflict set
+// onto a target on a confirmed hit. The set carries only LO bits (StatusEncoder
+// skips Charm/Reflect/DeathSentence/Innocent/Crystal until they get bits in #99)
+// -- we apply onto STATUS_FLAGS_LO directly.
+//
+// FOUR MODES AND ONE APPLY. `resolve_inflict_mask` above decides WHICH bits this
+// cast lands; everything below is the same two writes for all four modes:
+//   ALL      -- lands every listed bit.
+//   RANDOM   -- lands exactly one, picked uniformly from the listed bits.
+//   SEPARATE -- rolls each listed bit independently at INFLICT_SEPARATE_KEEP_PCT.
+//   CANCEL   -- the listed bits are the ones REMOVED, and it frees their
+//               countdowns. Esuna / Stigma Magic / Antidote / Eye Drop / etc.
+//               all route through here.
+// The `_all` in the name is HISTORICAL -- it predates #100's CANCEL and #1117's
+// two, and three ADRs plus five docs cite it by that name, which is why #1117
+// left it alone rather than orphaning the citations. It is not a mode.
+void apply_inflict_all(int battle_id, int caster_id, int target_id,
+                       int mask, int mode, int tick) {
+    if (mask == 0) return;
+    int resolved = resolve_inflict_mask(battle_id, caster_id, target_id,
+                                        mask, mode, tick);
+    if (resolved == 0) return;
+    int flags_lo = read_unit(battle_id, target_id, U_STATUS_FLAGS_LO);
+    if (mode == INFLICT_MODE_CANCEL) {
+        int cleared = flags_lo & ~resolved;
+        if (cleared == flags_lo) return;
+        write_unit(battle_id, target_id, U_STATUS_FLAGS_LO, cleared);
+        // Free the countdown of every bit the cancel listed, so the sixteen
+        // status-addressed counters aren't left holding an orphan that would
+        // clear the flag again after the unit picks it back up.
+        for (int b = 0; b < 32; b++) {
+            if ((resolved & (1 << b)) != 0) clear_status_timer(battle_id, target_id, b);
+        }
+        return;
+    }
+    // ⚠️ ONE write for the whole resolved mask, then the countdowns per bit.
+    // Setting the bits one at a time through `set_status` would drop all but the
+    // last: it reads the CURRENT buffer and writes the NEXT one, so each call
+    // would OR its own bit onto the frame-start word. The timers compose because
+    // `write_status_timer` reads NEXT. Arming is per-bit because the duration is
+    // a per-status fact (#1116): this is the ONLY site that turns a
+    // `status_default_ct` into ticks, and it arms only what RESOLVED -- a status
+    // a SEPARATE roll dropped must not get a countdown for a flag it never set.
+    write_unit(battle_id, target_id, U_STATUS_FLAGS_LO, flags_lo | resolved);
+    for (int b = 0; b < 32; b++) {
+        if ((resolved & (1 << b)) != 0) {
+            arm_status_default_duration(battle_id, target_id, b);
+        }
+    }
+}
+
+// Element-defense multiplier (issue #110). Returns the queued-damage scale for
+// a spell of `element_id` (AB_ELEMENT, 1..8) against a target carrying the four
+// per-equipment-slot masks. Scaled by 256 so the shader stays integer-math:
+//   -256 = absorb (sign flip -> heal),  0 = cancel,  128 = half,
+//    256 = normal (default),           512 = weak.
+// Precedence per the FFT-canonical order (absorb wins over null wins over half
+// wins over weak); element_id == 0 (none) is a no-op pass-through.
+int element_multiplier(int element_id, int absorb_mask, int cancel_mask,
+                       int half_mask, int weak_mask) {
+    if (element_id <= 0) return 256;
+    int bit = 1 << element_id;
+    if ((absorb_mask & bit) != 0) return -256;
+    if ((cancel_mask & bit) != 0) return 0;
+    if ((half_mask   & bit) != 0) return 128;
+    if ((weak_mask   & bit) != 0) return 512;
+    return 256;
+}
+
+// Scale a queued damage amount against the target's element defense masks for
+// `ability_id`'s element. Called at each damage-queue site (stage_damage Phase 1
+// AOE, stage_spell cast_instant_spell, stage_spell apply_damage_to_target) so
+// the resulting U_PENDING_DAMAGE / U_DAMAGE_AMOUNT already reflects absorb /
+// cancel / half / weak. Element 0 (none) or untouched defenses return `amount`
+// unchanged -- the hot path for the vast majority of basic attacks / poison
+// ticks / un-elemented spells. STATUS_UNDEAD invert in stage_damage Phase 3
+// composes on top: absorb-on-undead does heal -> damage (FFT-canonical double
+// flip).
+int apply_element_defense(int battle_id, int target_id, int ability_id, int amount) {
+    if (ability_id < 0 || amount == 0) return amount;
+    int element_id = get_ability_field(ability_id, AB_ELEMENT);
+    if (element_id <= 0) return amount;
+    // Status-driven overlay (issue #112). Mirrors BATTLE.BIN FUN_80186FF8 at
+    // 0x80186FF8: the status branches run BEFORE the equipment matrix call at
+    // 0x801870E0, so Oil's ×2 feeds the absorb/cancel/half/weak chain (a Fire-
+    // Half target nets ×1, a Fire-Absorb target heals for the doubled amount),
+    // and Float's Earth cancel preempts the chain entirely (ROM tail-call into
+    // FUN_80184E40 at 0x801870D0).
+    if (element_id == ELEMENT_EARTH && has_status(battle_id, target_id, STATUS_FLOAT)) {
+        return 0;
+    }
+    if (element_id == ELEMENT_FIRE && has_status(battle_id, target_id, STATUS_OIL)) {
+        amount *= 2;
+    }
+    int absorb_mask = read_unit(battle_id, target_id, U_ELEMENT_ABSORB_MASK);
+    int cancel_mask = read_unit(battle_id, target_id, U_ELEMENT_CANCEL_MASK);
+    int half_mask   = read_unit(battle_id, target_id, U_ELEMENT_HALF_MASK);
+    int weak_mask   = read_unit(battle_id, target_id, U_ELEMENT_WEAK_MASK);
+    int mult = element_multiplier(element_id, absorb_mask, cancel_mask, half_mask, weak_mask);
+    if (mult == 256) return amount;
+    return (amount * mult) / 256;
+}
+
+// Weapon-element defense (issue #116). Mirrors BATTLE.BIN FUN_80186FD0 at
+// ram:80186FD0: the 1-instruction wrapper that reads
+// CurrentAbilityData.CurrentWeaponElement (`lbu v0,offset
+// CurrentAbilityData.CurrentWeaponElement(v0)` at ram:80186FD8) and
+// tail-calls FUN_80184E98 at ram:80184E98 (the equipment-defense matrix
+// reading target +0x6D..+0x70 -- Absorb > Cancel > Half > Weak). It does
+// NOT consult the +0x58..+0x5C status bytes -- Oil's x2 and Float's
+// Earth-cancel (FUN_80186FF8 at ram:80186FF8) fire only on the spell
+// path, deliberately skipped on weapon damage. See research/working_
+// documents/status_element_interplay.md S0.3. The 4 ROM callers all live
+// in basic-attack post-process chains (e.g. FUN_80188E38 at ram:80188E38,
+// `jal FUN_80186FD0` at ram:80188E60); we mirror that by calling
+// apply_weapon_element_defense at the basic-attack queue site (stage_
+// compute apply_attack_damage) and the counter site (stage_damage Phase
+// 2.5). The weapon's element_id lives on U_WEAPON_ELEMENT rather than an
+// ability's AB_ELEMENT.
+int apply_weapon_element_defense(int battle_id, int target_id, int element_id, int amount) {
+    if (element_id <= 0 || amount == 0) return amount;
+    int absorb_mask = read_unit(battle_id, target_id, U_ELEMENT_ABSORB_MASK);
+    int cancel_mask = read_unit(battle_id, target_id, U_ELEMENT_CANCEL_MASK);
+    int half_mask   = read_unit(battle_id, target_id, U_ELEMENT_HALF_MASK);
+    int weak_mask   = read_unit(battle_id, target_id, U_ELEMENT_WEAK_MASK);
+    int mult = element_multiplier(element_id, absorb_mask, cancel_mask, half_mask, weak_mask);
+    if (mult == 256) return amount;
+    return (amount * mult) / 256;
+}
+
+// Attacker-side Strengthen-Elem (BoostElem) multiplier. Mirrors BATTLE.BIN
+// FUN_80185FFC at ram:80185FFC: reads attacker `+0x71` (BoostElem) and the
+// ability/weapon element, and scales AbPower by 5/4 (1.25x integer-floor)
+// when any bit overlaps. Called BEFORE apply_element_defense and
+// apply_weapon_element_defense at every damage-queue site that holds an
+// attacker-id + element-id pair -- the ROM's 13 callers span every spell
+// formula handler AND the 02_SpellWeapon weapon-element path. Element 0
+// (non-elemental ability / unarmed) is a clean pass-through, as is an
+// attacker with no Strengthen-bearing gear (the hot path).
+int apply_strengthen_elem(int battle_id, int attacker_id, int element_id, int amount) {
+    if (element_id <= 0 || amount == 0) return amount;
+    int mask = read_unit(battle_id, attacker_id, U_STRENGTHEN_MASK);
+    if ((mask & (1 << element_id)) == 0) return amount;
+    return (amount * 5) / 4;
+}
+
+// -----------------------------------------------------------------------------
+// Status duration countdowns (#1105 found the gap, #1116 filled it).
+//
+// SIXTEEN 16-bit counters across the eight U_STATUS_TIMER_0..7 ints, addressed
+// by `status_timer_slot(bit)` — slot s lives in int s>>1, in the low half when s
+// is even and the high half when it is odd. A counter of 0 means "not running".
+//
+// 🔴 ADDRESSED BY STATUS, NOT BY ARRIVAL. These ints used to be a first-come
+// pool of eight (bit, ticks) pairs, and a pool has a failure the ROM does not:
+// a ninth timed status found no slot, so its flag was set with no countdown —
+// permanent, silently, inside whichever battle happened to stack that many.
+// FFT gives each of its sixteen timed statuses a fixed byte
+// (`unit+0x5D + (status - 24)`, SCUS `Status_CT_Set` 0x8005DB70) and therefore
+// cannot overflow. Same shape here, same eight ints, and the question of what to
+// do when the pool is full stops existing rather than getting a policy.
+//
+// The counters hold TICKS, not CT: the conversion is `TICKS_PER_CLOCK_TICK` and
+// it happens once, at the call site that reads `status_default_ct`.
+// -----------------------------------------------------------------------------
+
+// 🔴 BOTH HALVES READ THE **NEXT** BUFFER, AND TWO SLOTS PER INT IS WHY. A
+// CURRENT-buffer read-modify-write composes with nothing: `read_unit` returns the
+// value at frame start, so arming slot 1 would write back an int whose slot-0 half
+// is the PRE-tick value and silently undo the decrement (or the arming) that
+// happened a few lines earlier in the same dispatch. Sixteen counters in eight
+// ints makes that collision certain rather than theoretical — poison and regen
+// share U_STATUS_TIMER_0. The same reasoning is already written out at
+// stage_compute's TRANSPARENT consume, which hand-rolls a NEXT-buffer AND-NOT for
+// exactly this reason. Every caller here runs after `copy_unit_to_next`.
+int read_status_timer(int battle_id, int unit_id, int slot) {
+    if (slot < 0 || slot >= COUNTDOWN_SLOTS) return 0;
+    int packed = read_unit_next(battle_id, unit_id, U_STATUS_TIMER_0 + (slot >> 1));
+    return ((slot & 1) == 0) ? (packed & 0xFFFF) : ((packed >> 16) & 0xFFFF);
+}
+
+void write_status_timer(int battle_id, int unit_id, int slot, int ticks) {
+    if (slot < 0 || slot >= COUNTDOWN_SLOTS) return;
+    int field = U_STATUS_TIMER_0 + (slot >> 1);
+    int packed = read_unit_next(battle_id, unit_id, field);
+    int clamped = clamp(ticks, 0, 0xFFFF);
+    if ((slot & 1) == 0) {
+        packed = (packed & ~0xFFFF) | clamped;
+    } else {
+        packed = (packed & 0xFFFF) | (clamped << 16);
+    }
+    write_unit(battle_id, unit_id, field, packed);
+}
+
+void clear_status_timer(int battle_id, int unit_id, int status_bit) {
+    write_status_timer(battle_id, unit_id, status_timer_slot(status_bit), 0);
+}
+
+// `set_status_with_timer` IS GONE, and its absence is the point (#1116).
+// #1105's finding was that it had zero call sites while being the only writer of
+// a non-zero slot; replacing it with a second never-called entry point would have
+// reproduced exactly that. The live pair is `arm_status_default_duration` (the
+// producer, below) and `write_status_timer` (the mechanism). A caller that wants a
+// duration the ROM did not give a status is asking for a balance lever, and that
+// belongs in the lever layer rather than in a shader helper nobody calls.
+//
+// A status already running is REFRESHED to the full duration, which is the ROM's
+// behaviour at the same site (`Status_CT_Set` overwrites the byte) with one
+// exception it carves out by hand: Death Sentence refuses to re-arm, and that
+// status has no bit here yet (#99).
+
+// Arm the countdown the status's ROM record carries, WITHOUT touching the flag —
+// its caller has already written the whole inflicted mask in one go, and a second
+// write to that word would undo the rest of it. THE producer the decay engine was
+// missing: every inflicted bit reaches a duration through here, so "where does
+// the number come from" has one answer and one site. A status the ROM never times
+// lands on `status_timer_slot == -1` and arms nothing, which is the permanent case.
+void arm_status_default_duration(int battle_id, int unit_id, int status_bit) {
+    int ticks = status_default_ct(status_bit) * TICKS_PER_CLOCK_TICK;
+    if (ticks <= 0) return;
+    write_status_timer(battle_id, unit_id, status_timer_slot(status_bit), ticks);
+}
+
+void tick_status_timers(int battle_id, int unit_id) {
+    for (int slot = 0; slot < COUNTDOWN_SLOTS; slot++) {
+        int ticks = read_status_timer(battle_id, unit_id, slot);
+        if (ticks == 0) continue;
+        if (ticks <= 1) {
+            write_status_timer(battle_id, unit_id, slot, 0);
+            // The slot knows the status, so the flag it clears needs no stored
+            // bit — which is the other half of why the pool's packed bit is gone.
+            for (int b = 0; b < 32; b++) {
+                if (status_timer_slot(b) == slot) clear_status(battle_id, unit_id, b);
+            }
+        } else {
+            write_status_timer(battle_id, unit_id, slot, ticks - 1);
+        }
+    }
+}
+
+// =============================================================================
+// MP HELPERS
+// =============================================================================
+
+int get_mp(int battle_id, int unit_id)     { return read_unit(battle_id, unit_id, U_MP); }
+int get_max_mp(int battle_id, int unit_id) { return read_unit(battle_id, unit_id, U_MAX_MP); }
+
+int get_mp_percent(int battle_id, int unit_id) {
+    int max_mp = get_max_mp(battle_id, unit_id);
+    if (max_mp <= 0) return 100;
+    return (get_mp(battle_id, unit_id) * 100) / max_mp;
+}
+
+void spend_mp(int battle_id, int unit_id, int amount) {
+    int current = get_mp(battle_id, unit_id);
+    write_unit(battle_id, unit_id, U_MP, max(0, current - amount));
+}
+
+void add_mp(int battle_id, int unit_id, int amount) {
+    int current = get_mp(battle_id, unit_id);
+    int max_mp = get_max_mp(battle_id, unit_id);
+    write_unit(battle_id, unit_id, U_MP, min(max_mp, current + amount));
+}
+
+// =============================================================================
+// HP HELPERS
+// =============================================================================
+
+int get_hp(int battle_id, int unit_id)     { return read_unit(battle_id, unit_id, U_HP); }
+int get_max_hp(int battle_id, int unit_id) { return read_unit(battle_id, unit_id, U_MAX_HP); }
+
+int get_hp_percent(int battle_id, int unit_id) {
+    int max_hp = get_max_hp(battle_id, unit_id);
+    if (max_hp <= 0) return 100;
+    return (get_hp(battle_id, unit_id) * 100) / max_hp;
+}
+
+int get_team(int battle_id, int unit_id) {
+    return read_unit(battle_id, unit_id, U_TEAM);
+}
+
+// =============================================================================
+// RNG (PCG hash + seeded int draw). Shared by any stage that rolls dice —
+// most relevantly PASS_DAMAGE's break-effect hit rolls.
+// =============================================================================
+
+uint pcg_hash(uint seed) {
+    uint state = seed * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+int rand_int(int battle_id, int unit_id, int tick, int max_val) {
+    uint seed = uint(get_battle_seed(battle_id)) + uint(unit_id * 1000) + uint(tick);
+    return int(pcg_hash(seed) % uint(max_val));
+}

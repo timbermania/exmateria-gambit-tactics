@@ -1,0 +1,165 @@
+{
+  "_comment": "Weapon attack-sound table from BATTLE.BIN @ 0x2D3C4 (RAM 0x800943C4), 32 x 1 byte, indexed by the unit weapon-type byte (unit+0x13B) \u2014 the neighbour of the weapon motion table at 0x2D364. Read by SEQ sound-opcode handler FUN_800689a4: used only when anim_id (unit+0x138) is outside the 0x170..0x189 swing band, else the fixed default 0x10 is played (anim 0x94 -> 6). `raw` is the unmapped selector byte passed to FUN_801ade7c; it is NOT confirmed to be a {21} system-bank id \u2014 value semantics are TBD.",
+  "table": {
+    "0": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unarmed"
+    },
+    "1": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Knife"
+    },
+    "2": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "NinjaBlade"
+    },
+    "3": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Sword"
+    },
+    "4": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "KnightSword"
+    },
+    "5": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Katana"
+    },
+    "6": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Axe"
+    },
+    "7": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Rod"
+    },
+    "8": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Staff"
+    },
+    "9": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Flail"
+    },
+    "10": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Gun"
+    },
+    "11": {
+      "raw": 3,
+      "hex": "0x03",
+      "name": "Crossbow"
+    },
+    "12": {
+      "raw": 1,
+      "hex": "0x01",
+      "name": "Bow"
+    },
+    "13": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Instrument"
+    },
+    "14": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Book"
+    },
+    "15": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Polearm"
+    },
+    "16": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Pole"
+    },
+    "17": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Bag"
+    },
+    "18": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Cloth"
+    },
+    "19": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Shield"
+    },
+    "20": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_20"
+    },
+    "21": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_21"
+    },
+    "22": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_22"
+    },
+    "23": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_23"
+    },
+    "24": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_24"
+    },
+    "25": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_25"
+    },
+    "26": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_26"
+    },
+    "27": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_27"
+    },
+    "28": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_28"
+    },
+    "29": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_29"
+    },
+    "30": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_30"
+    },
+    "31": {
+      "raw": 0,
+      "hex": "0x00",
+      "name": "Unknown_31"
+    }
+  }
+}

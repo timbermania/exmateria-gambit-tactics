@@ -1,0 +1,5 @@
+{
+  "_doc": "256x240 display-space rects. content_masks = blacklisted in the global orienting pass. pairs = whitelisted image diff pairs (dive-in focuses). Fill as the user calls out rects.",
+  "content_masks": [],
+  "pairs": []
+}

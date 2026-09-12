@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2g5kx1qopnk1"]
+
+[ext_resource type="Script" path="res://src/scenes/OpeningScene.gd" id="1_opening"]
+[ext_resource type="Script" path="res://src/scenes/OpeningMenu.gd" id="2_menu"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0, 0, 0, 1)
+ambient_light_source = 0
+reflected_light_source = 0
+
+[node name="OpeningScene" type="Node3D"]
+script = ExtResource("1_opening")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+projection = 1
+size = 9.6
+near = 0.1
+far = 100.0
+
+[node name="Menu" type="Node3D" parent="."]
+script = ExtResource("2_menu")

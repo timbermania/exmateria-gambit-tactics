@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://range_tile_atlas_viewer"]
+
+[ext_resource type="Script" path="res://src/scenes/RangeTileAtlasViewer.gd" id="1_view"]
+
+[node name="RangeTileAtlasViewer" type="Node2D"]
+script = ExtResource("1_view")

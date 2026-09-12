@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+; Base material for range-overlay tiles. Defaults to ABR mode 0 (50% average);
+; TileOverlayConfig.apply_to_material() swaps `shader` to the mode the tile's
+; highlight type calls for (params persist by uniform name across the swap).
+[ext_resource type="Shader" path="res://addons/exmateria_battlefield/overlay/tile_overlay_mode0.gdshader" id="1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1")

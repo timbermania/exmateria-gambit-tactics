@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://d0prbstudcur1"]
+
+[ext_resource type="Script" path="res://tools/probe_studio_cursor.gd" id="1_probe"]
+
+[node name="ProbeStudioCursor" type="Node"]
+script = ExtResource("1_probe")

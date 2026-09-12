@@ -1,0 +1,14 @@
+{
+  "_note": "Authored identity call for EVTFACE cutscene-face identities (ADR-0072 addendum + CONTEXT.md 'cutscene-face identity'). These are named by dialogue scripts but have NO ENTD unit / SPR sheet / ROM special_name, so they cannot resolve through unit_names/residue. Each entry maps a canonical slug -> the identity-table display name (evtface_identities.json). The character-alignment transform mints a portrait-only template folder (events/face cells, no body.tga) per entry via emit_cutscene_faces. This is the human identity call: which un-homed dialogue names are real identities (mint) vs pure generics the global EVTFACE grid serves (skipped). Grevados wears Cid's identity in Ch4 ('Grevados as Cid') -- slug names the true identity.",
+  "faces": {
+    "balbanes": "Balbanes",
+    "besrodio": "Besrodio",
+    "gelwan": "Gelwan",
+    "kanbabrif": "Kanbabrif",
+    "flower_girl": "Flower Girl",
+    "blansh": "Blansh",
+    "bolmna": "Bolmna",
+    "elidibs": "Elidibs",
+    "grevados": "Grevados as 'Cid'"
+  }
+}

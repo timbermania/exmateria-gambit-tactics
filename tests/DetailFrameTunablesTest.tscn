@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://detail_frame_tunables_test"]
+
+[ext_resource type="Script" path="res://tests/DetailFrameTunablesTest.gd" id="1_test"]
+
+[node name="DetailFrameTunablesTest" type="Node3D"]
+script = ExtResource("1_test")

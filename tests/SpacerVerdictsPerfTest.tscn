@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dij4npbt240dw"]
+
+[ext_resource type="Script" path="res://tests/SpacerVerdictsPerfTest.gd" id="1"]
+
+[node name="SpacerVerdictsPerfTest" type="Node"]
+script = ExtResource("1")

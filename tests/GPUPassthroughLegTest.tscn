@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://gpu_passthrough_leg_test"]
+
+[ext_resource type="Script" path="res://tests/GPUPassthroughLegTest.gd" id="1_test"]
+
+[node name="GPUPassthroughLegTest" type="Node"]
+script = ExtResource("1_test")

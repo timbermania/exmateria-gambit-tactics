@@ -1,0 +1,107 @@
+# docs/OPENER-FAST-FORWARD-SWEEP.tsv — the 72-opener fast-forward sweep (ADR-0264).
+#
+# WHAT IT ANSWERS. "Play battle N" is a seek into the navigator, and a seek settles
+# the battle world by replaying that group's OPENER at 30x
+# (`NavigatorMain._settle_world_via_opener`). The replay is bounded by
+# `ScenarioPathApplier._MAX_FF_FRAMES = 2100` host frames — a cap that had never been
+# exercised across the range it now carries, and that fails SILENTLY: a truncated
+# fast-forward leaves the world on whichever `{19}` it reached, which is an authored
+# camera pose, just not the one the battle opens on.
+#
+# THE ANSWER: 72 of 72 openers reach their main context's `Event End`, and the cap is
+# not close. Worst case is root 291 (Riovanes rooftop, scn 292, 564 instructions) at
+# 169 frames — 8% of the budget, 1,931 frames of margin. Mean 46.9, min 13. The
+# LONGEST opener is not the slowest one: root 166's scn 167 is 679 instructions and
+# settles in 145 frames, because the cost is the stream's BLOCKING time (waits, camera
+# lerp durations, unit motion), not its length.
+#
+# TAKEN 2026-09-08 on the 4.8 fork, one Godot process per group, the way a player
+# launches one:
+#     uv run python tools/sweep_opener_fast_forward.py --jobs 4 \
+#         --out docs/OPENER-FAST-FORWARD-SWEEP.tsv
+# The tool exits non-zero if any group fails to settle, so re-running it IS the check.
+#
+# ⚠️ THE FIRST TAKE READ 71/72, AND THE ONE FAILURE WAS THE INSTRUMENT. Root 46's
+# opener (scn 47) ends `{E3} Event End 2` at pc 131 followed by a `{DB} Event End` at
+# 132 that is therefore never dispatched — so a fast-play watching only the PC sat on
+# 132 for its whole 150-frame stall budget after the scenario had already finished, and
+# reported `stalled`. `ScenarioVM.is_main_context_finished()` now answers the question
+# the normal-speed walk actually asks (did the main context run its Event End?), which
+# both corrected the reading and gave that one seek 2.5 s back.
+#
+# COLUMNS. `frames` is host frames spent in the fast-forward; `outcome` is
+# `ScenarioPathApplier.FfOutcome` — `ended` is the only settled result. `margin_frames`
+# = cap - frames.
+root	opener_scn	instructions	outcome	frames	cap	margin_frames
+3	4	140	ended	67	2100	2033
+9	10	43	ended	17	2100	2083
+15	16	87	ended	22	2100	2078
+30	31	60	ended	26	2100	2074
+33	34	367	ended	86	2100	2014
+39	40	195	ended	40	2100	2060
+46	47	133	ended	40	2100	2060
+61	62	53	ended	19	2100	2081
+70	71	83	ended	44	2100	2056
+78	79	517	ended	155	2100	1945
+91	92	24	ended	14	2100	2086
+95	96	24	ended	15	2100	2085
+97	98	24	ended	14	2100	2086
+99	100	31	ended	28	2100	2072
+101	102	26	ended	13	2100	2087
+103	104	24	ended	13	2100	2087
+105	106	24	ended	14	2100	2086
+107	108	24	ended	13	2100	2087
+109	110	26	ended	13	2100	2087
+111	112	117	ended	61	2100	2039
+114	115	32	ended	30	2100	2070
+118	119	332	ended	77	2100	2023
+121	122	126	ended	44	2100	2056
+128	129	289	ended	95	2100	2005
+139	140	230	ended	47	2100	2053
+150	151	50	ended	28	2100	2072
+161	162	48	ended	20	2100	2080
+166	167	679	ended	145	2100	1955
+175	176	246	ended	57	2100	2043
+180	181	306	ended	64	2100	2036
+191	192	174	ended	43	2100	2057
+196	197	185	ended	75	2100	2025
+204	205	317	ended	59	2100	2041
+218	219	627	ended	122	2100	1978
+225	226	444	ended	146	2100	1954
+234	235	90	ended	37	2100	2063
+237	238	54	ended	28	2100	2072
+242	243	239	ended	49	2100	2051
+256	257	153	ended	81	2100	2019
+261	262	218	ended	73	2100	2027
+271	272	31	ended	14	2100	2086
+276	277	68	ended	35	2100	2065
+284	285	97	ended	52	2100	2048
+291	292	564	ended	169	2100	1931
+301	302	105	ended	32	2100	2068
+304	305	38	ended	17	2100	2083
+310	311	36	ended	19	2100	2081
+314	315	36	ended	20	2100	2080
+318	319	214	ended	84	2100	2016
+322	323	263	ended	105	2100	1995
+332	333	47	ended	17	2100	2083
+335	336	72	ended	34	2100	2066
+341	342	32	ended	16	2100	2084
+346	347	73	ended	32	2100	2068
+353	354	229	ended	51	2100	2049
+359	360	44	ended	28	2100	2072
+362	363	32	ended	15	2100	2085
+367	368	51	ended	21	2100	2079
+377	378	61	ended	32	2100	2068
+380	381	32	ended	21	2100	2079
+385	386	167	ended	58	2100	2042
+390	391	70	ended	29	2100	2071
+395	396	157	ended	67	2100	2033
+435	436	219	ended	51	2100	2049
+443	444	77	ended	35	2100	2065
+446	447	282	ended	95	2100	2005
+451	452	155	ended	79	2100	2021
+468	469	40	ended	16	2100	2084
+471	472	40	ended	14	2100	2086
+474	475	40	ended	16	2100	2084
+477	478	62	ended	23	2100	2077
+484	485	68	ended	44	2100	2056

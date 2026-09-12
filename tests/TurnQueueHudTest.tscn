@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://turn_queue_hud_test"]
+
+[ext_resource type="Script" path="res://tests/TurnQueueHudTest.gd" id="1_test"]
+
+[node name="TurnQueueHudTest" type="Node"]
+script = ExtResource("1_test")

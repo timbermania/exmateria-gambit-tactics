@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bqnlp04ybqcyk"
+path="res://.godot/imported/stage_damage.glsl-d5724bd6b5c00a473818c7102d46ee19.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_damage.glsl"
+dest_files=["res://.godot/imported/stage_damage.glsl-d5724bd6b5c00a473818c7102d46ee19.res"]
+
+[params]
+

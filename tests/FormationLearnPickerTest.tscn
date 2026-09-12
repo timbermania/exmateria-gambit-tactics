@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_learn_picker_test"]
+
+[ext_resource type="Script" path="res://tests/FormationLearnPickerTest.gd" id="1_test"]
+
+[node name="FormationLearnPickerTest" type="Node3D"]
+script = ExtResource("1_test")

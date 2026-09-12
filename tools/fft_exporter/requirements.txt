@@ -1,0 +1,3 @@
+# FFT Map Exporter dependencies
+# pygltflib for GLTF export (Phase 4)
+pygltflib>=1.15.0

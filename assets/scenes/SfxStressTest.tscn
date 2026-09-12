@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3h5ru437d4x1"]
+
+[ext_resource type="Script" path="res://src/audio/SfxStressTest.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="1"]
+bg_color = Color(0, 0, 0, 0.78)
+
+[node name="SfxStressTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 880.0
+offset_bottom = 320.0
+theme_override_styles/panel = SubResource("1")
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "loading…"

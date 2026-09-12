@@ -1,0 +1,241 @@
+{
+  "_comment": "Unique->asset residue (ADR-0072 dec.5, wayfinder #201, map #197). The ASSET side of the unique bridge: ENTD special_name (decimal string) -> the flat-store BODY sprite_id (uppercase hex) whose 256x488 indexed sheet (assets/sprites/textures/<id>.tga) the unique's template body+portrait are sliced from. The IDENTITY side (special_name -> template folder token) lives in template_residue.json (#202) and is NOT duplicated here. THE REFEREE IS THE ENTD, NEVER THE SPR FILENAME. A romanized filename reads like the character and names a different one: GARU.SPR (0x16) sounds like GAfgarion and is Mustadio's sheet; AGURI.SPR (0x34) sounds like AGRIAS and is Form 2's. The two hand-authored rows that took the filename (sn 23 -> 0x16, sn 30 -> 0x34) were both wrong, and the wrongness was invisible because it bakes into a gitignored templates/ folder that UIPortrait PREFERS over the (correct) body_sprite_id on the spawned Unit. Every row now equals the dominant `sprite_set` its special_name carries in entd.json, enforced by tools/check_template_assets_entd.py. This map also happens to be numerically identity over all 59 uniques -- an observation, not the rule, and NOT a licence to compute it: the census is what decides. Formation cell + EVTCHR/EVTFACE frame CONTENTS are RE gaps (formation) / owned by #204 (events) and are deliberately absent. Consumed by tools/align_character_templates.py.",
+  "assets": {
+    "1": {
+      "body_sprite_id": "01",
+      "_spr": "RAMUZA.SPR  (Ramza, Ch1)"
+    },
+    "2": {
+      "body_sprite_id": "02",
+      "_spr": "RAMUZA2.SPR (Ramza, Ch2/3)"
+    },
+    "3": {
+      "body_sprite_id": "03",
+      "_spr": "RAMUZA3.SPR (Ramza, Ch4)"
+    },
+    "4": {
+      "body_sprite_id": "04",
+      "_spr": "DILY.SPR    (Delita, Ch1)"
+    },
+    "5": {
+      "body_sprite_id": "05",
+      "_spr": "DILY2.SPR   (Delita, Ch2/3)"
+    },
+    "6": {
+      "body_sprite_id": "06",
+      "_spr": "DILY3.SPR   (Delita, Ch4)"
+    },
+    "7": {
+      "body_sprite_id": "07",
+      "_spr": "ARU.SPR (Algus) [auto: ENTD dominant sprite_set]"
+    },
+    "8": {
+      "body_sprite_id": "08",
+      "_spr": "ZARU.SPR (Zalbag) [auto: ENTD dominant sprite_set]"
+    },
+    "9": {
+      "body_sprite_id": "09",
+      "_spr": "DAISU.SPR (Dycedarg) [auto: ENTD dominant sprite_set]"
+    },
+    "10": {
+      "body_sprite_id": "0A",
+      "_spr": "RAGU.SPR (Larg) [auto: ENTD dominant sprite_set]"
+    },
+    "11": {
+      "body_sprite_id": "0B",
+      "_spr": "GORU.SPR (Goltana) [auto: ENTD dominant sprite_set]"
+    },
+    "12": {
+      "body_sprite_id": "0C",
+      "_spr": "HIME.SPR    (Ovelia)"
+    },
+    "13": {
+      "body_sprite_id": "0D",
+      "_spr": "ORU.SPR     (Orlandu)"
+    },
+    "14": {
+      "body_sprite_id": "0E",
+      "_spr": "FYUNE.SPR (Funeral) [auto: ENTD dominant sprite_set]"
+    },
+    "15": {
+      "body_sprite_id": "0F",
+      "_spr": "REZE.SPR (Reis) [auto: ENTD dominant sprite_set]"
+    },
+    "16": {
+      "body_sprite_id": "10",
+      "_spr": "ZARUMOU.SPR (Zalmo) [auto: ENTD dominant sprite_set]"
+    },
+    "17": {
+      "body_sprite_id": "11",
+      "_spr": "BARUNA.SPR (Gafgarion) [auto: ENTD dominant sprite_set] -- VERIFY body identity (surprising sheet for name; EVTCHR frames unaffected)"
+    },
+    "18": {
+      "body_sprite_id": "12",
+      "_spr": "GANDO.SPR (Malak) [auto: ENTD dominant sprite_set]"
+    },
+    "19": {
+      "body_sprite_id": "13",
+      "_spr": "SIMON.SPR (Simon) [auto: ENTD dominant sprite_set]"
+    },
+    "20": {
+      "body_sprite_id": "14",
+      "_spr": "GYUMU.SPR (Alma) [auto: ENTD dominant sprite_set]"
+    },
+    "21": {
+      "body_sprite_id": "15",
+      "_spr": "ORAN.SPR (Olan) [auto: ENTD dominant sprite_set]"
+    },
+    "22": {
+      "body_sprite_id": "16",
+      "_spr": "GARU.SPR (Mustadio) [auto: ENTD dominant sprite_set] -- VERIFY body identity (surprising sheet for name; EVTCHR frames unaffected)"
+    },
+    "23": {
+      "body_sprite_id": "17",
+      "_spr": "H61.SPR (Gafgarion) [ENTD sprite_set, 9/9 slots] -- NOT GARU.SPR: that romanization reads like the name and is Mustadio's sheet (sn 22, 14/14)."
+    },
+    "24": {
+      "body_sprite_id": "18",
+      "_spr": "DORA.SPR (Draclau) [auto: ENTD dominant sprite_set]"
+    },
+    "25": {
+      "body_sprite_id": "19",
+      "_spr": "RAFA.SPR (Rafa) [auto: ENTD dominant sprite_set]"
+    },
+    "26": {
+      "body_sprite_id": "1A",
+      "_spr": "MARA.SPR (Malak) [auto: ENTD dominant sprite_set]"
+    },
+    "27": {
+      "body_sprite_id": "1B",
+      "_spr": "ERU.SPR (Elmdor) [auto: ENTD dominant sprite_set]"
+    },
+    "28": {
+      "body_sprite_id": "1C",
+      "_spr": "FURAIA.SPR (Teta) [auto: ENTD dominant sprite_set]"
+    },
+    "29": {
+      "body_sprite_id": "1D",
+      "_spr": "BARITEN.SPR (Barinten) [auto: ENTD dominant sprite_set]"
+    },
+    "30": {
+      "body_sprite_id": "1E",
+      "_spr": "KANBA.SPR (Agrias, Form 1) [ENTD sprite_set, 7/7 slots] -- NOT AGURI.SPR: that is Form 2's sheet (sn 52, 21/21) and its bytes DIFFER from this one's."
+    },
+    "31": {
+      "body_sprite_id": "1F",
+      "_spr": "BEIO.SPR (Beowulf) [auto: ENTD dominant sprite_set]"
+    },
+    "32": {
+      "body_sprite_id": "20",
+      "_spr": "WIGU.SPR (Wiegraf) [auto: ENTD dominant sprite_set]"
+    },
+    "33": {
+      "body_sprite_id": "21",
+      "_spr": "BARU.SPR (Balmafula) [auto: ENTD dominant sprite_set]"
+    },
+    "34": {
+      "body_sprite_id": "22",
+      "_spr": "MUSU.SPR (Mustadio) [auto: ENTD dominant sprite_set]"
+    },
+    "35": {
+      "body_sprite_id": "23",
+      "_spr": "RUDO.SPR (Rudvich) [auto: ENTD dominant sprite_set]"
+    },
+    "36": {
+      "body_sprite_id": "24",
+      "_spr": "VORU.SPR (Vormav) [auto: ENTD dominant sprite_set]"
+    },
+    "37": {
+      "body_sprite_id": "25",
+      "_spr": "H75.SPR (Rofel) [auto: ENTD dominant sprite_set]"
+    },
+    "38": {
+      "body_sprite_id": "26",
+      "_spr": "H76.SPR (Izlude) [auto: ENTD dominant sprite_set]"
+    },
+    "39": {
+      "body_sprite_id": "27",
+      "_spr": "H77.SPR (Kletian) [auto: ENTD dominant sprite_set]"
+    },
+    "40": {
+      "body_sprite_id": "28",
+      "_spr": "H78.SPR (Wiegraf) [auto: ENTD dominant sprite_set]"
+    },
+    "41": {
+      "body_sprite_id": "29",
+      "_spr": "H79.SPR (Rafa) [auto: ENTD dominant sprite_set]"
+    },
+    "42": {
+      "body_sprite_id": "2A",
+      "_spr": "H80.SPR (Meliadoul) [auto: ENTD dominant sprite_set]"
+    },
+    "43": {
+      "body_sprite_id": "2B",
+      "_spr": "H81.SPR (Balk) [auto: ENTD dominant sprite_set]"
+    },
+    "44": {
+      "body_sprite_id": "2C",
+      "_spr": "H82.SPR (Alma) [auto: ENTD dominant sprite_set]"
+    },
+    "45": {
+      "body_sprite_id": "2D",
+      "_spr": "H83.SPR (Celia) [auto: ENTD dominant sprite_set]"
+    },
+    "46": {
+      "body_sprite_id": "2E",
+      "_spr": "ARUFU.SPR (Lede) [auto: ENTD dominant sprite_set]"
+    },
+    "47": {
+      "body_sprite_id": "2F",
+      "_spr": "H85.SPR (Meliadoul) [auto: ENTD dominant sprite_set]"
+    },
+    "48": {
+      "body_sprite_id": "30",
+      "_spr": "ARUMA.SPR (Alma) [auto: ENTD dominant sprite_set]"
+    },
+    "49": {
+      "body_sprite_id": "31",
+      "_spr": "AJORA.SPR (Ajora) [auto: ENTD dominant sprite_set]"
+    },
+    "50": {
+      "body_sprite_id": "32",
+      "_spr": "CLOUD.SPR (Cloud) [auto: ENTD dominant sprite_set]"
+    },
+    "51": {
+      "body_sprite_id": "33",
+      "_spr": "ZARU2.SPR (Zalbag) [auto: ENTD dominant sprite_set]"
+    },
+    "52": {
+      "body_sprite_id": "34",
+      "_spr": "AGURI.SPR   (Agrias, Form 2 - shares AGURI, no distinct SPR)"
+    },
+    "60": {
+      "body_sprite_id": "3C",
+      "_spr": "VERI.SPR (Velius) [auto: ENTD dominant sprite_set]"
+    },
+    "62": {
+      "body_sprite_id": "3E",
+      "_spr": "ZARUE.SPR (Zalera) [auto: ENTD dominant sprite_set]"
+    },
+    "64": {
+      "body_sprite_id": "40",
+      "_spr": "HASYU.SPR (Hashmalum) [auto: ENTD dominant sprite_set]"
+    },
+    "65": {
+      "body_sprite_id": "41",
+      "_spr": "ARUTE.SPR (Altima) [auto: ENTD dominant sprite_set]"
+    },
+    "67": {
+      "body_sprite_id": "43",
+      "_spr": "KYUKU.SPR (Queklain) [auto: ENTD dominant sprite_set]"
+    },
+    "69": {
+      "body_sprite_id": "45",
+      "_spr": "ADORA.SPR (Adramelk) [auto: ENTD dominant sprite_set]"
+    },
+    "72": {
+      "body_sprite_id": "48",
+      "_spr": "REZE_D.SPR (Reis) [auto: ENTD dominant sprite_set]"
+    }
+  }
+}

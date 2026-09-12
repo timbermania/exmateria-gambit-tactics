@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_recipe_audit_test"]
+
+[ext_resource type="Script" path="res://tests/FormationRecipeAuditTest.gd" id="1_test"]
+
+[node name="FormationRecipeAuditTest" type="Node3D"]
+script = ExtResource("1_test")

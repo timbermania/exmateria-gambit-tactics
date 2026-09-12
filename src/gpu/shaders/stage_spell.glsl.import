@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b1sc2q3yc3ald"
+path="res://.godot/imported/stage_spell.glsl-5c192683e493aecb64ac24298d758fc0.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_spell.glsl"
+dest_files=["res://.godot/imported/stage_spell.glsl-5c192683e493aecb64ac24298d758fc0.res"]
+
+[params]
+

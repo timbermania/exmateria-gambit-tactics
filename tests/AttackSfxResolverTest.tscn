@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://attack_sfx_resolver_test"]
+
+[ext_resource type="Script" path="res://tests/AttackSfxResolverTest.gd" id="1_test"]
+
+[node name="AttackSfxResolverTest" type="Node"]
+script = ExtResource("1_test")

@@ -1,0 +1,281 @@
+{
+  "note": "F0 editability manifest (#263). SINGLE SOURCE OF TRUTH for E###.BIN editability coverage in the Godot Effect Studio. Consumed by BOTH the offline tracker (research/scripts/effect_editability_tracker.py, joins this against master_parser output for E019) AND the Godot guard test (EffectEditabilityManifestTest, asserts every 'editable' subsystem has a matching shape:edit projector row). Seeded from the #257 inventory (research/working_documents/E_BIN_FIELD_EDITABILITY_INVENTORY.md). Keyed on master-parser field names; header-pointer naming drift handled by header_ptr_aliases (D5).",
+  "refinement_policy": "REFINE-PER-SUBSYSTEM (not pre-carved). A whole-region subsystem (frames, animation, script, time_scale, particle_timeline, color_tracks_palette, sound_timeline, camera_tables, texture) is tracked COARSELY as one 'default' status until its own build ticket lands. That ticket does two things here: (1) flip 'default' display->editable + add 'projector_channel'; (2) carve the region's per-field na/gap distinctions (a 'fields' map keyed on master-parser field names, like emitters/effect_flags/timeline_header already have) as it learns which bytes are authorable vs derived/padding while wiring editors. Do NOT hand-carve fields ahead of a build ticket \u2014 blob gaps over-count CONSERVATIVELY (gap looks bigger, never smaller), so the finish-line metric stays honest meanwhile. If precise per-field numbers are ever wanted before the tickets land, the scalable move is to expose master_parser's field map as data and consume it in the tracker, NOT to hand-author more field tables.",
+  "sample": "E019.BIN",
+  "legend": {
+    "editable": "Has a Godot studio shape:edit projector row today (write-back wired). Counts toward closed coverage.",
+    "display": "Projected read-only \u2014 an OPEN editability GAP (editable in principle; a subsystem ticket will flip it to 'editable').",
+    "deferred": "Surfaced but intentionally out of scope (FEDS sound-opcode stream). Not a gap, not closed.",
+    "na": "ROM-fixed / derived / padding. Not an editability gap and never will be."
+  },
+  "editable_channels": [
+    "screen",
+    "palette",
+    "camera",
+    "sound",
+    "sound_def",
+    "emitter",
+    "particle",
+    "timeline_header",
+    "effect_flags",
+    "script_pattern",
+    "time_scale",
+    "frameset",
+    "sequence",
+    "texture",
+    "curve",
+    "curve_assign"
+  ],
+  "header_ptr_aliases": {
+    "entry_table_ptr": [
+      "frames_ptr"
+    ],
+    "timeline_ptr": [
+      "animation_ptr"
+    ],
+    "script_data_ptr": [],
+    "effect_data_ptr": [
+      "particle_system_ptr"
+    ],
+    "anim_table_ptr": [
+      "anim_curves_ptr"
+    ],
+    "time_scale_ptr": [],
+    "effect_flags_ptr": [],
+    "camera_data_ptr": [
+      "timeline_section_ptr",
+      "timeline_ptr",
+      "camera_ptr"
+    ],
+    "sound_def_ptr": [],
+    "texture_ptr": []
+  },
+  "na_rules": [
+    "The 10 header pointers (0x00-0x27) are section-layout derived \u2014 recomputed on any structure change.",
+    "particle_system_header.constant (always 2) is ROM-fixed; emitter_count is derived from add/delete.",
+    "Emitter padding bytes: byte_00 (0x00), byte_05 (0x05), unknown_12/13 (0x12-0x13), reserved_C2/C3 (0xC2-0xC3).",
+    "Anim-curve / time-scale / color-track INTERPOLATION between stored keyframe values is ROM-fixed.",
+    "anim_curves count/header word (0x21DC) is derived.",
+    "FEDS sound-opcode stream (0x04638-0x04780) is DEFERRED (own follow-on map), not N/A and not a gap."
+  ],
+  "subsystems": {
+    "header": {
+      "order": 1,
+      "label": "Structure / Header",
+      "doc": "documented",
+      "default": "na",
+      "reason": "10 section-layout-derived pointers (0x00-0x27)"
+    },
+    "frames": {
+      "order": 2,
+      "label": "Frames / Frameset",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "frameset",
+      "fields": {
+        "group_table": "display",
+        "header_flags": "display",
+        "sprite_count": "display",
+        "texture_page": "display",
+        "flags_byte0": "editable",
+        "flags_byte1": "editable",
+        "uv_x": "editable",
+        "uv_y": "editable",
+        "uv_width": "editable",
+        "uv_height": "editable",
+        "top_left_x": "editable",
+        "top_left_y": "editable",
+        "top_right_x": "editable",
+        "top_right_y": "editable",
+        "bottom_left_x": "editable",
+        "bottom_left_y": "editable",
+        "bottom_right_x": "editable",
+        "bottom_right_y": "editable"
+      },
+      "note": "#278 (2026-08-17): per-frame UV/vertices/palette_id/blend mode editable (FramesetChannel + FramesetProjector), v1 IN-PLACE FIELD EDITS ONLY. Open gap = group table/offset table (derived layout, structural resize out of v1 scope), each frameset's header_flags/sprite_count (sprite_count is the frame array's length \u2014 structural), and texture_page (real data, not yet authorable). D1 note (superseded): reclassified DOCUMENTED (master_parser fully decodes frameset/UV/tpage)."
+    },
+    "animation": {
+      "order": 3,
+      "label": "Sequences (Animation)",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "sequence",
+      "note": "D1: DOCUMENTED (sequence opcodes fully decoded; a section-bounded corpus audit 2026-08-18 confirmed the 4-opcode table is exhaustive across all 2428 sequences in all 401 non-empty effects). #275 v1 = in-place PARAMETER edits only.",
+      "fields": {
+        "seq_count": "display",
+        "offset_table": "display",
+        "opcode_type": "display",
+        "padding": "na",
+        "frameset": "editable",
+        "duration": "editable",
+        "depth_mode": "editable",
+        "offset_x": "editable",
+        "offset_y": "editable",
+        "delta_x": "editable",
+        "delta_y": "editable"
+      }
+    },
+    "script": {
+      "order": 4,
+      "label": "Script bytecode",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "script_pattern",
+      "note": "#273 ADR-0094 LANDED: the script's authorable content is its PATTERN (3-phase <-> 1-phase), swapped on the script_pattern channel (EffectScriptChannel -> the choke point; byte-exact variable-length save via write_effect_script + EffectScriptSaver: regenerate canonical section + tail-shift + header fix-up). A swap preserves the prologue (texture page + callbacks) verbatim and regenerates the canonical control-flow body; the rest of the bytecode is structure (regenerated, not free-edited). Offered ONLY for DATA-format + strictly-canonical scripts; Custom / CODE-format / non-canonical scripts show the mode read-only."
+    },
+    "particle_system_header": {
+      "order": 5,
+      "label": "Particle System Header",
+      "doc": "documented",
+      "default": "display",
+      "fields": {
+        "constant": "na",
+        "emitter_count": "na"
+      }
+    },
+    "emitters": {
+      "order": 5,
+      "label": "Particles / Emitters",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "emitter",
+      "fields": {
+        "byte_00": "na",
+        "byte_05": "na",
+        "unknown_12": "na",
+        "unknown_13": "na",
+        "reserved_C2": "na",
+        "reserved_C3": "na",
+        "callback_param_0": "display",
+        "callback_param_1": "display",
+        "callback_param_2": "display",
+        "callback_param_3": "display"
+      },
+      "note": "ADR-0089 LANDED: emitter params author as semantic two-axis groups (EmitterParamRows shape:edit cells/enum/int rows -> EmitterChannel -> the choke point; byte-exact save via write_effect_emitters + EffectEmitterSaver layered into studio_save). Curve/colour nibbles, packed control bytes (engine-READ sub-fields only) and child wiring editable; the writer preserves unread bits/nibbles. OPEN GAP (display): callback_param_0..3 @0x4C-0x53 \u2014 parse_effect surfaces only the low bytes of 0/1 (u8), so full s16 authoring waits on a parser+asset regen; params 4..7 @0xA8-0xAE are editable now. particle_timeline + particle_system_header stay display."
+    },
+    "anim_curves": {
+      "order": 6,
+      "label": "Animation Curves",
+      "doc": "documented",
+      "default": "editable",
+      "fields": {
+        "curve_header": "na"
+      },
+      "note": "ADR-0089 curve-ownership amendment LANDED: a curve belongs to its USE SITE \u2014 (emitter, slot) \u2014 and load EXPLODES the ROM's shared 15-slot table into one private curve each, so painting one moves nothing else. Two write channels: `curve_assign` (the picker's COPY verb \u2014 writes a chosen shape into this use site's own curve, minting constant(0) for a site that had none) and `curve` (the painter's whole-curve contents commit, reached from the row sparkline). Both route through EffectEditSession (undoable) and save to curves.json. The curve count/header word stays derived (`na`): the shared, indexed, <=15 table is an EXPORT format the deferred compiler produces, never an authoring model.",
+      "projector_channel": "curve_assign"
+    },
+    "time_scale": {
+      "order": 7,
+      "label": "Time Scale",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "time_scale",
+      "fields": {
+        "outer_phases": "editable",
+        "for_each": "editable"
+      },
+      "note": "#270 LANDED (ADR-0093): the two 600-int PACING curves (outer_phases = 'Phase 1 pacing' / for_each = 'For-each pacing', each 300 bytes nibble-packed @ time_scale_ptr) author on a GLOBAL on-timeline 'Time scale' lane at the BOTTOM of the score \u2014 NOT a projector row. Each curve renders as a tiled slowness band (height = (value-2)/8) mirroring the sound energy ghost; clicking a band opens the centered pop-up freehand painter (EffectCurvePainter, Y-range 0-10 baseline 2) bound to the shared EffectCurve, so the band re-renders live. Committed strokes lower through the time_scale channel (EffectEditSession -> TimeScaleChannel, invalidates_sim: pacing feeds tl.setup -> EffectEndModel) and save byte-exact via write_effect_time_scale + EffectTimeScaleSaver layered into studio_save. The two ENABLE bits are physically in the effect_flags byte (bit5/bit6) and edit via the pop-up's enable checkbox through the effect_flags channel (mirrored into time_scale.flags) \u2014 a UI relocation, not a second writer (ADR-0092 amendment). Both curve regions are editable -> the subsystem gap shrinks to 0."
+    },
+    "effect_flags": {
+      "order": 8,
+      "label": "Effect Flags",
+      "doc": "documented",
+      "default": "display",
+      "projector_channel": "effect_flags",
+      "fields": {
+        "flags_byte": "editable",
+        "spawn_delay_override": "na",
+        "sound_channels": "display"
+      },
+      "note": "#272 LANDED (ADR-0092): the flags BYTE @0x00 authors as a bitflags checkbox group (bit3 terrain-height-adjust, bit4 audio-fade, bit5 time-scale 3-phase, bit6 time-scale 1-phase \u2014 the only four engine-read bits) on the GLOBAL 'Effect Settings' surface (effect_settings target -> EffectSettingsProjector 'Flags' section) through the effect_flags channel; byte-exact save via write_effect_flags + EffectFlagsSaver. Engine-ignored bits 0-2/7 ride along untouched (the word is seeded from the RAW byte, e.g. E001=0x03, not the four bools). Editing bits 5/6 re-folds the sim (the preview honours the time-scale enables). 0x04 (spawn_delay_override) is DEAD CODE (unit field 0x19F is never written; the live spawn delay is the timeline-header 0x06) -> na, not an editability gap; the earlier D3 note calling it an editable default_frame_delay was WRONG. The 16-byte sound-channel block @0x08-0x17 stays display (edited later in its own SoundContainerProjector container view, preserving the 'used by N triggers' reverse-links) -> the subsystem gap PARTIALLY closes, not to 0."
+    },
+    "timeline_header": {
+      "order": 9,
+      "label": "Timeline Header",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "timeline_header",
+      "fields": {
+        "unused_00": "na",
+        "unused_08": "na",
+        "phase1_duration": "editable",
+        "spawn_delay": "editable",
+        "phase2_delay": "editable"
+      },
+      "note": "#271 LANDED: the three u16 phase durations (phase1_duration @+0x04, spawn_delay/for-each @+0x06, phase2_delay @+0x0A) author as editable int rows on the GLOBAL 'Effect Settings' surface (new effect_settings inspection target -> EffectSettingsProjector 'Timeline' section) through the timeline_header channel; byte-exact save via write_effect_timeline_header + EffectTimelineHeaderSaver layered into studio_save. Editing a duration re-flows the whole score (phase offsets shift). Bytes 0-3 and 8-9 are engine-ignored (na)."
+    },
+    "particle_timeline": {
+      "order": 10,
+      "label": "Particle Timeline",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "particle",
+      "fields": {
+        "action_flags": "na",
+        "trailing": "na",
+        "max_keyframe": "na"
+      },
+      "note": "ADR-0089 particle_timeline amendment: EDITABLE emitter EVENTS (when a span fires + which emitter) via the flat 25-slot channels. Verbs: resize (kf[N].time boundary), enable/disable (emitter_id<->0, session stash), retarget (emitter_index), Add/Delete. Byte-exact write_effect_particle_timeline.py. action_flags (game-event trigger) + add/delete of the emitter TABLE + curve contents stay deferred."
+    },
+    "color_tracks_palette": {
+      "order": 11,
+      "label": "Colour Tracks (palette / field tints)",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "palette",
+      "note": "D2 sub-subsystem. Palette/field-tint tracks (affected_units/caster/target x for_each/phase1/phase2). Subsystem-1 (#266) LANDED: PaletteTweenProjector emits shape:edit rows (Tint = gradient_color absolute pick, Blend mode = enum 0-10) wired through PaletteChannel -> the EffectEditSession choke point; byte-exact save via write_effect_palette. Enabled toggle (ctrl bit-7) is a STRUCTURAL edit (adds/removes lane spans) deferred to a re-project follow-up; the encoder's ctrl field is ready. Region flipped editable at the same coarse granularity the reference screen subsystem uses (the tracker attributes palette bytes to the region, not per-field)."
+    },
+    "color_tracks_screen": {
+      "order": 11,
+      "label": "Colour Tracks (screen tint / gradient)",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "screen",
+      "note": "D2 sub-subsystem. THE one editable subsystem today (#255 pilot): for_each/phase1/phase2 screen tracks, fields start_r/g/b, end_r/g/b, kind \u2014 wired through ScreenTweenProjector shape:edit rows."
+    },
+    "sound_timeline": {
+      "order": 12,
+      "label": "Sound Timeline (SFX triggers)",
+      "doc": "documented",
+      "default": "editable",
+      "projector_channel": "sound",
+      "note": "D2 sub-subsystem. for_each (3x54) + phase1/phase2 (6x30) SFX-trigger tracks. Subsystem-3 (#268) LANDED: SoundTriggerProjector emits shape:edit int rows (Sound id u8, Duration s16 = trigger timing) wired through SoundChannel -> the EffectEditSession choke point; byte-exact save via write_effect_sound. Channel stays const (lane identity). TIER-1 timeline tracks only: sound_id is a container index (0/1 skip, N>=2 -> SoundContainer[N-2] -> FEDS pair via a TIER-2 mode), so a NAMED enum needs TIER-2 resolution (deferred). NOT the FEDS opcode stream (sound_def stays deferred)."
+    },
+    "camera_tables": {
+      "order": 13,
+      "label": "Camera Timeline",
+      "doc": "partial",
+      "default": "editable",
+      "projector_channel": "camera",
+      "fields": {
+        "zoom_pad": "na",
+        "max_keyframe": "na",
+        "trailing": "na"
+      },
+      "note": "#267 + ADR-0086: EDITABLE as three INDEPENDENT sub-channel lanes (angle/position/zoom). 3 SoA tables (per-target / main / cleanup). Per sub-channel event: end_frame + its own value vec + the command word decomposed into source/interp/param/flags are authorable via CameraTweenProjector shape:edit rows + CameraChannel. channel_mask is NOT authored \u2014 it is a coalescing-LOWERING artifact (born when CameraLowering packs coincident+agreeing sub-channel events into one masked keyframe); editing a shared field on a coalesced keyframe SPLITS that sub-channel out. N/A: the two engine-ignored zoom slots (zoom_pad), each table's derived max_keyframe word, and the 2 trailing bytes past the last table. The interp MODE is an enum; the ROM-fixed interpolation BETWEEN values is never a curve here."
+    },
+    "sound_def": {
+      "order": 14,
+      "label": "Sound Def (FEDS)",
+      "doc": "partial",
+      "default": "editable",
+      "projector_channel": "sound_def",
+      "note": "ADR-0085 amendment 2026-08-11 UN-DEFERRED as BOUNDED PARAMETER EDITING: the pair editor (FedsPairProjector, reached container -> pair per ADR-0073) edits every parameterized opcode's param bytes, note velocity/key/duration (delta-table snap; explicit-byte form free), and paired toggles as same-shape opcode substitutions \u2014 all same-size patches via SoundDefChannel at the annotated decode offsets, saved through the sound_def section-splice writer (corpus round-trip guarded). STRUCTURAL edits (insert/delete/move events, EndBar/Coda placement, table<->explicit duration form flips) remain the deferred compile path; the 0xBF unknown (x2 corpus-wide) renders preserved-verbatim."
+    },
+    "texture": {
+      "order": 15,
+      "label": "Texture",
+      "doc": "documented",
+      "default": "editable",
+      "big_item": true,
+      "note": "#280 LANDED (ADR-0199): the indexed PIXEL PLANE (texture_ptr + 0x404 -> EOF) is replaced wholesale from a same-dimensions RGBA .tga via the Texture inspection target's Export/Import actions; the byte writer is a pure section SPLICE (@register('texture')). Quantization is an INDEX DELTA against the original plane, so re-importing an unmodified export is byte-exact (a colour does not identify an index: 265 of 401 effects hold the same BGR555 word at two or more indices). The two 512-byte CLUTs and the 4-byte VRAM header are DEFERRED, not a gap \u2014 holding the palette fixed is ADR-0199 dec. 1 (8bpp sheets already average 162 of 256 colours, so there is no headroom to re-derive one), and the VRAM header only moves on the deferred v2 resize. SCOPE: 8bpp single-sub-palette sheets, 338 of the 401 non-empty effects; 4bpp (60) plus E040/E509/E510 are refused with a reason because a flat RGBA export cannot show a multi-sub-palette sheet truthfully. Big-item: the tracker still reports a STRUCTURED metric excluding this section.",
+      "projector_channel": "texture",
+      "fields": {
+        "pixel_plane": "editable",
+        "palette_1": "deferred",
+        "palette_2": "deferred",
+        "vram_header": "deferred"
+      }
+    }
+  }
+}

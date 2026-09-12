@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://sfx_one_shot_pool_test"]
+
+[ext_resource type="Script" path="res://tests/SfxOneShotPoolTest.gd" id="1_test"]
+
+[node name="SfxOneShotPoolTest" type="Node"]
+script = ExtResource("1_test")

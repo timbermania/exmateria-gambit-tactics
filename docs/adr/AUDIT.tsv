@@ -1,0 +1,476 @@
+adr	dec	status	verified_on	evidence	proposed_guard
+0001	*	complete	2026-08-28	audit-notes/0001.md	
+0001	1	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	2	unreviewed	2026-08-28	OPEN QUESTION, recorded not guessed: decision 2 rejects a neutral schema file, but `LOGICAL_ACTIVITY_*` is generated from `tools/activity_taxonomy.yaml` into BOTH sides including a GENERATED region in	
+0001	3	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	4	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	5	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	6	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	7	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	8	unreviewed	2026-08-28	audit-notes/0001.md	
+0001	9	unreviewed	2026-08-28	audit-notes/0001.md	
+0004	*	complete	2026-08-28	audit-notes/0004.md	
+0009	*	half-landed	2026-08-28	Decs. 1-2 and 4-8 built; dec. 3 has six live violations on check_depth_shaders.py's BURN_DOWN (#363). Seam and DepthMode.gd both live in addons/exmateria_schema/compositing_key/ since ADR-0146. See audit-notes/0009.md.	
+0009	1	built	2026-08-28	The seam ships as psx_ot_depth(vec3 point, mat4 proj, mat4 to_view, int mode) and the oracle as DepthMode.ot_depth(point, proj, view, mode). The ADR's five-parameter signature was stale: view + inv_view collapsed into to_view. Content unchanged.	
+0009	2	built	2026-08-28	Defined once at addons/exmateria_schema/compositing_key/psx_ot_depth.gdshaderinc; 21 files #include it directly and check_depth_shaders.py builds SEAM_RES from that directory. A relocation, not a retirement - the ADR's path was the only stale copy.	
+0009	3	violated	2026-08-28	102 shaders walked, 6 write DEPTH outside the seam: changejob_cylinder_fold, formation_band/box/box_sub/orb_rim/shadow_fold, all src/ui3/shaders/. Listed rather than exempted; #363 says the list makes no claim which they are.	Per-file exempt-or-route call on the six src/ui3/shaders/ violators (#363). Their neighbours vitals_bar / vitals_sprite / menu_cursor_shadow took psx-ot-depth-exempt: on the identical rung-Z rationale.
+0009	4	built	2026-08-28	Per-face CUSTOM0 for multi-face meshes (map, callbacks, projectile ensembles), per-object MODEL_MATRIX[3] for single primitives; tri_centroid / quad_centroid are statics on DepthMode. The 2026-06 addendum's 'primitive count, not node-ness' is now dec. 4.	
+0009	5	built	2026-08-28	addons/exmateria_schema/compositing_key/DepthMode.gd holds Mode (ten members - 0-5 ROM, 6-9 project nudges), UNITS_PER_OT_BUCKET := 0.19, the FIXED_* depths and apply(). The ADR's src/core/ path was stale in two places.	
+0009	6	built	2026-08-28	ot_depth (reversed-Z NDC, raster occlusion) and ot_order_z (linear view-space Z, bucketed) are separate statics on DepthMode. Promoted from the 2026-07 addendum, which called itself 'no new decision' while introducing the split that fixed #212.	
+0009	7	built	2026-08-28	OTDepthPrimOrder resolves equal-depth prims by particle age, newest last/on-top, a stable secondary sort pass. Guarded by OTDepthPrimOrderTest's _test_prim_order_age_tie_break and _test_prim_order_depth_separates_over_age. Supersedes #214's rule.	
+0009	8	built	2026-08-28	Probe-verified 2026-07-20: RenderSceneData.get_cam_projection() is reversed-Z (near 1, far 0), Camera3D.get_camera_projection() is standard (near -1, far +1). The CPU-packing consolidation was retired on this ground and its dead _frame_proj deleted.	
+0012	*	complete	2026-08-28	audit-notes/0012.md	Warn loudly when has_timeline is false but the cast bears emitters (EffectInstance) — today it is a silent no-start.
+0014	*	complete	2026-08-28	audit-notes/0014.md	
+0014	1	built	2026-08-28	EffectTimeline.gd _update_time_scale + _p1_local_frame/_for_each_local_frame; ParticleSubsystem has no time_scale_factor	
+0014	2	built	2026-08-28	ScreenSubsystem -> update_layer_gradient; PaletteSubsystem._deliver_output -> update_stack; EffectInstance._process reach-in gone	
+0014	3	built	2026-08-28	EffectTimeline.phase1_finished/phase2_started; ParticleSubsystem reads through them	
+0016	*	complete	2026-08-28	audit-notes/0016.md	
+0016	1	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	2	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	3	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	4	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	5	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	6	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	7	unreviewed	2026-08-28	Decision 7 held in RULE but not in FILENAME: the schema, the check and `_pack_gambits` moved `GPUBatchSimulator.gd` -> `GPUCombatPacker.gd` (the same host move as ADR-0001's generated region), which m	
+0016	8	unreviewed	2026-08-28	audit-notes/0016.md	
+0016	9	unreviewed	2026-08-28	Decision 9 ('behavior is unchanged') is NOT re-derivable from the current tree — it is a claim about the landing commit, and the audit records that as a limit rather than a finding.	
+0018	*	complete	2026-08-28	audit-notes/0018.md	Assert dec. 11's mechanics/policy split — a source guard that CombatHost.gd declares no signal, no `on_*` hook and no `_rlog`, so the base cannot grow into policy.
+0018	1	built	2026-08-28	GPUCombatInterpreter.gd:30-38 EventKind — 9 kinds, six of the ADR's original nine by name; CastEnded/ChargeBegan/ChargeEnded never landed and are now stated as rejected	
+0018	2	built	2026-08-28	GPUCombatInterpreter.gd:142-147 death precedence; STATE_CHANGED carries cast_began_this_frame; GPUCombatInterpreterTest asserts both with no GPU	
+0018	3	built	2026-08-28	interpreter reads only the snapshot dict + immutable ability data; generalised project-wide by ADR-0031	
+0018	4	built	2026-08-28	U_CAST_STEP_ID = 85 (combat_common.glslinc:133); _spell_cast_active survives on CombatLoop.gd:195 for the sanctioned animation role only	
+0018	5	built	2026-08-28	CombatLoop is a composed Node3D; GPUArena.gd extends CombatHost, not GPUCombatTestBase; 74 test files extend the test base unchanged	
+0018	7	built	2026-08-28	GPUMovementInterpreter untouched; CombatLoop composes both interpreters side by side with GPUVisualBridge	
+0018	8	built	2026-08-28	EffectManager in src/effects/, ProjectileManager in src/projectiles/, no ReactionManager file and no tests/managers/ dir; routing is inline on CombatLoop	
+0018	9	built	2026-08-28	CombatLoop.gd:36-46 — the eight named signals plus action_committed and timed_out	
+0018	10	built	2026-08-28	_build_gpu_config lives on GPUCombatTestBase (:335), not CombatLoop	
+0018	11	built	2026-08-28	src/gpu/CombatHost.gd; GPUArena.gd:1 and GPUCombatTestBase.gd:1 both `extends CombatHost`. Verified: the extends relationship + the base holds accessors/holders. NOT verified: that the policy split is complete (the file's own claim)	
+0022	*	half-landed	2026-08-28	audit-notes/0022.md	see audit-notes/0022.md#harvested-on-mechanizing
+0022	1	unreviewed	2026-08-28	The Consequences' predicted uniform names never existed on the unit path: body samplers are type1_tex + type1_palette, portrait's are sprite_texture + sprite_palette (unit_portrait_3d.gdshader:12-13);	
+0022	2	unreviewed	2026-08-28	MEASURED: dec. 2 ('BODY layer only;	
+0022	3	unreviewed	2026-08-28	VERIFIED GOOD: dec. 3 (no unit shader reuses indexed_color.gdshader; cited only as a convention at :898), dec. 4 (extract_spr.py:453-454 writes the pair, named by extract_all_sprites.py:71-77; index p	
+0022	4	unreviewed	2026-08-28	VERIFIED GOOD: dec. 3 (no unit shader reuses indexed_color.gdshader; cited only as a convention at :898), dec. 4 (extract_spr.py:453-454 writes the pair, named by extract_all_sprites.py:71-77; index p	
+0022	5	unreviewed	2026-08-28	The pattern also travelled to TRAP1 (effect_particle_stp.gdshaderinc:33, TrapEffect.gd:254), projectiles (Projectile3D.gd:222/:641), range-tile overlays (tile_overlay.gdshaderinc:8/:13) and EVTCHR (ba	
+0022	6	unreviewed	2026-08-28	VERIFIED GOOD: dec. 3 (no unit shader reuses indexed_color.gdshader; cited only as a convention at :898), dec. 4 (extract_spr.py:453-454 writes the pair, named by extract_all_sprites.py:71-77; index p	
+0022	7	unreviewed	2026-08-28	VERIFIED GOOD: dec. 3 (no unit shader reuses indexed_color.gdshader; cited only as a convention at :898), dec. 4 (extract_spr.py:453-454 writes the pair, named by extract_all_sprites.py:71-77; index p	
+0022	8	unreviewed	2026-08-28	audit-notes/0022.md	
+0024	*	half-landed	2026-08-28	audit-notes/0024.md	
+0024	1	unreviewed	2026-08-28	Dec. 1's `use_back` clause is superseded by ADR-0053: `attack` passes false unconditionally and `resolve_attack` takes it as `_use_back` (unused), the variant being picked per paint in `UnitDisplay._p	
+0024	2	unreviewed	2026-08-28	Two decisions are half: `resolve_spell_casting_two_hands` (dec. 2) and `resolve_ability_charging` (dec. 3) were NEVER WRITTEN, and the string ABILITY_CHARGING appears in no file under src/ or tests/ —	
+0024	3	unreviewed	2026-08-28	Two decisions are half: `resolve_spell_casting_two_hands` (dec. 2) and `resolve_ability_charging` (dec. 3) were NEVER WRITTEN, and the string ABILITY_CHARGING appears in no file under src/ or tests/ —	
+0024	4	unreviewed	2026-08-28	audit-notes/0024.md	
+0024	5	unreviewed	2026-08-28	Graded against the code: the shape IS built (Unit owns the map call, `Unit.gd:739/762/797`), and dec. 5 is CLOSED — `start_attack_with_animation` is defined nowhere, and both named CombatLoop sites mi	
+0026	*	half-landed	2026-08-28	audit-notes/0026.md	
+0026	1	unreviewed	2026-08-28	The assertion is not useless (it still compares the running slot against last_resolution.body_slot, catching a DISPATCH error), but its stated discriminating power is gone; a reader following that rat	
+0026	2	unreviewed	2026-08-28	VERIFIED GOOD: dec. 2 exactly (resolve_celebrating:170-174; map.tres Resource_celt1 and Resource_celt3 are both front=82/back=83), dec. 3 (dispatch is ActivityTranslator.translate at CombatLoop.gd:125	
+0026	3	unreviewed	2026-08-28	VERIFIED GOOD: dec. 2 exactly (resolve_celebrating:170-174; map.tres Resource_celt1 and Resource_celt3 are both front=82/back=83), dec. 3 (dispatch is ActivityTranslator.translate at CombatLoop.gd:125	
+0026	4	unreviewed	2026-08-28	VERIFIED GOOD: dec. 2 exactly (resolve_celebrating:170-174; map.tres Resource_celt1 and Resource_celt3 are both front=82/back=83), dec. 3 (dispatch is ActivityTranslator.translate at CombatLoop.gd:125	
+0026	5	unreviewed	2026-08-28	CONSEQUENCE FOR dec. 5: its argument no longer applies to its own assertion. dec. 5 binds on current_animation_front rather than type1_playback.anim_id because the latter 'was correct while the bug wa	
+0035	*	half-landed	2026-08-28	decs. 1 and 3-8 built; dec. 2 unresolved. Folded 2026-08-28: four dated blocks (one of them nested and unaddressable by name) became decs. 6, 7 and 8. See audit-notes/0035.md.	Boot-site smoke arm over the seven scenes dec. 5 names, asserting each still reaches register_debug_panel(); plus a persistence round-trip arm over position/size/visibility.
+0035	1	built	2026-08-28	DebugOverlay.gd:52 holds _dashboard: Window and project.godot:61 sets window/subwindows/embed_subwindows=false, so the dashboard is a real OS window, not a CanvasLayer over the game.	
+0035	2	unresolved	2026-08-28	Masonry packing holds, but DebugDashboard.set_category_collapsed:387 hides a whole cell behind a toggle persisted as UserSettings.debug_window.collapsed_categories. Fifth exception or drift back to problem (1)? #686.	
+0035	3	built	2026-08-28	create_collapsible_section (BaseDebugPanel.gd:112) takes _start_open -- literally underscore-prefixed and unread -- across 38 call sites, so the parameter is the no-op the decision promised.	
+0035	4	built	2026-08-28	Restated to the shipped rule: position, size and visibility persist; DEFAULT_DEBUG_WINDOW makes the FIRST-RUN default closed. The always-open-at-launch option stays rejected.	
+0035	5	built	2026-08-28	All five API methods present on DebugOverlay, and all seven boot sites still call register_debug_panel(). MapComposer.gd moved under addons/exmateria_battlefield/assembly/, which costs the rule nothing -- it names files, not paths.	
+0035	6	built	2026-08-28	add_fold_section (BaseDebugPanel.gd:132) exists and has exactly one consumer, DetailScreenDebugPanel.gd, so the scoped exception held its scope.	
+0035	7	built	2026-08-28	DebugDashboard.add_panel mounts each registered panel under its own titled fold inside the category cell.	
+0035	8	built	2026-08-28	DebugDashboard.gd:172 lists pages ['Panels','Registry','Studio','UI3']; UI3RegistryView.gd is the UI3 page and UI3RegistryPageTest.gd covers it.	
+0036	*	half-landed	2026-08-28	audit-notes/0036.md	
+0036	1	unreviewed	2026-08-28	HOLDS: dec. 1, 3, 6, 8 — dec. 6 (Option A single-source) is the only one with a test, PSXDisplaySingleSourceTest.gd:32, and shader_global_default() at PSXDisplay.gd:105 is exactly as written.	
+0036	2	unreviewed	2026-08-28	MOVED: dec. 2's rule holds but its SPELLING is superseded — ADR-0060 put both patterns behind psx_par_full()/psx_par_anchor() in addons/exmateria_platform/pixel_aspect/psx_par.gdshaderinc, enforced by	
+0036	3	unreviewed	2026-08-28	Guard feasibility: dec. 3 (PAR-blindness of CUSTOM0/object-space VERTEX) is mechanizable and unguarded — it survives only as prose in two shader comments; dec. 7's get_display_width clause is mechaniz	Decision 3 is mechanizable and unguarded
+0036	4	unreviewed	2026-08-28	FALSE: dec. 4's default. project.godot [shader_globals] psx_par reads 1.0, not 1.25 — landed at 1.25 in 311dab22a (2026-06-10, this ADR's accept date) and moved to 1.0 in b7b336491 (2026-07-06 'alignm	
+0036	5	unreviewed	2026-08-28	audit-notes/0036.md	
+0036	6	unreviewed	2026-08-28	HOLDS: dec. 1, 3, 6, 8 — dec. 6 (Option A single-source) is the only one with a test, PSXDisplaySingleSourceTest.gd:32, and shader_global_default() at PSXDisplay.gd:105 is exactly as written.	
+0036	7	unreviewed	2026-08-28	FALSE: dec. 4's default. project.godot [shader_globals] psx_par reads 1.0, not 1.25 — landed at 1.25 in 311dab22a (2026-06-10, this ADR's accept date) and moved to 1.0 in b7b336491 (2026-07-06 'alignm	
+0036	8	unreviewed	2026-08-28	FALSE: dec. 4's default. project.godot [shader_globals] psx_par reads 1.0, not 1.25 — landed at 1.25 in 311dab22a (2026-06-10, this ADR's accept date) and moved to 1.0 in b7b336491 (2026-07-06 'alignm	
+0037	*	complete	2026-08-28	decs. 1-10 built. Folded 2026-08-28: three dated blocks became decs. 7-10; the two Addenda anchored as the wildcard `*` and are gone, closing the 6 uncheckable citations the previous audit deferred. See audit-notes/0037.md.	Predicate table over CombatLoop._visuals_should_run: the four axes (combat_active, deploy_active, victory_achieved, cinematic-active) crossed against member-under-caster. Nothing covers the group-wide refresh, the victory override or the deploy input today.
+0037	1	built	2026-08-28	No `get_tree().paused` write exists on the combat path; Unit.gd:410 joins group `units` only. ADR-0137's formation screen is the 'future UI overlay' the decision reserved for, and it pauses the battle while keeping the camera alive.	
+0037	2	built	2026-08-28	No autoload, no second copy: every predicate input is a CombatLoop field (combat_active :125, deploy_active :138, victory_achieved :144) or the owning manager's own read (cinematic_manager.is_active/active_caster_idx). Restated from 'the field' to 'no mirror'.	
+0037	3	built	2026-08-28	_refresh_combat_visuals_freeze (CombatLoop.gd:1106) is the sole writer; it walks get_nodes_in_group('combat_visuals') and is called from the three setters (:133, :143, :149) and both cinematic handlers (:1078, :1094).	
+0037	4	built	2026-08-28	Member list corrected 4 -> 8 production + 1 test double: the four originals plus Projectile3D (ADR-0038), DamageNumber3D + StatusBubble3D (ADR-0063), CrystalSprite3D. The one-line opt-in held for every one.	
+0037	5	built	2026-08-28	Rule holds, machinery restated to ADR-0083: `tick_based` is nowhere in GPUArena.gd and the two react playbacks live only in UnitDisplay. AnimationClock.owner is the field, tick_based a derived predicate, and Unit._process's delta pump no-ops under a host.	
+0037	6	built	2026-08-28	add_to_group('combat_visuals') in _ready, at all 8 production sites -- necessary, and by dec. 10 not sufficient.	
+0037	7	built	2026-08-28	Promoted from Addendum #1 + #2. Carve-out corrected: _visuals_should_run exempts ANY member descending from units[active_caster_idx()], not just Charge VFX, and false if that index does not resolve. The cinematic EffectInstance opts out via is_cinematic.	
+0037	8	built	2026-08-28	Promoted from Addendum #2, reversing the original Consequences. `if victory_achieved: return true` is the first line of _visuals_should_run; ADR-0038 depends on it for projectiles mid-flight at the moment of victory.	
+0037	9	built	2026-08-28	`if not (combat_active or deploy_active): return false`, with deploy_active's own setter refresh. Recorded here because ADR-0042 -- which the code comment credits -- contains no occurrence of combat_visuals, deploy_active or 'freeze'.	
+0037	10	built	2026-08-28	Promoted from Amendment 3's finding. SceneTree.node_added -> _on_scene_node_added (:1144) -> deferred _apply_spawn_freeze (:1153), gated on cinematic_manager.is_active(). Guarded by CombatVisualsSpawnFreezeTest's three arms.	
+0040	*	half-landed	2026-08-28	audit-notes/0040.md	The named-API arm | The named-file arm
+0040	1	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	2	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	3	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	4	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	5	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	6	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	7	unreviewed	2026-08-28	Dec. 2/8 hold outright; dec. 3 holds with the seam moved to a 4-arg addon include; dec. 1's FIVE MultiMeshInstance3D per effect collapsed to ONE under #227 (the four RM_MODE0..3 carriers retired, the 	
+0040	8	unreviewed	2026-08-28	audit-notes/0040.md	
+0041	*	complete	2026-08-28	audit-notes/0041.md	Assert the dec. 5 negative: no `get_node`/poll of the cursor from `PlayerCamera` (a source guard over camera/*.gd).
+0041	1	built	2026-08-28	CursorController._on_cursor_moved -> PlayerCamera.track_cursor -> _deadzone_focus -> follow_cursor; release lerps to _follow_target	
+0041	2	built	2026-08-28	PlayerCamera.gd _process return ease: _follow_target if _follow_has_target else _saved_global_pos	
+0041	3	built	2026-08-28	request_takeover saves _saved_x_rot/_saved_y_rot/_saved_camera_size; release_takeover restores them	
+0041	4	built	2026-08-28	func request_takeover(_driver: Object); CinematicManager extends RefCounted, EffectViewerScene extends Node3D	
+0041	5	built	2026-08-28	no cursor lookup in PlayerCamera.gd; _follow_target only written by follow_cursor/track_cursor	
+0044	*	half-landed	2026-08-28	audit-notes/0044.md	The roster arm (blocked on the recorded question) | The cursor-coherence arm (not blocked)
+0044	1	unreviewed	2026-08-28	HOLDS: dec. 1, 2 (globals), 3, 5 — psx_par_anchor() at psx_par.gdshaderinc:66-68 is byte-for-byte the Decision's code block with `stretch` in the <taxonomy>_stretch slot; project.godot declares all th	
+0044	2	unreviewed	2026-08-28	AMBIGUOUS, recorded not resolved: is dec. 2's 'everything else: particles, projectiles, shadow blobs, callback meshes' a ROSTER (then projectile_vertex_color.gdshader:30 and trap_charge_line.gdshader:	
+0044	3	unreviewed	2026-08-28	audit-notes/0044.md	
+0044	4	unreviewed	2026-08-28	HALF: dec. 4 — the three live_*_stretch channels + *_changed signals are at PSXDisplay.gd:198/219/240 and :286-288, but DisplayDebugPanel is DELETED (ADR-0151, bb5f7fefa); the scrubs are generated Tun	The dec. 4 scrub arm
+0044	5	unreviewed	2026-08-28	audit-notes/0044.md	
+0046	*	half-landed	2026-08-28	audit-notes/0046.md	
+0046	1	unreviewed	2026-08-28	Amendment 1 records the two facts that MOVED: the glove half Status calls deferred is BUILT (`GloveCursorBob` + eight consumers, bob axis X, `FormationStartMenuTest` as oracle), and extraction #3 pass	
+0046	2	unreviewed	2026-08-28	audit-notes/0046.md	
+0046	3	unreviewed	2026-08-28	audit-notes/0046.md	
+0046	4	unreviewed	2026-08-28	Graded against the code: all five hold on the tile cursor and TileCursorBobTest asserts the 52-frame cycle against the shipped artifact — but decisions 4 and 5 are provisional BY THEIR OWN TEXT (the N	
+0046	5	unreviewed	2026-08-28	audit-notes/0046.md	
+0047	*	complete	2026-08-28	audit-notes/0047.md	Guard that `DEFAULT_COOLDOWN_TICKS` and the B8 scenarios' `max_ticks` budgets move together — the 60->300 raise needed both, and nothing couples them.
+0047	1	built	2026-08-28	cooldown_pre_validate in stage_compute.glsl:438 reads get_ability_cooldown_ticks; no is_cooldown_class anywhere	
+0047	2	built	2026-08-28	tools/parse_abilities.py:176 DEFAULT_COOLDOWN_TICKS = 300 (raised from 60, #93); assets/abilities/effects.json carries 300	
+0047	3	built	2026-08-28	stage_compute.glsl:566 cooldown veto beside spell_pre_validate; docs/gambit-rules.md:41 rule B8	
+0047	4	built	2026-08-28	binding-9 SSBO, MAX_COOLDOWN_ABILITIES=128 (combat_common.glslinc:517); NOT the unit struct (#85)	
+0047	5	built	2026-08-28	stage_compute.glsl:585-594 set_cooldown_ready_at(tick + cooldown_ticks) for SPELL/ABILITY/ITEM at commit	
+0047	6	built	2026-08-28	hand-authored constant in tools/parse_abilities.py; AbilityView.gd:89 cooldown_ticks getter; GPUAbilityLoader AB_COOLDOWN_TICKS	
+0048	*	half-landed	2026-08-28	audit-notes/0048.md	
+0048	1	unreviewed	2026-08-28	Five of six hold as written. dec. 1 holds (`GambitEncoder._safety_net_gambit`, :120) with one naming drift — the ADR names `TargetSelector.nearest_enemy()`, which does NOT exist; the code uses `Target	
+0048	2	unreviewed	2026-08-28	THE ONE THAT DOES NOT HOLD is dec. 2's slot count: `GambitList.VISIBLE_SLOTS = 4` and `ensure_fixed_size()` truncates DESTRUCTIVELY (pop_back) to 4 on every roster entry point (Character.gd:419 persis	
+0048	3	unreviewed	2026-08-28	Five of six hold as written. dec. 1 holds (`GambitEncoder._safety_net_gambit`, :120) with one naming drift — the ADR names `TargetSelector.nearest_enemy()`, which does NOT exist; the code uses `Target	
+0048	4	unreviewed	2026-08-28	Five of six hold as written. dec. 1 holds (`GambitEncoder._safety_net_gambit`, :120) with one naming drift — the ADR names `TargetSelector.nearest_enemy()`, which does NOT exist; the code uses `Target	
+0048	5	unreviewed	2026-08-28	Five of six hold as written. dec. 1 holds (`GambitEncoder._safety_net_gambit`, :120) with one naming drift — the ADR names `TargetSelector.nearest_enemy()`, which does NOT exist; the code uses `Target	
+0048	6	unreviewed	2026-08-28	Five of six hold as written. dec. 1 holds (`GambitEncoder._safety_net_gambit`, :120) with one naming drift — the ADR names `TargetSelector.nearest_enemy()`, which does NOT exist; the code uses `Target	
+0051	*	half-landed	2026-08-28	audit-notes/0051.md	Every retired env var names a live writer: assert each knob this ADR's history says moved to a panel has >=1 assignment outside its declaration. Also: no docs/**.md outside a fenced block spells MENU=/SHOT=/FIXTURE=/ZOOM= as a bare env assignment.
+0051	1	violated	2026-08-28	67 register_panel calls, but camera_disabled/camera_backrotate_invert/camera_flip_body_depth on ScenarioCameraDirector have readers and NO writer since ScenarioCameraDebugPanel was deleted at 137b94b40 (2026-07-06) — issue #677, both readings recorded there	
+0051	2	built	2026-08-28	tools/check_no_env_vars.py green at hard zero over walk_roots()+tests/; wired tests/run_all_tests.sh:424; the env-var-exempt hatch has ZERO users tree-wide	
+0051	3	built	2026-08-28	WorldMapScene.capture_to; CombatUITestScene.capture_dialogue_box_to driven by a CombatUIDebugPanel button	
+0051	4	built	2026-08-28	ScenarioVM.play_through_skip_unknown is the model; ScenarioVMDebugPanel is the view and publishes a Tune slug rather than holding state; WorldMapDebugPanelTest asserts the split	
+0051	5	built	2026-08-28	21 files take rig params via OS.get_cmdline_user_args() --key=value, incl. tools/capture_startmenu.gd and src/scenes/UnitInfoWindowViewer.gd; WorldMapScene fixture/zoom/capture_path/boot_menu	
+0052	*	complete	2026-08-28	audit-notes/0052.md	`_placement_flipped` must be true for every committed chunk, and `_map_size_z` must match its map's terrain.json
+0052	1	built	2026-08-28	coordinates.convert_position + parsers/mesh.py vertex read; net (x,-y,size_z-z) is a COMPOSITION across two files, neither complete alone	Feed convert_position/convert_normal a unit basis; assert net (x,-y,size_z-z) and linear part (x,-y,-z)
+0052	2	built	2026-08-28	exporters/terrain.py renumber_tile_z + the reversed row iteration; terrain.json is written our-coord row-major	
+0052	3	built	2026-08-28	tools/parse_entd.py apply_chirality_fix_to_slot renumbers ONLY y; unit_id 0xFF slots untouched	
+0052	4	stale	2026-08-28	Retired, never built: parse_scenarios.py is not the chunk producer and flip_camera_y_q88 is removed. Number left as a gap; dec. 13 is the answer.	
+0052	5	built	2026-08-28	extract_event._flip_placement_rows over _PLACEMENT_DEPTH_OPCODES={Warp Unit,Walk To}; guard ScenarioSpriteMoveTest RUNS since 2026-09-01 (#752 deleted the facing fallback that quarantined it; the red was never this ADR's depth mirror)	Assert no committed scenario_*_chunk.json carries _placement_flipped:false
+0052	6	built	2026-08-28	parsers/mesh.py emits (-nx,-ny,nz), coordinates.convert_normal negates X and Z; net (nx,-ny,-nz) = the linear part only	Same unit-basis arm as dec. 1
+0052	7	built	2026-08-28	exporters/geometry.py reverses BOTH quad triangles; diagonal v1-v2 preserved	
+0052	8	built	2026-08-28	PSXCameraConvert.psx_angles_to_godot_rotation returns deg_to_rad(yaw_deg); the -360.0 full-turn no-op was dropped for the identity	
+0052	9	built	2026-08-28	No camera_position_offset on any object in src/; four tests assert its absence (ScenarioChapelChainTrace/ChainSpline/JerkProbe, ScenarioCameraFloorAimCalib)	
+0052	10	built	2026-08-28	parse_entd docstring + PsxNum.warp_facing_to_12bit (Facing<<10, ROM 0x80087c1c); PsxNumTest pins all four values; ReferenceRenderDirectionTest and ScenarioCastInitialFacingTest exercise it	
+0052	11	built	2026-08-28	ScenarioDecode.sprite_move_offset negates +Z and +Y, mirrors neither; Sprite Move is absent from _PLACEMENT_DEPTH_OPCODES	
+0052	12	built	2026-08-28	scenario_*_chunk.raw.json sidecars exist beside the consumed chunks (export_all_scenario_chunks.py); ScenarioVM names live PSX RAM as the diff oracle	
+0052	13	built	2026-08-28	ScenarioCameraDirector uses PsxNum.flip_depth_continuous on the body depth, falling back to raw z when map_size_z is unset; PsxNumTest pins the continuous form	Assert camera_flip_body_depth is true AND has a writer — it has none today (#677, #670)
+0052	14	built	2026-08-28	parsers/mesh.py emits the +0xB0 table raw (VIS_CULL_MASK 0x3FFC unremapped); psx_camera_angle_offset exists nowhere	
+0053	*	half-landed	2026-08-28	audit-notes/0053.md	The naming Consequence is mechanizable and would land RED
+0053	1	unreviewed	2026-08-28	Every rule holds; three moved. dec. 1: the field is on UnitDisplay.gd:67, NOT Unit — Unit.gd:345 is a read-only forwarding property, the write half retired under #152 so there is no setter; play_body(	Decision 1's funnel is mechanizable and is the highest-value arm
+0053	2	unreviewed	2026-08-28	A STRENGTHENING (a driver can no longer assign and forget the clock), but 'one field' is one and a half: play_body also repopulates current_animation_front/index (:215-216), still read at Unit.gd:1066	
+0053	3	unreviewed	2026-08-28	A STRENGTHENING (a driver can no longer assign and forget the clock), but 'one field' is one and a half: play_body also repopulates current_animation_front/index (:215-216), still read at Unit.gd:1066	
+0053	4	unreviewed	2026-08-28	A STRENGTHENING (a driver can no longer assign and forget the clock), but 'one field' is one and a half: play_body also repopulates current_animation_front/index (:215-216), still read at Unit.gd:1066	Decision 4 is trivially mechanizable
+0053	5	unreviewed	2026-08-28	A STRENGTHENING (a driver can no longer assign and forget the clock), but 'one field' is one and a half: play_body also repopulates current_animation_front/index (:215-216), still read at Unit.gd:1066	
+0053	6	unreviewed	2026-08-28	A STRENGTHENING (a driver can no longer assign and forget the clock), but 'one field' is one and a half: play_body also repopulates current_animation_front/index (:215-216), still read at Unit.gd:1066	
+0055	*	half-landed	2026-08-28	audit-notes/0055.md	
+0055	1	unreviewed	2026-08-28	MEASURED: dec. 1 exact -- ScenarioMotion carries those six fields and four methods and nothing else but frac/curve. dec. 2 rule holds but the REGISTRY MOVED: 'VM-owned motions:{uid -> ScenarioMotion}'	Dec. 1 as a contract, across implementations
+0055	2	unreviewed	2026-08-28	MEASURED: dec. 1 exact -- ScenarioMotion carries those six fields and four methods and nothing else but frac/curve. dec. 2 rule holds but the REGISTRY MOVED: 'VM-owned motions:{uid -> ScenarioMotion}'	
+0055	3	unreviewed	2026-08-28	DEC. 3 IS THREE OF FOUR: {6F}/{29}/{64} call _arm_motion_wait; {65} Wait Rotate All arms _all_rotations_done instead and CANNOT use motion_done(uid) -- PSX passes a0=-1 over all 21 handles, so it has 	Dec. 1 as a contract, across implementations
+0055	4	unreviewed	2026-08-28	audit-notes/0055.md	
+0055	5	unreviewed	2026-08-28	GUARD GAPS: dec. 5 as a negative (zero _sprite_moves/_walks in src/, _rotate_state only in Unit.gd); dec. 6 as a negative (no effect class declares advance/is_done/snap_to_end -- that IS the whole con	Dec. 5 as a negative
+0055	6	unreviewed	2026-08-28	GUARD GAPS: dec. 5 as a negative (zero _sprite_moves/_walks in src/, _rotate_state only in Unit.gd); dec. 6 as a negative (no effect class declares advance/is_done/snap_to_end -- that IS the whole con	Dec. 6 as a negative
+0055	7	unreviewed	2026-08-28	DEC. 7 IS REVERSED AND NO ADR SAYS SO: ScenarioPathMotion is a SIBLING class for {28} Walk To (per-tile gravity arc DAT_80096128=0x925 + polyline re-projection, FUN_8006af7c) which a linear easing=0 l	
+0057	*	half-landed	2026-08-28	audit-notes/0057.md	No Placement flips at runtime | Every committed chunk is pre-flipped
+0057	1	unreviewed	2026-08-28	N` resolved against nothing; renamed `## The three classes` -> `## Decision: the three classes`, which promotes its existing `### 1./2./3.` items to decision anchors (dec. 1 Placement, 2 Orientation, 	
+0057	2	unreviewed	2026-08-28	Dec. 2 and dec. 3 hold, and dec. 3 is GOLDEN-LOCKED: three named converters in one module (AnimationStateController :97/:125/:140) pinned at the cardinals and between-cardinals by tests/RenderCardinal	
+0057	3	unreviewed	2026-08-28	Dec. 2 and dec. 3 hold, and dec. 3 is GOLDEN-LOCKED: three named converters in one module (AnimationStateController :97/:125/:140) pinned at the cardinals and between-cardinals by tests/RenderCardinal	
+0059	*	complete	2026-08-28	audit-notes/0059.md	
+0059	1	unreviewed	2026-08-28	audit-notes/0059.md	Dec. 3/8 as a negative
+0059	2	unreviewed	2026-08-28	MEASURED: EventInstruction.gd has 176 members with 176 UNIQUE NAMES and 176 UNIQUE VALUES, value == opcode byte. event_opcodes.json is GONE; event_instructions.json holds 176. run_all_tests.sh:91 runs	
+0059	3	unreviewed	2026-08-28	GUARD GAPS: dec. 4 as a negative (zero _params_dict definitions in src/ -- the retirement is currently guarded only by its own absence); dec. 3/8 as a negative (no _handlers key is a String -- true to	Dec. 3/8 as a negative
+0059	4	unreviewed	2026-08-28	GUARD GAPS: dec. 4 as a negative (zero _params_dict definitions in src/ -- the retirement is currently guarded only by its own absence); dec. 3/8 as a negative (no _handlers key is a String -- true to	Dec. 4 as a negative
+0059	5	unreviewed	2026-08-28	Dec. 5 reproduces exactly: 40 UNKNOWN_0X** members and precisely VARIABLE_LE/GE/EQ/NE/LT/GT for the six Variable ops.	
+0059	6	unreviewed	2026-08-28	audit-notes/0059.md	
+0059	7	unreviewed	2026-08-28	Dec. 7 has BOTH arms: ScenarioEventInstructionCoverageTest asserts it and ScenarioVM:966 push_warnings the same set at boot.	
+0059	8	unreviewed	2026-08-28	audit-notes/0059.md	Dec. 3/8 as a negative
+0063	*	complete	2026-08-28	audit-notes/0063.md	see audit-notes/0063.md#harvested-on-mechanizing
+0063	1	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0063	2	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0063	3	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0063	4	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0063	5	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0063	6	unreviewed	2026-08-28	The most fully built ADR audited so far: dec. 1 (CombatLoop.hp_changed(unit_index, prev_hp, new_hp, delta) exists with that EXACT signature at CombatLoop.gd:37, was_heal/killed at GPUCombatInterpreter	
+0064	*	complete	2026-08-28	audit-notes/0064.md	
+0064	1	unreviewed	2026-08-28	GUARD GAPS: dec. 1 as a negative (zero occurrences of the five old dict names in src/scenarios/ -- that IS 'fully internal', the regression is a one-line re-add, and the ADR warns about the getter-onl	Dec. 1 as a negative
+0064	2	unreviewed	2026-08-28	audit-notes/0064.md	
+0064	3	unreviewed	2026-08-28	audit-notes/0064.md	
+0064	4	unreviewed	2026-08-28	audit-notes/0064.md	
+0064	5	unreviewed	2026-08-28	audit-notes/0064.md	
+0064	6	unreviewed	2026-08-28	audit-notes/0064.md	
+0064	7	unreviewed	2026-08-28	GUARD GAPS: dec. 1 as a negative (zero occurrences of the five old dict names in src/scenarios/ -- that IS 'fully internal', the regression is a one-line re-add, and the ADR warns about the getter-onl	Dec. 7 as a count
+0064	8	unreviewed	2026-08-28	VERDICT SCOPE: 'complete' = all EIGHT decisions conform in code; dec. 8's SCOPE SENTENCE has been overtaken twice, in the good direction, and that is the recorded question.	
+0067	*	half-landed	2026-08-28	audit-notes/0067.md	A docstring arm | A dead-reference arm | A profile arm
+0067	1	unreviewed	2026-08-28	HOLDS: dec. 1-3, 5 and dec. 6's owner half. psx_color_apply(vec3 base, int surface_id) is exact;	
+0067	2	unreviewed	2026-08-28	audit-notes/0067.md	
+0067	3	unreviewed	2026-08-28	audit-notes/0067.md	
+0067	4	unreviewed	2026-08-28	GENERALIZED: dec. 4 gives the source={current,base} axis to LUMA only;	
+0067	5	unreviewed	2026-08-28	audit-notes/0067.md	
+0067	6	unreviewed	2026-08-28	HOLDS: dec. 1-3, 5 and dec. 6's owner half. psx_color_apply(vec3 base, int surface_id) is exact;	
+0068	*	complete	2026-08-28	Rewritten 2026-08-28 to state the now: four addenda folded, M1-M6 into dec. 8, R/E/W promoted to decs. 13-19, decs. 1-2 retired as gaps. Labels preserved inline because ~40 sites cite them. See audit-notes/0068.md.	
+0068	1	stale	2026-08-28	RETIRED. Tune.of(default, slug) does not exist - the whole-repo sweep removed it and the only occurrences of the name are comments describing the retirement. Its read role is dec. 14's get_value.	
+0068	2	stale	2026-08-28	RETIRED. The 4-arg set-once bind(owner, slug, default, apply) is now bind_update, and the owner moved off the registration onto the subscription. Decs. 14-15 are the replacement.	
+0068	3	built	2026-08-28	Tune.get_value coalesces _overrides.get(slug, default) through _coerce, so the code literal is the live value with no override present.	
+0068	4	built	2026-08-28	config/tune_overrides.json is tracked (32 bytes, currently near-empty as designed); config/tune_registry.snapshot.json is gitignored with a comment naming the asymmetry.	
+0068	5	built	2026-08-28	Tune is the first autoload and loads the override file in _ready before the scene tree; the ban on naming an owner at compile time from Tune follows from that ordering.	
+0068	6	built	2026-08-28	Tune.on_update takes the owning Node and drops the subscription on tree-exit; the owner sits on the subscription, not on bind, which takes neither owner nor callback.	
+0068	7	built	2026-08-28	RESTATED. Tune.Persist is {EPHEMERAL, TUNABLE, AUTOSAVE}; an undeclared bind rests at TUNABLE and _register only ratchets the class up. The 'no per-field persist flags' sentence was false; its substance - pin/commit is the decision - survives.	
+0068	8	built	2026-08-28	tools/materialize_tunables.py implements M1-M6 + R6: get_stack capture in _register, locations_of as a list, dump_registry to the gitignored snapshot, literal-only rewrite with skip+warn, resolve_static_var_default's one hop, and drain-then-verify.	
+0068	9	built	2026-08-28	CORRECTED. TuneDashboardModel/TuneDashboardPanel do NOT exist; the masonry auto-card was replaced by the full-width Registry page (TunablesRegistryModel + TunablesRegistryView), a trade ADR-0151 records and declines to reverse.	
+0068	10	built	2026-08-28	Persist.AUTOSAVE is the mechanism: an edit commits in the same gesture, and materialize silently skips those slugs since there is no game literal to bake into.	
+0068	11	built	2026-08-28	The registry records the meta hint on first registration; TunablesRegistryModel derives the control from type plus min/max/step and enum. Owners pass hints inline, e.g. Unit.register_tunables' {min, max, step}.	
+0068	12	built	2026-08-28	Owners register their own slugs (Unit registers render.unit_mesh_scale at boot, not per spawn), so every scene gets the control with no panel fan-out. tools/check_debug_panel_tunables.py is the guard - REPORT MODE, exits 0.	
+0068	13	built	2026-08-28	Promoted from R1. SpriteLayerManager.shared_loc_offset is the static var home for render.loc_offset; owners register from a named register_tunables() called by _static_init and nothing else, held by tools/check_tune_owner_self_registration.py.	
+0068	14	built	2026-08-28	Promoted from R2+R5. Tune.bind(slug, literal, meta, persist) carries no owner and no callback; get_value asserts a prior bind, stamps the read frame for dec. 17, and pays no stack capture. Tune.is_registered is the lazy-register probe.	
+0068	15	built	2026-08-28	Promoted from R3+R3.5. on_update asserts a prior bind and fires apply once immediately with the coalesced value; bind_update is literally bind() then on_update(). Unit._apply_render_tunable takes the apply but never a caller-supplied literal.	
+0068	16	built	2026-08-28	Promoted from R4+R7. The convention is observable in the tree: DetailScene's knobs recompute through _rebuild_if_bound rather than storing a derived var, and derived UI3 placements mint no slug at all.	
+0068	17	built	2026-08-28	Promoted from R8. BUILT: Tune.poll_unconsumed_scrubs tracks last-scrub frame, last-read frame and subscriber count with a grace window, driven by a debug-only _process; plus materialize's non-literal warning. THREE preflight arms named and unbuilt.	a bound home that is a `const` with >1 reader; a debug panel that writes game-node state directly; exactly one writer to a static-var home
+0068	18	built	2026-08-28	Promoted from E1-E3. UI3Element mints Tune.bind_update per literal-authored spec field, named by element id (.origin, .rect, and the criteria enums), and UI3Element.gd is on materialize's framework skip list.	
+0068	19	built	2026-08-28	Promoted from W1-W3. All three shapes exist: UIVitalsBand.update_extent in place, DetailScene/EquipPickerMenu _rebuild_pending + call_deferred _flush_pending_rebuild, FormationScene.rebuild_cells remove_child + queue_free. W4's tripwire is unbuilt.	Tune marks _applying around each on_update dispatch and flags any node free() in that window
+0069	*	complete	2026-08-28	audit-notes/0069.md	Every res:// and sandbox/ path an ADR names resolves on disk - resolve from the REPO ROOT (sandbox/juce-godot-embed/ is real, just not under godot-learning/). ADR-0040 wants the same arm.
+0069	3	built	2026-08-28	Zero SubViewport across the 116 scripts in src/effects/studio/; the page reaches the stage only through host verbs.	src/effects/studio/ declares no SubViewport - one grep, and it guards the audio-editor split.
+0069	4	built	2026-08-28	EffectViewerScene._setup_studio_page():190 -> DebugOverlay.set_studio_page():174 -> DebugDashboard.set_studio_page():221; show_studio_page():233 opens the dashboard to it.	
+0069	5	built	2026-08-28	116 pure-GDScript Control scripts, no GDExtension surface. The JUCE spike passed all four rungs on 2026-07-13 and was declined anyway - web/WASM.	
+0069	6	built	2026-08-28	40 `func studio_*` on src/scenes/EffectViewerScene.gd, reached by 66 has_method probes under src/effects/studio/.	Assert every studio_* name probed under src/effects/studio/ exists on EffectViewerScene - the duck-typed seam has no checker.
+0070	*	complete	2026-08-28	audit-notes/0070.md	see audit-notes/0070.md#harvested-on-mechanizing
+0070	1	unreviewed	2026-08-28	ALL THREE DECISIONS HOLD in code, at the exact choke points the ADR names: dec. 1 EffectTimeline.reset() :227-233 re-applies _rng.seed = _rng_seed FIRST, before the subsystem resets, citing ADR-0070; 	
+0070	2	unreviewed	2026-08-28	ALL THREE DECISIONS HOLD in code, at the exact choke points the ADR names: dec. 1 EffectTimeline.reset() :227-233 re-applies _rng.seed = _rng_seed FIRST, before the subsystem resets, citing ADR-0070; 	
+0070	3	unreviewed	2026-08-28	ALL THREE DECISIONS HOLD in code, at the exact choke points the ADR names: dec. 1 EffectTimeline.reset() :227-233 re-applies _rng.seed = _rng_seed FIRST, before the subsystem resets, citing ADR-0070; 	
+0071	*	half-landed	2026-08-28	audit-notes/0071.md	see audit-notes/0071.md#harvested-on-mechanizing
+0071	1	unreviewed	2026-08-28	Dec. 1 HOLDS and was generalized - SpanProjector and EmitterTargetProjector are separate registered kinds, InspectionTarget={kind,ref} is real (ADR-0073's banner grades ACCURATE), EmitterProjector.gd:	
+0071	2	unreviewed	2026-08-28	Dec. 2 HOLDS EXACTLY - ScreenTweenProjector.sections() :46/:55 returns disjoint Blend vs Gradient field sets (absent, not greyed) and summarize() :65-68 gives label+border+fill as the Consequence desc	
+0071	3	unreviewed	2026-08-28	Dec. 3 is HALF: the half that matters landed - _span_label() is GONE from EffectScoreModel, so the god-switch the ADR existed to remove is deleted - but summarize() is defined on 3 of 16 projectors an	
+0073	*	complete	2026-08-28	audit-notes/0073.md	A bare ADR-NNNN citation whose number was RENUMBERED is unresolvable and unchecked - see #680; check_adr_quotes.py:166 already holds the map.
+0073	1	built	2026-08-28	InspectionTarget.gd - {kind, ref}; the registry never inspects ref.	
+0073	2	built	2026-08-28	InspectorProjectorRegistry.KINDS: 11 kinds, 9 built, curve+callback still seams; 15 *Projector.gd in src/effects/studio/.	Assert every KINDS entry marked true resolves to a projector script that exists.
+0073	3	built	2026-08-28	link field + header link row + nav_choice dropdown, all on one navigate seam (EffectKeyframeInspector.gd:2153, :1041). InspectorLinkTest.	
+0073	4	built	2026-08-28	EmitterTargetProjector: four emitter_view groups, no Event, no Phase/Frames. EmitterProjectorBareTest.	
+0073	5	built	2026-08-28	EffectScoreModel.emitter_provenance():1539. EmitterProvenanceTest.	
+0073	6	built	2026-08-28	Four exhaustive browsers (emitter/container/frameset/sequence pickers), not the one the ADR named. EffectStudioEmitterBrowserTest, EffectStudioContainerBrowserTest.	
+0073	7	built	2026-08-28	EffectKeyframeInspector.gd:1415 wraps editor + follow button in one HBox on _link_buttons. EffectStudioDrillDownTest.	
+0073	8	built	2026-08-28	group baked at link-creation; EffectData.frameset_group_offset() is the one derivation and ActiveEmitter._get_group_offset delegates to it.	Assert frameset_group_offset has no second implementation - a fifth copy is the documented failure.
+0073	9	built	2026-08-28	EffectScoreModel.gd:1429 - ONE follow button on the Animation set row, labelled with the resolved target.	
+0073	10	built	2026-08-28	SequenceProjector.gd:272 sets follow.disabled; the editor stays live and the row wears the ADR-0089 dead marker.	
+0073	11	built	2026-08-28	_nav_chain + _seed_sound_chain + _sections_for_render; _path_crumbs returns [] for a chain; scroll_to_section for an on-screen target. EffectStudioChainInspectionTest.	
+0074	*	complete	2026-08-28	decs. 1-9 built; four contract guards at hard-zero. Folded 2026-08-28: the colour-math Addendum became decs. 6-9, the ADR-0191 banner restated dec. 3. No citation addressed a dated block, so nothing needed retargeting. audit-notes/0074.md.	Stale-spelling arm: assert `sorting_offset` reaches no live fold path, scoped past tools/probe_demi_engine_fold.gd which still assigns it. The citation-namespace arm (no ADR-NNNN followed by a circled numeral) is blocked on #687.
+0074	1	built	2026-08-28	Monomorphy intact: check_fold_primitive_kind.py walks 16 folds and every one declares its kind. Ordering half RESPELLED -- a carrier takes render_layer = FOLD_LAYER plus an int32 render_layer_order, not a float sorting_offset.	
+0074	2	built	2026-08-28	RENAMED: sorting_offset_for exists nowhere. DepthMode.render_layer_order_for(order_z, rank) is the successor -- same arity, same role, plus a rank-spill assert. Fold.add, EngineFoldCompositor and (via rung_z, ADR-0077) four flat UI scenes share it.	
+0074	3	built	2026-08-28	AMENDED by ADR-0191 and restated: Fold is a class_name with three statics (add, owns, shader). add now opens `if not owns(): return` -- render_layer/render_layer_order RAISE off-fork, not no-op. The refusal of material choice/attach/stamp stands.	
+0074	4	built	2026-08-28	EffectParticleRenderer and TrapEffect are the only slot-borrowers; EngineFoldCompositor reads the pool as the carrier source. The crystal and cursor compositors mention the pool only as epitaphs saying they no longer borrow a slot.	
+0074	5	built	2026-08-28	addons/exmateria_render/fold_bracket/FoldSurface.gd -- extracted as decided, then relocated into the render addon by the extraction passes.	
+0074	6	built	2026-08-28	Promoted from the 2026-07-31 Addendum: the fold is the blended/STP pass only; opaque prims draw in-scene, are tonemapped, and keep their pow. cursor_fold is the split case, keeping only the STP-window outline via discard.	
+0074	7	built	2026-08-28	Promoted from the Addendum. check_fold_primitive_kind.py: all 16 folds declare a matching `// psx-prim:` kind. tile_decal_fold is the untextured case (ALBEDO = COLOR.rgb, no >>7); the other 13 are textured (texel * gouraud/128).	
+0074	8	built	2026-08-28	Promoted from the Addendum. check_no_pow_in_fold.py: 16 fold entry shaders, 0 allowlisted. check_no_cpu_color_math_in_fold.py: 5 CPU resolvers, all raw display-space -- the class the shader guards are blind to, from the tile_decal finding.	
+0074	9	built	2026-08-28	From the Addendum + Endgame. project.godot declares no psx_brightness global, PSXDisplay carries the epitaph, and check_no_psx_brightness_in_fold.py reads 16 fold entries with 0 on the burn-down. The callback pair keeps a per-material use_psx_brightness.	
+0077	*	complete	2026-08-28	audit-notes/0077.md	decs. 1-7 built; the 2026-08-13 amendment folded to dec. 7 and its 12 source citers retargeted in the same commit
+0077	1	built	2026-08-28	FormationScene RP_ ladder (RP_BACKGROUND := 0 .. RP_CHANGEJOB_CYLINDER := 15) materialized via DepthMode.rung_z against the SHARED DepthMode.UNITS_PER_OT_BUCKET := 0.19, not a scene-local copy	
+0077	2	built	2026-08-28	opaque prims write DEPTH through the shared reversed-Z; seam enforced corpus-wide by tools/check_depth_shaders.py (psx_ot_depth.gdshaderinc or an explicit exemption) + FormationFoldRoutingTest's opaque-prim invariant	
+0077	3	built	2026-08-28	FOLD_PRIMS carries SIX prims (the five named plus changejob_cylinder); FormationFoldRoutingTest:67 asserts exactly six, both branches. The addition needed no amendment	
+0077	4	built	2026-08-28	no compositor assignment survives in FormationScene; the only trace is the comment at :769 recording that the retired composite used to clobber the camera	
+0077	5	built	2026-08-28	rule holds via Fold.owns() (FormationScene:1726, :2104) and Fold.shader(fold, scene); the method it was written against, CompositorAutopilot.owns_compositing(), was deleted by ADR-0191 and the ADR + 4 shader headers now name Fold.owns()	
+0077	6	built	2026-08-28	FormationDisplaySpaceComposite, formation_composite_copy.glsl, formation_displayspace_composite.glsl and use_displayspace_composite have NO declaration anywhere; 4 surviving mentions are historical prose	assert the four retired names have no DECLARATION anywhere (prose mentions fine) - passes today, ratchets the rejected re-port option shut
+0077	7	built	2026-08-28	promoted from the 2026-08-13 amendment. _add_frame/_mount_icon take z_rung with NO default (0 callers pass -1); stats chrome at RP_WINDOW_FRAME, glyphs strictly nearer at RP_TEXT; guard tests/DetailUnauthoredDepthTest.gd keys on the authored set_meta('z_rung')	
+0081	*	complete	2026-08-28	Rewritten 2026-08-28 to state the now: three unnumbered Addenda + Amendment 4 folded into decs. 5-10, and the 14 `ADR-0081 addendum` citations retargeted in the same commit. See audit-notes/0081.md.	
+0081	1	built	2026-08-28	Character.template_token is the semantic appearance handle, a String field distinct from the slug; CharacterTemplateResolverTest pins that an appearance key carries the token and no special_name/job/gender axis.	
+0081	2	built	2026-08-28	CharacterTemplateResolver.resolve returns TEMPLATE_ROOT + token + '/' as template_folder with no flat-store body_sprite_id; Category.APPEARANCE_TYPE is the fourth enum member.	
+0081	3	built	2026-08-28	template_key's other branches are untouched: ResidueManifest.has(special_name) still routes uniques, _has_gender_axis still splits GENERIC_HUMAN from GENERIC_MONSTER, and no render-path call changed.	
+0081	4	built	2026-08-28	GENERIC_SPRITE_NAMES lives only in tools/align_character_templates.py, read at the two transform sites. No GDScript file references it - the ADR-0013 decode-at-parse discipline holding by absence.	
+0081	5	built	2026-08-28	Promoted from Addendum 1. AllTemplatesSeeder._minimal_progression seeds every minted Character with UnitProgression.initialize(body_stat_type, '4a' Squire); the catalogue-vs-editor seam is stated on PromotedRosterSeeder and FormationDevBoot.	
+0081	6	built	2026-08-28	Promoted from Addendum 1. UnitProgression.zodiac_from_birthday is the pure function; UnitBirthdays.zodiac_of looks the special_name up in the parse_unit_birthdays.py table. PromotedRosterSeeder copies the derived sign across promotion.	
+0081	7	built	2026-08-28	Promoted from Addendum 2, CORRECTED to four variant sources. Its own '59 + 77 + 55' line was stale: the 77 split into 39 folder-sourced and 38 job-sourced wardrobe rows. The ~191 total is dropped - no suite asserts a roster size.	
+0081	8	built	2026-08-28	Promoted from Addendum 3, with 'Conformance is staged' folded IN. Resolves the addendum's 21-vs-39 self-contradiction against the tree: _test_no_wardrobe_sheet_is_minted_as_an_appearance_type pins 39 tokened rows and 18 job-reached, as a ratchet.	widen JobDatabase.generic_wardrobe_sprite_ids() past is_generic_human to every job, which retires the 18-sheet remainder and drops the ratchet to 21
+0081	9	built	2026-08-28	Promoted from Amendment 4. template_key tests template_token != '' before the residue and job branches; the class docstring states it as policy. A guard on this branch must assert the RENDERED address - a key-level arm passes on a mis-tokened tree.	
+0081	10	built	2026-08-28	Promoted from Addendum 3's 'why no precedence rule was needed'. PromotedRosterSeeder states the rule per dialect and preserves it across promotion; the rejected body/face precedence split is in Considered options.	
+0083	*	complete	2026-08-28	audit-notes/0083.md	The claim's blind spot | `tick_based` has no setter
+0083	1	unreviewed	2026-08-28	BUILT AS SPECIFIED — the central claim ('structurally impossible, not toggled off') is verifiable in the TYPE: AnimationClock.gd:42-43 makes tick_based a GETTER ONLY over `owner != SELF`, so `owner ==	
+0083	2	unreviewed	2026-08-28	Unit._process no-ops at :1225; the VM filter is factored into _advance_unit_body_clock, ScenarioVM.gd:3520-3531 — skips COMBAT :3525, claims SELF :3528 with the {47} ghost-spawn comment as written). d	
+0083	3	unreviewed	2026-08-28	Unit._process no-ops at :1225; the VM filter is factored into _advance_unit_body_clock, ScenarioVM.gd:3520-3531 — skips COMBAT :3525, claims SELF :3528 with the {47} ghost-spawn comment as written). d	
+0085	*	unaudited	2026-08-28	audit-notes/0085.md	
+0085	1	unreviewed	2026-08-28	audit-notes/0085.md	
+0085	2	unreviewed	2026-08-28	audit-notes/0085.md	
+0085	3	unreviewed	2026-08-28	audit-notes/0085.md	
+0086	*	complete	2026-08-28	Folded 2026-08-28: 6 amendments -> 26 decisions, all built. audit-notes/0086.md	
+0086	1	built	2026-08-28	EffectCameraDecoupleTest; CameraTweenProjector emits no Channels row	
+0086	2	built	2026-08-28	CameraLowering.parse/lower; CameraLoweringTest	
+0086	3	built	2026-08-28	CameraLowering coalesce/split; CameraLoweringTest	
+0086	4	built	2026-08-28	EffectCameraSaver capacity_faithful; EffectCameraSaveRoundTripTest	
+0086	5	built	2026-08-28	CameraChannel.gd:290 ordinal address; EffectCameraOrdinalAddressTest	
+0086	6	built	2026-08-28	EffectScoreModel.keyframe_address; EffectScoreModelTest._test_keyframe_address_camera	
+0086	7	built	2026-08-28	EffectEditSession.insert_event/delete_event; EffectCameraInsertDeleteTest	
+0086	8	built	2026-08-28	CameraChannel.gd:121 insert-waypoint vs de-coalesce; PaletteInsertDeleteTest, ScreenInsertDeleteTest	
+0086	9	built	2026-08-28	CameraChannel._seed_event inherits the covering command word; EffectCameraInsertDeleteTest	
+0086	10	built	2026-08-28	EffectEditSession snapshot undo; EffectCameraStructuralUndoTest	
+0086	11	built	2026-08-28	EffectScoreTimeline._edge_rects one grip per span; EffectStudioEdgeDragWiringTest	
+0086	12	built	2026-08-28	EffectStudioPage._on_edge_drag_moved clamp; EffectStudioEdgeDragWiringTest	
+0086	13	built	2026-08-28	per-lane field_ref; EffectStudioEdgeDragWiringTest	
+0086	14	built	2026-08-28	EffectEditSession begin/end_coalesce; EffectEditSessionTest.gd:281	
+0086	15	built	2026-08-28	CameraValueSemantics.is_spacer; EffectCameraSpacerTest	
+0086	16	built	2026-08-28	EffectScoreTimeline.is_hidden_spacer in both hit-test passes; EffectCameraSpacerTest	
+0086	17	built	2026-08-28	EffectScoreTimeline.gd:498 enabled defaults true; EffectSpacerEdgeGripTest.gd:216	
+0086	18	built	2026-08-28	_edge_rects never consults the drawn verdict; EffectSpacerEdgeGripTest.gd:93	
+0086	19	built	2026-08-28	EffectStudioPage._camera_spacer_gap_actions; EffectStudioLaneContextMenuTest	
+0086	20	built	2026-08-28	CameraChannel.gd:615 zero-crossing relayout; EffectCameraSpacerTest	
+0086	21	built	2026-08-28	CameraCompiledProjector; EffectCameraCompiledLaneTest	
+0086	22	built	2026-08-28	EffectScoreTimeline.edge_grip_identity write owner vs select identity; EffectSpacerEdgeGripTest	
+0086	23	built	2026-08-28	EffectScoreTimeline.gd:545 three-case identity, blind keeps grip; EffectSpacerEdgeGripTest	
+0086	24	built	2026-08-28	EffectScoreTimeline.edge_grip_drawn; EffectSpacerEdgeGripTest	
+0086	25	built	2026-08-28	EffectScoreTimeline._next_tile; fields.spacer never stamped by particle	
+0086	26	built	2026-08-28	EffectEditSession._restore_coalesce_pristine; ColourDragPristineTest -- ADR text said NOT built; corrected	
+0087	*	complete	2026-08-28	Folded 604 -> 398 lines on 2026-08-28: 7 amendments into decisions 1-30, all built and guarded. Two stale pointers fixed inline (`edge_grip_verdict` -> `edge_grip_identity`/`edge_grip_drawn`; `split_durations` -> `trade_durations`).	
+0087	1	built	2026-08-28	`ColorModeLabels` is the one shared 11-mode label map; `ColorModeLabelsTest` reads it from both lanes. The `gradient_color` reuse is gone from the palette lane.	
+0087	2	built	2026-08-28	`PaletteTintSolver.REFERENCE_RAW = 15` (mid-grey 15/31) folded through `ColorStack.fold`; `EffectKeyframeInspector._actual_swatch` is the read-only nearest-reachable tell. `PaletteTintSolverTest`.	
+0087	3	built	2026-08-28	`PaletteTintSolver` reuses `BlendTargetSolver.solve` per channel across all 11 modes, no 3-D search. `BlendTargetSolverTest` + `PaletteTintSolverTest`.	
+0087	4	built	2026-08-28	Modes 8/10 emit no tint cell — a Variant absence in `ColorTweenRows`, not a greyed control.	
+0087	5	built	2026-08-28	`ColorLowering.duration_for_time_value` / `time_value_for_duration` are the lowering; `ColorLoweringTest` pins the x8 snap. Save recomputes through `EffectPaletteSaver`.	
+0087	6	built	2026-08-28	`PaletteChannel._apply_boundary` / `ScreenChannel._apply_boundary`, snap-8 with a min 1-frame clamp. `PaletteBoundaryEditTest`, `ScreenBoundaryEditTest`, `EffectPaletteEdgeDragAcceptanceTest`.	
+0087	7	built	2026-08-28	`PaletteChannel._insert_spacer_stub` seeds a DISABLED null tween. `PaletteInsertDeleteTest`, `ScreenInsertDeleteTest`, `EffectPaletteInsertPositionTest`.	
+0087	8	built	2026-08-28	Palette addresses by raw `event_index`; `EffectPaletteSaveRoundTripTest` + `EffectPaletteByteCoverageAcceptanceTest` prove the address survives the round-trip.	
+0087	9	built	2026-08-28	The `duration` pseudo-field delegates to `_apply_boundary` on both colour channels; `PaletteBoundaryEditTest:120` and `ScreenBoundaryEditTest` pin drag/typed equivalence.	
+0087	10	built	2026-08-28	`EffectStudioPage._ripple` + `_ripple_btn` (session-local, never persisted); the flag rides `field_ref["ripple"]` into the choke point. `EffectStudioEdgeDragWiringTest`.	
+0087	11	built	2026-08-28	`ScreenChannel.disabled_stash` byte-swap + derived disabled state; cold no-op has nothing to restore. `ScreenEnabledToggleTest`.	
+0087	12	built	2026-08-28	`ColorTweenRows` emits the raw stored byte with the x2 told in the label; Blend variant only. `ColorTweenRowsTest`, `ScreenTweenProjectorTest`.	
+0087	13	built	2026-08-28	One row order across the three palette channels and screen; screen's Blend-mode row is an editable 11-choice enum. `ScreenTweenProjectorTest:133`, `EffectStudioKindSelectorTest`.	
+0087	14	built	2026-08-28	`ColorTweenRows` is the one builder; `PaletteTweenProjector` / `ScreenTweenProjector` are thin adapters. `EffectKeyframeInspector.refresh_palette_tint` is the shared refresh seam.	
+0087	15	built	2026-08-28	`CameraChannel._apply_ripple_end` shifts downstream `end_frame`s, splits coalesced hosts, refuses past s16. `EffectCameraRippleTest`, `EffectCameraEdgeDragAcceptanceTest`.	
+0087	16	built	2026-08-28	Typed Gap is natively ripple (no flag, no branch); the fire-drag ripple branch edits only the prior gap. `EffectStudioFireDragWiringTest` asserts both.	
+0087	17	built	2026-08-28	`SpacerVerdicts.is_spacer_by_fold` / `_is_spacer` — leave-one-out fold equivalence over the authored stream. `SpacerVerdictsTest`.	
+0087	18	built	2026-08-28	Probe bases incl. the 0/1 clamp extremes plus adjacent-pair midpoints, mutation-tested in `SpacerVerdictsTest`; `SpacerVerdictShortcutParityTest` re-derives the whole corpus with shortcuts off.	
+0087	19	built	2026-08-28	Colour value edits flag `invalidates_layout` unconditionally, so a verdict wakes lane-wide. `EffectSpacerRestyleAcceptanceTest` pins the cross-keyframe case.	
+0087	20	built	2026-08-28	Verdicts fold the authored stream; Solo/Mute never enter `SpacerVerdicts`.	
+0087	21	built	2026-08-28	`EffectScoreModel` calls `SpacerVerdictsClass.palette_verdicts` / `screen_verdicts` and projects `fields.spacer`; the timeline switches on the flag. `EffectSpacerProjectionTest`.	
+0087	22	built	2026-08-28	`SpacerVerdicts` folds the single-pass for_each stream, as every lane models it.	
+0087	23	built	2026-08-28	`EffectScoreTimeline._draw_spans` skips a hidden spacer entirely; `hit_test` skips it too, so it is unselectable. `EffectSpacerVisibilityTest`.	
+0087	24	built	2026-08-28	No reveal toggle exists anywhere in `EffectStudioPage`.	
+0087	25	built	2026-08-28	`EffectStudioPage._colour_spacer_gap_actions` offers Add on the empty-space right-click; `PaletteChannel._insert_spacer_stub` births the 1-frame disabled stub with spacers either side.	
+0087	26	built	2026-08-28	`EffectScoreTimeline` hatches on `not fields.enabled` (not on `spacer`); `is_hidden_spacer` requires `spacer AND enabled`. Border stays kind, dashed stays Gradient. `EffectSpacerVisibilityTest`.	
+0087	27	built	2026-08-28	`is_hidden_spacer` returns false for the selected id; `_span_label` returns "Spacer". `EffectScoreTimelineTest:1451`.	
+0087	28	built	2026-08-28	No intrinsic-vs-contextual note in `EffectKeyframeInspector`; the oracle still runs to decide what to hide.	
+0087	29	built	2026-08-28	`EffectScoreTimeline.edge_grip_identity` / `edge_grip_drawn` are kind-agnostic — one rule, one call site. `EffectSpacerEdgeGripTest` pins it for palette.	
+0087	30	built	2026-08-28	`ColorLowering.trade_durations` is the chooser (NOT `split_durations`, which stays the insert cutter); both halves storable, `total` exact. `ColourBoundaryFarEdgeTest`, `ColourBoundaryCorpusSweepTest`.	
+0088	*	half-landed	2026-08-28	BLOCKED on dec. 7's allowlist question; both readings + 2 proposed arms in audit-notes/0088.md. Everything else decidable from the tree.	
+0088	1	built	2026-08-28	UI3Element + payload_materials()/payload_meshes(); UI3ElementSpecTest. NOT MECHANIZABLE -- 'a logical part' is a human judgement, which is why the Amdt 6 ownership map exists.	
+0088	2	built	2026-08-28	UI3Element.gd:209 _init validates, :225 _enter_tree resolves the nearest registered ancestor; UI3ElementSpecTest, UI3RegistryPageTest.	
+0088	3	stale	2026-08-28	Criteria partition built (validate_spec:259) but the table offers a `center_region` frame variant; UI3Element.Frame is {NONE, MENU_TILE, STRIPE}. Correct it in the rewrite.	
+0088	4	built	2026-08-28	UI3ClipEngine, UI3TransitionEngine + UI3BoxOpenBeat, _ensure_chrome:528, DEFAULT_PPU/DEFAULT_DEPTH_RUNG:72-73; UI3ClipEngineTest, UI3TransitionEngineTest.	
+0088	5	built	2026-08-28	UI3Element._mint_binds:392; Tune.gd, materialize_tunables.py's criteria-spec home; UI3AutoBindTest.	
+0088	6	built	2026-08-28	src/debug/UI3RegistryView.gd in DebugDashboard; UI3RegistryPageTest, UI3RegistryPageIncrementalTest.	
+0088	7	unresolved	2026-08-28	Items 1/3/4 built. Item 2's ratchet has TWO carriers: tracked config/ui3_registration_allowlist.json (EMPTY, 2 consumers) and per-test consts (4). FormationScene has no audit at all.	1) every root-registering class has a test calling UI3RegistrationAudit.check (would have caught FormationScene); 2) the tracked allowlist has exactly one meaning -- build only after the question is answered
+0088	8	built	2026-08-28	UIComponent extends UI3Element; Role gate (Amdt 5) makes the base-swap boot-safe; UIComponentBootAuditTest, UIVitalsRosterRoleAuditTest, UI3ElementRoleTest.	
+0088	9	built	2026-08-28	Per-element migration behind position-multiset goldens: StartMenuFrameGroupTest, EquipPickerFrameGroupTest, DetailFrameGroupTest + the *ElementTest scenes.	
+0089	*	unaudited	2026-08-28	audit-notes/0089.md	
+0089	1	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	2	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	3	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	4	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	5	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	6	unreviewed	2026-08-28	audit-notes/0089.md	
+0089	7	unreviewed	2026-08-28	audit-notes/0089.md	
+0090	*	complete	2026-08-28	Rewritten 2026-08-28 to state the now: two dated blocks folded, Amendment 1 promoted to dec. 4, decs. 1-4 all built to the literal. Eight suites split along the designed seam. See audit-notes/0090.md.	
+0090	1	built	2026-08-28	from_frames() orders the pair and grows to min length 2, so a click without a drag cannot make a zero-length region; effective() falls back to 0..stop_frame; {} is the sentinel is_empty() reports; EffectFramesBar gates creation on event.alt_pressed.	
+0090	2	built	2026-08-28	MODE_OFF/MODE_FORWARD/MODE_PINGPONG = 0/1/2 in LoopTransport.gd; _cycle_loop_mode() is (mode+1)%3 off the one _loop_btn; one LoopRegion.effective() feeds all three modes, so there is one loop concept and the region only changes what is looped.	
+0090	3	built	2026-08-28	LoopTransport.step() has the designed signature and returns {frame, dir, done}; reflect is end-1/start+1 under the comment 'Reflect off the far end WITHOUT repeating it'; DIR_BACK routes to studio_seek_silent. Dec. 3 now states the pacing factor.	
+0090	4	built	2026-08-28	Promoted from Amendment 1. ScrubField _speed_btn: min 0.1, max 4.0, step 0.05, set_value_no_signal(1.0), scrub_sensitivity 0.01 as plain widget config. studio_set_speed does not exist on the host - the only occurrence is a comment saying so.	
+0092	*	half-landed	2026-08-28	audit-notes/0092.md	BLOCKED 2026-08-28: dec. 1 vs Amendment 1 contradict on the home of flags_byte bits 5/6, and the tree implements BOTH. Product call; held interactive, not rewritten
+0092	1	unresolved	2026-08-28	Reading A: Amendment 1 binds, so the Flags group drops to bits 3/4 and the relocation's REMOVAL half is unbuilt (delete masks 0x20/0x40, drop EffectSettingsProjectorTest:189-196). Reading B: the shipped two-control shape is right, Amendment 1 overstated	assert masks 0x20/0x40 appear on exactly ONE of _flags_section() and the Time Scale pop-up - reports TWO today, unwritable until the question is answered
+0092	2	built	2026-08-28	EffectFlagsChannel.apply_raw writes the whole word & 0xFF; EffectStudioEffectFlagsAcceptanceTest seeds E019's raw 0x23 and asserts & 0x03 == 0x03 survives a toggle	
+0092	3	built	2026-08-28	editability_manifest.json effect_flags.fields.spawn_delay_override = 'na', with the note calling the earlier D3 default_frame_delay reading WRONG	
+0092	4	built	2026-08-28	manifest still says sound_channels 'display'; the container is now editable IN PLACE (mode radio + three FEDS-bank pickers, two shape:'edit' rows, SoundContainerChannel) - the exact shape this decision named	
+0092	5	built	2026-08-28	reader half: EffectData.gd:218 loads effect_flags.json per effect into data.flags. The 401-dir regen is UNVERIFIABLE here - assets/effects/ is gitignored ROM-derived content and unpopulated, so a zero count refutes nothing	
+0092	6	built	2026-08-28	EffectFlagsChannel.apply_raw mirrors bits 5/6 into data.time_scale['flags'] when the block exists and returns invalidates_sim true unconditionally	
+0093	*	half-landed	2026-08-28	audit-notes/0093.md	BLOCKED 2026-08-28, same product call as 0092: does Amendment 1 still bind? It is unbuilt in EVERY clause and its own Status says so; its consequence prose is present-tense and false. Held interactive, not rewritten
+0093	1	built	2026-08-28	global bottom-pinned pacing lane: EffectScoreModel._pacing_lane:277 'global':true, laid out LAST at EffectScoreTimeline:766	
+0093	2	built	2026-08-28	pacing_norm slowness map, greyed when the gating bit is clear	
+0093	3	built	2026-08-28	outline + per-column fill revision: pacing_top_points:1899 / pacing_fill_rects:1924, arms at EffectScoreTimelineTest:1602/1642/1656	
+0093	4	built	2026-08-28	pop-up painter at PACING_VMAX=10, played-window scope, whole-600-int per-stroke undo (TimeScaleChannel duplicates before_raw); transport accumulator EffectStudioPage:3960 -> pacing_factor_at:347	
+0101	*	complete	2026-08-28	audit-notes/0101.md	decs. 1-9 built and guarded; both amendments folded (2026-08-19 into dec. 6, 2026-08-20 promoted to dec. 9). One open fault survives, counted by the build's own ONE-WAY census
+0101	1	built	2026-08-28	ColorLowering.trade_durations is the trade's own chooser; clamp_boundary_duration is GONE from the tree (retired with its two callers). ColorLoweringTest + ColourBoundaryCorpusSweepTest + ColourBoundaryFarEdgeTest	
+0101	2	built	2026-08-28	the 8-grained trade is what trade_durations offers; ColourDragPristineTest pins the trade's idempotence, which dec. 1's exact total makes true	
+0101	3	built	2026-08-28	armed on palette/screen/camera - the begins_with('particle:') gate is gone. ColourMovePlan.plan refuses only 'a hold is empty space' and the wedged case; camera arm at CameraChannel.gd:369	
+0101	4	built	2026-08-28	priced, not gated: plan() takes free_slots and prices each rung. Guarded by ColourMoveTest._test_a_fine_slide_can_be_slid_straight_back and invariant 6 of ColourMoveCorpusSweepTest	
+0101	5	built	2026-08-28	no new chrome; the handle's own motion is the tell. Not separately mechanized - a UI property EffectColourMovePadAcceptanceTest observes by eye	
+0101	6	built	2026-08-28	narrowed by the 2026-08-19 amendment: _new_identity_keyframe mints an ENABLED d0 identity where the run is empty. _manufactured_hold_is_inert and both manufacture_* licences are DELETED; the 4 surviving mentions are prose	
+0101	7	built	2026-08-28	the emptied-run delete is in move_span on all three arms; EffectCameraMoveTest asserts the spacer is DELETED, not left at zero width. The index-0 stranding was the COPY's problem and retired with it	
+0101	8	built	2026-08-28	PaletteChannel.insert_event:351 and ScreenChannel:412 enforce the 33-slot cap at the verb; ColorLowering.gd:23 records that an over-insert is refused at the verb, not discovered by the saver	
+0101	9	built	2026-08-28	promoted from the 2026-08-20 amendment. EffectEditSession._is_structure_free_move; guarded by ColourStructureFreeDragTest + three page-level arms in EffectStudioEdgeDragWiringTest, both red against pre-fix code	assert a Move never lands a span where the span itself folds inert - reports 3 today (E510 for_each #0/#4, palette + screen) and fails, correctly
+0137	*	unaudited	2026-08-28	audit-notes/0137.md	
+0180	*	complete	2026-08-28	audit-notes/0180.md	Guard it | Leave it
+0180	1	unreviewed	2026-08-28	ALL SEVEN HOLD — the first clean result in this audit. dec. 1 is mechanized by tools/check_rosters_retired.py (4 arms, green: no autoload, no src/roster/, no roster USE, no assets/roster/ seed); dec. 	
+0180	2	unreviewed	2026-08-28	Guard feasibility: dec. 2 (no enemy_units accessor on CharacterCatalog) is a one-line text net over the same walk and is the arm that stops the symmetric-overlay shape ADR-0078 forbids being re-added;	Decision 2 is unguarded
+0180	3	unreviewed	2026-08-28	audit-notes/0180.md	Decision 3's boot scenario is unguarded and demonstrably fragile
+0180	4	unreviewed	2026-08-28	ALL SEVEN HOLD — the first clean result in this audit. dec. 1 is mechanized by tools/check_rosters_retired.py (4 arms, green: no autoload, no src/roster/, no roster USE, no assets/roster/ seed); dec. 	
+0180	5	unreviewed	2026-08-28	audit-notes/0180.md	
+0180	6	unreviewed	2026-08-28	audit-notes/0180.md	
+0180	7	unreviewed	2026-08-28	ALL SEVEN HOLD — the first clean result in this audit. dec. 1 is mechanized by tools/check_rosters_retired.py (4 arms, green: no autoload, no src/roster/, no roster USE, no assets/roster/ seed); dec. 	
+0181	*	complete	2026-08-28	audit-notes/0181.md	see audit-notes/0181.md#harvested-on-mechanizing
+0181	1	unreviewed	2026-08-28	Every decision holds three days after the build. dec. 1: NavigatorMain:360/:364 declare both path constants and the old single name has 0 occurrences. dec. 2: signal dismissed() :200, emit :2728 behin	
+0181	2	unreviewed	2026-08-28	Every decision holds three days after the build. dec. 1: NavigatorMain:360/:364 declare both path constants and the old single name has 0 occurrences. dec. 2: signal dismissed() :200, emit :2728 behin	
+0181	3	unreviewed	2026-08-28	Every decision holds three days after the build. dec. 1: NavigatorMain:360/:364 declare both path constants and the old single name has 0 occurrences. dec. 2: signal dismissed() :200, emit :2728 behin	
+0181	4	unreviewed	2026-08-28	audit-notes/0181.md	
+0181	5	unreviewed	2026-08-28	Every decision holds three days after the build. dec. 1: NavigatorMain:360/:364 declare both path constants and the old single name has 0 occurrences. dec. 2: signal dismissed() :200, emit :2728 behin	
+0181	6	unreviewed	2026-08-28	FormationDevBoot.gd + assets/scenes/FormationDev.tscn exist and classify_blueprint.py:243 books the boot `assembler` citing this ADR. dec. 6: still no Focus anywhere in src/ or addons/ — a live deferr	
+0188	*	complete	2026-08-28	Rewritten 2026-08-28 to state the now: three dated blocks and two inline correction blockquotes folded, Amendment 1 promoted to dec. 7, six existing bullets numbered 1-6 in place. Decs. 1-7 all built. See audit-notes/0188.md.	
+0188	1	built	2026-08-28	WorldMapScreenOut.value_at() restates the out arm (START_VALUE 32 + t*256/16, ceil 255) in integer arithmetic and bakes to 5-bit levels, so 255 lands on 248 = level 31, full black; land_tick() derives 14 rather than hardcoding it.	
+0188	2	built	2026-08-28	The class header states the unclaimed half in the same words: ADR-0174 read only the entry cue at 0x8006731C, and nothing establishes an exit fire. world_map.screen_out is the seam, default ON.	
+0188	3	built	2026-08-28	SCREEN_OUT_SLUG and SCREEN_OUT_DEFAULT live on WorldMapScreenOut; the class binds them from its own _static_init, kept there by tools/check_tune_owner_self_registration.py. The scene cannot host them - check_root_set.py check 4 reds on a call to an assembler.	
+0188	4	built	2026-08-28	Tune.on_update(self, SCREEN_OUT_SLUG, ...) in WorldMapScene._ready writes back to _screen_out_enabled, an instance var; SCREEN_OUT_DEFAULT stays the authored value, since a static var is process-global and mirroring would leak the scrub into every later mount.	
+0188	5	built	2026-08-28	_leave awaits _run_screen_out before dismissed.emit(). The loop is bounded in frames without progress off STALL_FRAMES (240) and screen_out_ticks(), checks is_inside_tree() on both sides of the await, and _leaving is a one-way latch on a single-use screen.	
+0188	6	built	2026-08-28	_run_screen_out returns when capture_path is non-empty, the same gate the music uses: _capture calls set_process(false), and the ramp is ticked from that clock.	
+0188	7	built	2026-08-28	Promoted from Amendment 1. CONTEXT.md 11-campaign-spine.md carries the Screen-out entry stating the ownership and the referent, and the Host cue _Avoid_ points at it. ADR-0172 is applied, not superseded.	
+0189	*	complete	2026-08-28	Decs. 1-9 built. UnitMaterial publishes for_variant/shader_for over a Variant enum; unit_flat.gdshader (177 lines) sits beside two 99-line entries over a 907-line include with no vertex()/fragment(); check_unit_shader_paths.py holds dec. 8.	
+0189	1	built	2026-08-28	unit_sprite_body.gdshaderinc publishes billboard() :535, unit_paint :856, unit_colour :892, unit_light :899 and defines no vertex()/fragment() (:597 records that); no UNIT_ADDITIVE, no #ifdef. Each entry writes its own.	
+0189	2	built	2026-08-28	The shared body is at assets/shaders/unit_sprite_body.gdshaderinc, not in addons/exmateria_schema/. CONTEXT.md -> Shader library still books it Tier 2, 'not in it and leaves with its own system'.	
+0189	3	built	2026-08-28	src/animation/UnitMaterial.gd: enum Variant :24, for_variant(variant) -> ShaderMaterial :43, shader_for(variant) -> Shader :52. FormationScene and ScenarioVM carry no shader-path const. SpriteLayerManager.initialize keeps its two-arg signature.	
+0189	4	built	2026-08-28	assets/shaders/unit_flat.gdshader exists carrying uid://cfwiu2dfki6ex; unit.gdshader and unit_additive.gdshader keep their names (99 lines each). Nothing remains under src/ui3/shaders/ for the unit sprite.	
+0189	5	built	2026-08-28	The dissolve is booked to Sprite Rig: classify_blueprint.py:328 books unit_flat.gdshader there. The gouraud corner tint modulates between psx_color_apply and ambient_brightness in that file; ColorRecipe gained no third shape.	
+0189	6	built	2026-08-28	The nine cj_* uniforms and cj_cell_noise() are declared in unit_flat.gdshader, not in the shared include. psx_par.gdshaderinc is included by unit.gdshader and unit_additive.gdshader only; the flat variant does not include it.	
+0189	7	built	2026-08-28	classify_blueprint.py:328 books unit_flat.gdshader and unit_additive.gdshader to Sprite Rig. check_par_shaders.py:135 carries the repathed BURN_DOWN entry. check_color_shaders.py REQUIRED_CONSUMERS now names five entry shaders.	
+0189	8	built	2026-08-28	tools/check_unit_shader_paths.py: VARIANT_PATHS names the three variant paths explicitly (not a unit*.gdshader glob), strips comments, and carries three ALLOWED rows each with a reason - UnitMaterial.gd and two tests, one the oracle.	
+0189	9	built	2026-08-28	Each of the three entry shaders carries one UNIT_ALPHA_CUTOFF discard; the shared include carries none. unit_flat's dissolve is a second discard after the coverage one. Promoted from Amendment 1, which says it was not in dec. 1.	
+0191	*	complete	2026-08-28	Rewritten 2026-08-28 to state the now: 4 amendments folded, decs. 11-13 promoted, 19 citations across 16 files retargeted in the same commit. 648 lines -> 352. See audit-notes/0191.md.	
+0191	1	built	2026-08-28	Fold.owns() is a static on addons/exmateria_schema/compositing_key/Fold.gd caching a tri-state _owns_cache off RenderingServer.is_compositor_layer_supported(). The tree-independence clause is UI3Element.z_for's restored is_inside_tree guard.	
+0191	2	built	2026-08-28	Fold.shader(folded: Shader, fallback: Shader) is two lines and takes no path. Its scope is the PICK; the wider silent-null hazard is dec. 11. TileCursor._setup_outline_producer spells the same call as an early return - no fallback shader exists.	
+0191	3	built	2026-08-28	CompositorAutopilot.owns_compositing() is gone from the tree; grep finds the name only in comments recording the deletion. The autopilot keeps its OWN RenderingServer query as FoldTest's independent oracle - deduping it makes that assert x == x.	
+0191	4	built	2026-08-28	CORRECTED MEASUREMENT. 16 shaders declare compositor_layer (grep on ^render_mode), not 29; 6 mechanical in TWO triplets, not 9 in three; unit_flat.gdshader was never in the population. The refusal rests on dec. 6's includes, not on the ratio.	
+0191	5	built	2026-08-28	No Fold.register. The kernel holds no res:// path and no lifecycle; the fold inventory is derived from the shaders by tools/check_compositor_routing.py.	
+0191	6	built	2026-08-28	assets/shaders/effect_fold_{add,mix,sub} are 4-line stubs over effect_particle_fold.gdshaderinc; EFFECT_STP_ALPHA has no #ifndef default. crystal_fold's PSX_FOLD_GAIN is exempt - the drift rule is a twin-pair rule and it has no twin.	
+0191	7	built	2026-08-28	The formation fold/scene pairs are still two shaders each: the fold twin clamps raw display-space colour and writes DEPTH, the scene twin does the sRGB round-trip and sets depth_test_disabled. check_no_pow_in_fold.py holds the split.	
+0191	8	built	2026-08-28	EngineFoldCompositor's and TileCursorCompositor's carrier-triplet const blocks are still in their own files, selecting on native_blend and blend mode. They hold preloaded Shader objects now under dec. 11 - same block, same question, new type.	
+0191	9	built	2026-08-28	No guard retired and no guard line deleted; the count is 13 -> 14 with check_fold_shader_preload.py. The original '1,965 lines' figure is DROPPED, not restated - it is not re-derivable and the 13 shader-scanning guards sum to 1,996.	
+0191	10	built	2026-08-28	tests/FoldTest.gd is the kernel spec in five sections: owns() against the autopilot oracle, both shader() branches, the add() contract, and dec. 12's off-fork no-op. A third Fold.add copy in FeedbackHudFoldRoutingTest is #649, not a silent extension.	
+0191	11	built	2026-08-28	Promoted from Amendment 4 SS2. A fold shader named from GDScript is a preloaded Shader, pick or not - dec. 2's silent-null leg scoped to the hazard, not the signature. check_fold_shader_preload.py is seeded on the SHADERS and scans tools/ and tests/.	
+0191	12	built	2026-08-28	Promoted from Amendment 4 SS3. Fold.add returns early when owns() is false, decorating nothing. render_layer is fork-only and RAISES on stock 4.7 - measured with a fork control arm. Two production paths (CrystalSprite3D._publish, Tile.gd) reached it ungated.	
+0191	13	built	2026-08-28	Promoted from Amendments 3 + 4 SS1. UIVitalsBand.build() takes no `folded` and asks Fold.owns() itself; the off-fork seam is the _owns_cache lever, not a producer parameter. Every census that missed this producer was seeded on the predicate it never names.	
+0197	*	complete	2026-08-28	Decs. 1-7 built. Every number recomputed from jobs.json + skill_sets.json independently of build_catalog: 160 -> 112 -> 51, id-dedup 81, SkillSet_00 24, Item rep 0x4b, Holy Sword 0x05. See audit-notes/0197.md.	
+0197	1	built	2026-08-28	AbilityCandidates.build_catalog(slot) is the picker's only source, called from FormationDetailTransition._open_ability_picker - the one call site in src/. No progression argument reaches it; it is unit-independent and pure.	
+0197	2	built	2026-08-28	_rsm_catalog keys AbilityDatabase.get_views_by_type and drops blank names. AbilityCandidatesTest asserts 31 / 29 / 23 from literals it derives from the asset data, matching 32-1, 32-3, 24-1.	
+0197	3	built	2026-08-28	Secondary emits one row per unique skillset NAME (rep dict keyed by name), 160 jobs -> 112 named -> 51 rows, guard pins 51. The 48 dropped have skill_set_id 176-223 against a 176-entry table. Absorbed the 2026-08-13 amendment; the drop is now stated.	
+0197	4	built	2026-08-28	_sorted sorts by name ascending with int(id) as the tie-break; AbilityPickerMenu renders name text only and scrolls a VISIBLE_ROWS := 5 window.	
+0197	5	built	2026-08-28	AbilityLoadout.commit_to_progression writes sub_job_id or _PROG_FIELD[slot] with no legality check of any kind.	
+0197	6	built	2026-08-28	AbilityLoadout.candidates is an instance method, alive, and called by both AbilityLoadoutTest and AbilityLoadoutProgressionTest. One wiring seam switched, so the revert is one line - but nothing asserts the seam is singular.	A grep-class arm asserting AbilityCandidates.build_catalog has exactly ONE call site in src/ would mechanize dec. 6's one-line-revert promise.
+0197	7	built	2026-08-28	_prefer_rep prefers a generic job (_GENERIC_JOB_LO 0x4A .. _GENERIC_JOB_HI 0x5D) over a non-generic and otherwise takes the lower id. Measured: Item -> 0x4b (not 0x35), generic-less Holy Sword -> 0x05. Promoted from the 2026-08-13 amendment as a new decision.	
+0198	*	unaudited	2026-08-28	audit-notes/0198.md	
+0223	*	complete	2026-09-04	Rewritten 2026-09-04 to state the now: 2 amendments folded, decs. 8-13 promoted, 34 citations across 34 files retargeted (Amendment 1 -> dec. 8) in the same commit. 416 lines -> 332 including the receipt.	
+0223	1	built	2026-09-04	outbound_reaches returns Reach(rel,kind,target,dst,dst_path,lines) as a NamedTuple in tools/score_goals.py; exactly three consumers unpack it.	
+0223	2	built	2026-09-04	record() excludes only dst_path.startswith(inside); score_goals.cross_system() is the named eleven-systems filter all three consumers apply.	
+0223	3	built	2026-09-04	NOTHING-MOVES gate held: goal #5's rendered line and check_addon_portability's full output byte-identical over all seven roots.	
+0223	4	built	2026-09-04	tools/check_addon_portability.py arm 7 -- a class_name under an addon root declared outside every addon root, predicate ^addons/[^/]+/ against dst_path, enforcing for every subject.	
+0223	5	built	2026-09-04	Arm 7's universe is the class_name shape alone; the other five shapes belong to arms 2, 2b, 3 and 6. _ARM6_REFERRERS makes the same move for the shader suffixes.	
+0223	6	built	2026-09-04	ARM7_BURN_DOWN is a named dict, both directions failing, stale scoped to the walk. EMPTY since #809 and deliberately still declared.	
+0223	7	built	2026-09-04	The two rows stayed two pieces of work and were paid by two different fixes; the destination half was corrected by dec. 8.	
+0223	8	built	2026-09-04	JsonAsset lives at addons/exmateria_platform/json/JsonAsset.gd, published as ExMateriaPlatform.JsonAsset. Reverses dec. 7's exmateria_schema destination; ADR-0217 dec. 16 had ruled it.	
+0223	9	built	2026-09-04	class_name dropped, const JsonAsset = preload() on the platform facade, 32 alias lines (23 src/, 4 tests/, 5 in exmateria_sprite_rig). check_addon_globals BURN_DOWN still 0 for both addons.	
+0223	10	built	2026-09-04	ARM7_BURN_DOWN's note names the destination, the owning pass and the deciding ADRs; the register emptied with the note intact.	
+0223	11	built	2026-09-04	tools/test_check_addon_portability.py::_a_host_class_name derives the seed subject at run time under two predicates (declared under src/, classify not in SYSTEMS); two seeds had borrowed JsonAsset.	
+0223	12	built	2026-09-04	Arm 7's and arm 6's shipped-register controls discriminate on the register instead of asserting a heading; both directions asserted. 69 tests OK.	
+0223	13	built	2026-09-04	check_addon_globals reads a src/*.gd path in a facade constant's doc block as a citation (ADR-0210 dec. 1); the doc blocks name the former directory, not the file.	
+0269	*	complete	2026-09-09	TurnQueueHudTest 11 arms / 86 assertions green; 4 seeds (band width, close barrier, shuffle barrier, PARENT_APERTURE) redden only their own arms; capture rig + a lit Gariland looked at after every visual step. See audit-notes/0269.md.	
+0269	1	built	2026-09-09	src/ui3/TurnQueueHud.gd _build_bar/_spawn_card: the bar and every card are UI3Element.new({...}). The bar is now the BAND's carrier (OWN_APERTURE + BOX_OPEN over the screen's span); cards own their own apertures and are its SIBLINGS under the strip root.	
+0269	2	built	2026-09-09	turn_queue_team_underlay.gdshader + TurnQueueHud.team_tint; TurnQueueHudTest arm 3 asserts the two teams tint differently and that two same-team cards match. The Enemy word cell and its shader are DELETED.	
+0269	3	built	2026-09-09	Card spec transition=BOX_OPEN + clip=OWN_APERTURE; _advance_step chains close -> shuffle -> open on the elements' closed/moved signals, no clock. Arm 8 reads the three step INDICES off one walk; arm 9 the card aperture reaching portrait AND underlay.	
+0269	4	built	2026-09-09	UI3Element.move_to_answer + _move_onto; cards answer rect with derived([scale, spacing, pad]).	
+0269	5	built	2026-09-09	UI3MoveSlideBeat.Cadence.BACK + back_overshoot/back_frames binds; arm 10 the curve, arm 8 that the CARD declares it. Dec. 3 deleted the off-screen entrance, so the ~3.9px one-slot shuffle is now the only journey s=1.9 is priced against.	
+0269	6	built	2026-09-09	TurnQueueHud._reconcile; arm 8 asserts survivor identity across a shuffle, that they walk rather than snap, and that the walk starts only after the head's close finished.	
+0269	7	built	2026-09-09	Frame.MENU_TILE on the CARD spec (bar = Frame.NONE) + _build_band/UIVitalsBand under the bar; arm 2 asserts card chrome, bare bar, and that the band spans the SCREEN (x0 negative, derived by _screen_span_px). Band verified SUBTRACTIVE on a lit battlefield.	
+0269	8	built	2026-09-09	TurnQueueHud._sync_open / set_battle_live / set_covered; NavigatorMain._on_runner_state_changed drives the battle gate, both hosts' _set_screen_pause the cover gate. The open is two-stage: band, then cards. Arm 11 the gates, arm 9 the order.	
+0269	9	built	2026-09-09	TurnQueueHud.MAX_CARDS_SLUG (turnqueue.max_cards, default 8), no truncation warning; arm 5 asserts the cap trims AND that a live scrub re-runs the last forecast through the new number.	

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c8spdfld5acpt"]
+
+[ext_resource type="Script" path="res://tests/EffectStudioSpeedFieldAcceptanceTest.gd" id="1"]
+
+[node name="EffectStudioSpeedFieldAcceptanceTest" type="Node"]
+script = ExtResource("1")

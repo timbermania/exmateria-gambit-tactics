@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://fold_surface_test"]
+
+[ext_resource type="Script" path="res://tests/FoldSurfaceTest.gd" id="1_test"]
+
+[node name="FoldSurfaceTest" type="Node"]
+script = ExtResource("1_test")

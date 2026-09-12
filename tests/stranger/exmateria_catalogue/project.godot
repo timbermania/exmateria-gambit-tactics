@@ -1,0 +1,64 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_almanac/project.godot`; this is that rig pointed at
+; the SEVENTH in-walk addon, not a seventh invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; `config/name` is not decoration: `tests/stranger/shared/stranger_install.gd`
+; reads it to learn which of the staged addons is the SUBJECT. This rig stages
+; FOUR — the subject plus the three `plugin.cfg` declares as deps
+; (`exmateria_almanac`, `exmateria_platform`, `exmateria_schema`) — so "the
+; only addon here" is not a reading that works, and this is the largest declared
+; dependency set in the corpus.
+;
+; 🔴 THE COUNT WENT WRONG AT #1180 AND THE NAMES WERE WRONG FROM #1071, AND #1239 FIXED
+; BOTH. #1180 added `exmateria_schema` to `deps=` without touching this header, so the rig
+; staged FIVE while this file said FOUR — a short window, 14 commits (4 on first-parent)
+; and the same day, 2026-09-11. The NAMES were stale far longer: `exmateria_sprite_rig`
+; stopped being reached at #1071 on 2026-09-09 (ADR-0272), 474 commits back (110 on
+; first-parent, measured to `e194f8a80`). #1239 dropped it, so the count is true again —
+; but do not read that as "the prose kept up": it is two errors that happened to cancel.
+; `rig.sh` reads `plugin.cfg` and stages the transitive CLOSURE, so this header has never
+; been what makes the staging correct; it is a claim ABOUT the staging, and the run's own
+; banner is what settles it.
+;
+; 🔴 THE ADDON IS NOT ENABLED HERE, AND FOR THIS ADDON THAT IS A CLAIM ABOUT THE
+; AUTOLOAD RATHER THAN A FORMALITY. `plugin.gd` registers `CharacterCatalog`, and
+; enabling a plugin is an EDITOR action — so a rig that ran with it enabled would
+; be measuring the editor, not the install. What is measured instead is the thing
+; a consumer actually depends on: every member PARSES with no autoload present.
+; The autoload is reached at runtime through `get_node_or_null(^"CharacterCatalog")`
+; and by no parse-time route, which is why that holds — and it is the same reading
+; the almanac rig makes about `plugin.gd` doing nothing at all.
+;
+; 🔴 FOUR JSON PAYLOADS ARE INSIDE THE ADDON AND TWO CONTENT TREES ARE NOT, AND
+; THIS RIG IS THE ONLY INSTRUMENT THAT CAN TELL THE TWO APART (ADR-0262 S4).
+; `identity/unit_names.json`, `identity/unit_birthdays.json`,
+; `templates/template_residue.json` and `seeding/template_jobs.json` travelled with
+; their readers (ADR-0251 dec. 2), so a stranger project shipping no `assets/` at
+; all still gets working name, birthday, residue and job tables. Had one been left
+; behind, nothing in `tools/` would say so: the path moved with the reader, no arm-6
+; row appears, and the failure is a silent empty load at runtime. The two trees that
+; could NOT travel are gitignored host content and are declared, not shipped — with
+; no `exmateria_catalogue/content_root` in this file, `install/CatalogueContent.gd`
+; refuses once and names the setting, which is ADR-0202 dec. 5's legible failure
+; instead of a silent empty load.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_catalogue"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

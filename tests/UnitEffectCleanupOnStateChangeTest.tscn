@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://unit_effect_cleanup_state_test"]
+
+[ext_resource type="Script" path="res://tests/UnitEffectCleanupOnStateChangeTest.gd" id="1_test"]
+
+[node name="UnitEffectCleanupOnStateChangeTest" type="Node"]
+script = ExtResource("1_test")

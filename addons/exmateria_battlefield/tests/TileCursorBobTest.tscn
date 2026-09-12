@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://tile_cursor_bob_test"]
+
+[ext_resource type="Script" path="res://addons/exmateria_battlefield/tests/TileCursorBobTest.gd" id="1_test"]
+
+[node name="TileCursorBobTest" type="Node"]
+script = ExtResource("1_test")

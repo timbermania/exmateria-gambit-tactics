@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://dcuxclvngr86s"]
+
+[ext_resource type="Script" uid="uid://bp0gonqj58jtf" path="res://addons/exmateria_battlefield/camera/PlayerCamera.gd" id="1_v4w7p"]
+[ext_resource type="Shader" uid="uid://bww1wcgo7ssgh" path="res://addons/exmateria_battlefield/camera/screen_background.gdshader" id="2_bg_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bg"]
+render_priority = -100
+shader = ExtResource("2_bg_shader")
+shader_parameter/color_tl = Color(0, 0, 0, 1)
+shader_parameter/color_tr = Color(0, 0, 0, 1)
+shader_parameter/color_bl = Color(0, 0, 0, 1)
+shader_parameter/color_br = Color(0, 0, 0, 1)
+shader_parameter/tint_color = Color(0, 0, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_bg"]
+size = Vector2(40, 20)
+
+[node name="PlayerCamera" type="CharacterBody3D"]
+script = ExtResource("1_v4w7p")
+
+[node name="FocusPoint" type="Node3D" parent="."]
+
+[node name="Camera" type="Camera3D" parent="FocusPoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 100)
+projection = 1
+current = true
+size = 12.6
+near = 0.01
+far = 530.49
+
+; ⚠️ THERE IS NO `CombatUI` HERE ANY MORE, AND IT MUST NOT COME BACK. This scene declared
+; `res://assets/scenes/CombatUI.tscn` and instanced it at `FocusPoint/Camera` — the addon's
+; camera scene owning the host's entire combat UI, ADR-0202's Class C and the last row on
+; the install register. ADR-0204 moved it up one layer into `res://assets/scenes/
+; CombatCamera.tscn`, a host-owned INHERITED SCENE of this one, and all 107 consumers now
+; instance that. `FocusPoint/Camera` is still the node the UI hangs from; the host is what
+; hangs it there. Re-adding the instance here re-opens the row.
+[node name="ScreenBackground" type="MeshInstance3D" parent="FocusPoint/Camera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -100)
+material_override = SubResource("ShaderMaterial_bg")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_bg")
+

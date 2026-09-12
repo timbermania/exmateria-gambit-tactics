@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b8scplcmtdat0"]
+
+[ext_resource type="Script" path="res://tests/ScenarioPlacementDataTest.gd" id="1"]
+
+[node name="ScenarioPlacementDataTest" type="Node"]
+script = ExtResource("1")

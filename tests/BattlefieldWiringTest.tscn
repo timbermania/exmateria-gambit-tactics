@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://tests/BattlefieldWiringTest.gd" id="1_test"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="2_map"]
+
+[node name="BattlefieldWiringTest" type="Node3D"]
+script = ExtResource("1_test")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("2_map")]

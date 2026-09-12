@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b_dlg_overlay_test_01"]
+
+[ext_resource type="Script" path="res://tests/DialogueOverlayTest.gd" id="1_test"]
+
+[node name="DialogueOverlayTest" type="Node"]
+script = ExtResource("1_test")

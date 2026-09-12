@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b2mdxccvehh3g"]
+
+[ext_resource type="Script" path="res://tests/RenderCardinalConverterTest.gd" id="1_rccvt"]
+
+[node name="RenderCardinalConverterTest" type="Node"]
+script = ExtResource("1_rccvt")

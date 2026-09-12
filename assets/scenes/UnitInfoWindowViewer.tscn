@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://unit_info_window_viewer"]
+
+[ext_resource type="Script" path="res://src/scenes/UnitInfoWindowViewer.gd" id="1_view"]
+
+[node name="UnitInfoWindowViewer" type="Node3D"]
+script = ExtResource("1_view")

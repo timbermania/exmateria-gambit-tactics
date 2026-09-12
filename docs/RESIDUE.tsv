@@ -1,0 +1,38 @@
+# derived over: src, assets, addons/exmateria_schema, addons/exmateria_render, addons/exmateria_battlefield, addons/exmateria_platform, addons/exmateria_sprite_rig, addons/exmateria_almanac, addons/exmateria_catalogue  — a file outside these roots CANNOT appear here; its absence is not evidence (ADR-0149, amended)
+# NOT the subject, and therefore invisible here: Audio (exmateria-sound/addons/exmateria_sound); Audio (exmateria-sound/addons/exmateria_spu)  — an extracted package the walk REPORTS rather than enters (ADR-0153 dec. 1). `no rows` about it is not `no residue` in it.
+# addon-owned tests are INSIDE these roots and are deliberately not the subject: 21 files under `addons/<name>/tests/` (ADR-0194 dec. 2). Nothing reaches a test from a declared root, so a subject containing them would report every one as `orphan`.
+file	bucket	class	lines	claims
+src/scenes/ProgressionTester.gd	assembler	declined	1497	assets:1
+src/debug/UnitAnimationViewerPanel.gd	Battle	declined	454	cluster:1
+addons/exmateria_battlefield/lattice/TerrainFixture.gd	Battlefield	test	343	test:16,addons:1
+src/ui3/testing/CombatUIDebugPanel.gd	UI	declined	336	tool:1,cluster:1
+src/effects/studio/CurveGenerators.gd	Effects	test	250	test:3
+src/debug/EffectTimelineView.gd	Effects	orphan	237	-
+src/audio/SfxStressTest.gd	Audio	declined	216	tool:1,assets:1
+src/scenes/FireCastReproScene.gd	assembler	declined	212	assets:1
+src/ui3/testing/CombatUITestScene.gd	UI	declined	194	assets:1
+src/scenes/ProjectileTester.gd	assembler	declined	193	tool:1,assets:1
+src/effects/PSXDitherCurves.gd	Effects	orphan	159	-
+src/ui3/UI3RegistrationAudit.gd	UI	test	146	test:6
+src/scenes/UnitAnimationViewerScene.gd	assembler	declined	138	assets:2
+src/audio/SfxBankTestScene.gd	Audio	declined	131	assets:1
+src/audio/FEDSTestScene.gd	Audio	declined	116	assets:1
+src/debug/ColorTimelineModel.gd	Effects	test	115	test:1,cluster:1
+src/scenes/DepthDebugScene.gd	assembler	declined	115	tool:1,assets:1
+src/audio/AttackSfxTestScene.gd	Audio	declined	109	assets:1
+assets/shaders/bitmap_char_3d.gdshader	UI	orphan	108	-
+src/scenes/RangeTileAtlasViewer.gd	assembler	declined	90	tool:1,assets:1
+src/debug/EffectTimelineModel.gd	Effects	test	88	test:1,cluster:1
+src/ui3/testing/UICompileTest.gd	UI	orphan	82	-
+addons/exmateria_almanac/encounters/EntdPositionDatabase.gd	content	test	71	test:1,addons:1
+src/debug/FireCastReproPanel.gd	Effects	declined	70	cluster:1
+src/audio/SMDTestScene.gd	Audio	declined	68	assets:1
+src/scenes/UnitInfoWindowViewer.gd	assembler	declined	56	tool:1,assets:1
+src/ui3/detail/StartActionMenuBoot.gd	assembler	declined	54	tool:1,src:1
+addons/exmateria_sprite_rig/resources/ResourceHotReload.gd	Sprite Rig	declined	53	cluster:1,addons:1
+src/debug/FuncTracer.gd	Debug	tool	43	tool:1,cluster:1
+assets/shaders/cursor_clut_preview.gdshader	Battlefield	test	24	test:1
+addons/exmateria_render/debug/depth_debug.gdshader	Render	declined	19	cluster:1
+src/ui3/shaders/formation_solid.gdshader	UI	test	17	test:1
+src/debug/FuncTracerDumper.gd	Debug	tool	13	tool:2
+assets/shaders/ui_nearest.gdshader	UI	orphan	10	-

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/stranger/exmateria_sprite_rig/stranger_sequence_viewer.gd" id="1_arm"]
+
+[node name="StrangerSequenceViewer" type="Node"]
+script = ExtResource("1_arm")

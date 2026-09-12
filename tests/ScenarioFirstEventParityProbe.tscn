@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_scn_first_event_parity_probe"]
+
+[ext_resource type="Script" path="res://tests/ScenarioFirstEventParityProbe.gd" id="1_probe"]
+
+[node name="ScenarioFirstEventParityProbe" type="Node3D"]
+script = ExtResource("1_probe")

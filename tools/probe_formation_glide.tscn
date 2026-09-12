@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://probe_formation_glide"]
+
+[ext_resource type="Script" path="res://tools/probe_formation_glide.gd" id="1_probe"]
+
+[node name="ProbeFormationGlide" type="Node"]
+script = ExtResource("1_probe")

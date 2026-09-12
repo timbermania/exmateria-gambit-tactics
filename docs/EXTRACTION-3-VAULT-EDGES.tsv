@@ -1,0 +1,32 @@
+note	src	dst
+Background Opcode	assets/shaders/screen_background.gdshader	addons/exmateria_battlefield/camera/screen_background.gdshader
+Color Screen Opcode	src/map/TileOverlayConfig.gd	addons/exmateria_battlefield/overlay/TileOverlayConfig.gd
+Color Tint Luma Modes	assets/shaders/indexed_color.gdshader	addons/exmateria_battlefield/texturing/indexed_color.gdshader
+Color Tint Luma Modes	src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd
+Combat Color Appliers	src/core/MapIlluminationDDA.gd	addons/exmateria_battlefield/texturing/MapIlluminationDDA.gd
+Display Space Blend Fold	assets/shaders/cursor_fold.gdshaderinc	addons/exmateria_battlefield/cursor/cursor_fold.gdshaderinc
+Display Space Blend Fold	assets/shaders/indexed_color.gdshader	addons/exmateria_battlefield/texturing/indexed_color.gdshader
+Display Space Blend Fold	assets/shaders/tile_overlay.gdshaderinc	addons/exmateria_battlefield/overlay/tile_overlay.gdshaderinc
+Display Space Blend Fold	src/map/DynamicGeometryBuilder.gd	addons/exmateria_battlefield/terrain/DynamicGeometryBuilder.gd
+Display Space Blend Fold	src/map/Tile.gd	addons/exmateria_battlefield/lattice/Tile.gd
+Display Space Blend Fold	src/scenes/TileCursor.gd	addons/exmateria_battlefield/cursor/TileCursor.gd
+Event Opcode Catalog	src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd
+GTE World-to-Screen Transform	src/debug/MapGridOverlay.gd	addons/exmateria_battlefield/debug/MapGridOverlay.gd
+Map Animation Systems	src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd
+Map Animation Systems	src/map/MapTextureAnimator.gd	addons/exmateria_battlefield/texturing/MapTextureAnimator.gd
+Map Darkness Opcode	src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd
+Map Darkness Opcode	src/map/MapLightingConfig.gd	addons/exmateria_battlefield/assembly/MapLightingConfig.gd
+Map Darkness Opcode	src/map/MapStateSelector.gd	addons/exmateria_battlefield/assembly/MapStateSelector.gd
+Map State Selection	src/map/MapComposer.gd	addons/exmateria_battlefield/assembly/MapComposer.gd
+Map State Selection	src/map/MapStateSelector.gd	addons/exmateria_battlefield/assembly/MapStateSelector.gd
+Map Tint	assets/shaders/indexed_color.gdshader	addons/exmateria_battlefield/texturing/indexed_color.gdshader
+Map Tint	src/core/MapIlluminationDDA.gd	addons/exmateria_battlefield/texturing/MapIlluminationDDA.gd
+Map Tint	src/map/DynamicGeometryBuilder.gd	addons/exmateria_battlefield/terrain/DynamicGeometryBuilder.gd
+Scenario Camera Framing	assets/shaders/indexed_color.gdshader	addons/exmateria_battlefield/texturing/indexed_color.gdshader
+Scenario Camera Framing	src/scenes/PlayerCamera.gd	addons/exmateria_battlefield/camera/PlayerCamera.gd
+Terrain Render Pipeline	src/map/DynamicGeometryBuilder.gd	addons/exmateria_battlefield/terrain/DynamicGeometryBuilder.gd
+Tile Overlay	assets/shaders/tile_overlay.gdshaderinc	addons/exmateria_battlefield/overlay/tile_overlay.gdshaderinc
+Tile Overlay	src/map/Tile.gd	addons/exmateria_battlefield/lattice/Tile.gd
+Tile Overlay	src/map/TileOverlayConfig.gd	addons/exmateria_battlefield/overlay/TileOverlayConfig.gd
+Tile Overlay	src/scenes/TileCursor.gd	addons/exmateria_battlefield/cursor/TileCursor.gd
+Walk To Opcode	src/scenarios/EventPathfinder.gd	addons/exmateria_battlefield/pathfinding/EventPathfinder.gd

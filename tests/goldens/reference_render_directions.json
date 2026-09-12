@@ -1,0 +1,245 @@
+{
+  "_note": "Phase-0 render-direction oracle (#137, ADR-0057). Regenerate: godot --path . res://tests/ReferenceRenderDirectionTest.tscn -- --record",
+  "pose_octant_offset": 0,
+  "scenes": {
+    "academy": {
+      "facings": {
+        "0": {
+          "angle": 0,
+          "facing_dir": "EAST",
+          "octant_by_cam": {
+            "0": 12,
+            "1024": 0,
+            "2048": 4,
+            "3072": 8
+          },
+          "variant_by_quad": [
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            }
+          ]
+        },
+        "1": {
+          "angle": 1024,
+          "facing_dir": "SOUTH",
+          "octant_by_cam": {
+            "0": 0,
+            "1024": 4,
+            "2048": 8,
+            "3072": 12
+          },
+          "variant_by_quad": [
+            {
+              "revert": false,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            }
+          ]
+        },
+        "2": {
+          "angle": 2048,
+          "facing_dir": "WEST",
+          "octant_by_cam": {
+            "0": 4,
+            "1024": 8,
+            "2048": 12,
+            "3072": 0
+          },
+          "variant_by_quad": [
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            }
+          ]
+        },
+        "3": {
+          "angle": 3072,
+          "facing_dir": "NORTH",
+          "octant_by_cam": {
+            "0": 8,
+            "1024": 12,
+            "2048": 0,
+            "3072": 4
+          },
+          "variant_by_quad": [
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": false
+            }
+          ]
+        }
+      },
+      "scenario_id": 8
+    },
+    "chapel": {
+      "facings": {
+        "0": {
+          "angle": 0,
+          "facing_dir": "EAST",
+          "octant_by_cam": {
+            "0": 12,
+            "1024": 0,
+            "2048": 4,
+            "3072": 8
+          },
+          "variant_by_quad": [
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            }
+          ]
+        },
+        "3": {
+          "angle": 3072,
+          "facing_dir": "NORTH",
+          "octant_by_cam": {
+            "0": 8,
+            "1024": 12,
+            "2048": 0,
+            "3072": 4
+          },
+          "variant_by_quad": [
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": false
+            }
+          ]
+        }
+      },
+      "scenario_id": 1
+    },
+    "orbonne": {
+      "facings": {
+        "0": {
+          "angle": 0,
+          "facing_dir": "EAST",
+          "octant_by_cam": {
+            "0": 12,
+            "1024": 0,
+            "2048": 4,
+            "3072": 8
+          },
+          "variant_by_quad": [
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            }
+          ]
+        },
+        "2": {
+          "angle": 2048,
+          "facing_dir": "WEST",
+          "octant_by_cam": {
+            "0": 4,
+            "1024": 8,
+            "2048": 12,
+            "3072": 0
+          },
+          "variant_by_quad": [
+            {
+              "revert": false,
+              "use_back": true
+            },
+            {
+              "revert": false,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": false
+            },
+            {
+              "revert": true,
+              "use_back": true
+            }
+          ]
+        }
+      },
+      "scenario_id": 4
+    }
+  }
+}

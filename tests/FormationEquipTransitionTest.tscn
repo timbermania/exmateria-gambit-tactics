@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_equip_transition_test"]
+
+[ext_resource type="Script" path="res://tests/FormationEquipTransitionTest.gd" id="1_test"]
+
+[node name="FormationEquipTransitionTest" type="Node3D"]
+script = ExtResource("1_test")

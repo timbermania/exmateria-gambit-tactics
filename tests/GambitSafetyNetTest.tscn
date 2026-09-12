@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://gambit_safety_net_test"]
+
+[ext_resource type="Script" path="res://tests/GambitSafetyNetTest.gd" id="1_test"]
+
+[node name="GambitSafetyNetTest" type="Node"]
+script = ExtResource("1_test")

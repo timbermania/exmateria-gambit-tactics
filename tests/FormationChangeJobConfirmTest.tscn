@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dvw37gbt3j6gh"]
+
+[ext_resource type="Script" path="res://tests/FormationChangeJobConfirmTest.gd" id="1_cj"]
+
+[node name="FormationChangeJobConfirmTest" type="Node3D"]
+script = ExtResource("1_cj")

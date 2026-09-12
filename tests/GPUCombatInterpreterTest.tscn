@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://gpu_combat_interpreter_test"]
+
+[ext_resource type="Script" path="res://tests/GPUCombatInterpreterTest.gd" id="1_test"]
+
+[node name="GPUCombatInterpreterTest" type="Node"]
+script = ExtResource("1_test")

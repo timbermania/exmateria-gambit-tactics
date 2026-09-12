@@ -1,0 +1,40 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_schema/project.godot`; this is that rig pointed at a
+; second in-walk addon, not a second invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; THE ADDON IS NOT ENABLED HERE, and that is deliberate — but since ADR-0220 it is
+; no longer true that the addon installs NOTHING. Its `plugin.gd` still registers no
+; autoload and no singleton, and a consumer uses it by naming `ExMateriaPlatform` —
+; the addon's ONE global name since ADR-0212 dec. 1, carrying `TunePort`,
+; `DisplayPort` and `PsxNum` as constants — by resolving `PSXDisplay` at the node
+; path the host registers it on, and by `#include`ing its `.gdshaderinc` seams. A
+; project that did nothing for it must still be able to do exactly that, and that is
+; what the un-enabled state measures.
+;
+; WHAT IT DOES INSTALL is six `[shader_globals]` entries, one for each `global
+; uniform` it declares (ADR-0220 dec. 1/2). `PlatformProvidesTest.tscn` is the
+; oracle for that write, and it CALLS `provide_into` against a double rather than
+; waiting for an enable — which is the only way to reach it, here or in the host,
+; since neither project has an `[editor_plugins]` section. So this rig measures both
+; halves: the seams work un-enabled, and the provide is real when it runs.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_platform"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

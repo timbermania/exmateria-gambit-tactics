@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_portrait_callsite_routing_test_01"]
+
+[ext_resource type="Script" path="res://tests/PortraitCallSiteRoutingTest.gd" id="1_test"]
+
+[node name="PortraitCallSiteRoutingTest" type="Node3D"]
+script = ExtResource("1_test")

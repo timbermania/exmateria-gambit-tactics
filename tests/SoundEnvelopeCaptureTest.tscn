@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b8sndenvcap0t"]
+
+[ext_resource type="Script" path="res://tests/SoundEnvelopeCaptureTest.gd" id="1"]
+
+[node name="SoundEnvelopeCaptureTest" type="Node"]
+script = ExtResource("1")

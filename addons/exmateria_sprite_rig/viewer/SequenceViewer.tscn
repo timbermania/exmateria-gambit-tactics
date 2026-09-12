@@ -1,0 +1,244 @@
+[gd_scene format=3 uid="uid://dy4l52xv6k3wy"]
+
+; The rig's own exerciser — ADR-0217 dec. 4/10, moved here by #744. It ships INSIDE the
+; addon: it is the scene that drives the whole sprite rig by hand, and an addon whose
+; exerciser lives in the host cannot be exercised where the host is absent (goal #5).
+;
+; 🔴 THE THREE TEXTURE LINES ARE GONE, NOT MOVED (P4). This scene authored
+; `type1_tex`/`wep1_tex`/`eff1_tex` against `res://assets/sprites/textures/{01,WEP1,EFF1}.tga`.
+; Carrying them in would have put three host content addresses INSIDE the addon on the
+; day #744 drove P4 to zero. They were already dead weight: `SequenceViewer.gd` resolves
+; the body sheet through `SpriteRigContentRoot.textures_dir()` and calls
+; `sprite_layers.load_sprite_texture()` (:569-571), and `SpriteLayerManager` lazily loads
+; WEP1/EFF1 through the same content root — so every texture this viewer has ever shown
+; came from the port, and the authored ones only decided what the EDITOR preview looked
+; like. Same call as `UnitRig.tscn`'s.
+
+[ext_resource type="Script" uid="uid://g8nwj3on84po" path="res://addons/exmateria_sprite_rig/viewer/SequenceViewer.gd" id="1_script"]
+[ext_resource type="Shader" uid="uid://cw3b5wdcumh7v" path="res://addons/exmateria_sprite_rig/render/unit.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_viewer"]
+render_priority = 0
+shader = ExtResource("2_shader")
+shader_parameter/ot_units_per_bucket = 0.19
+shader_parameter/ot_unit_forward = 0.1
+shader_parameter/ot_tile_overlay_forward = 0.05
+shader_parameter/ot_map_skirt_back = -0.02
+shader_parameter/ot_fixed_front = 0.9999
+shader_parameter/ot_fixed_16 = 0.999
+shader_parameter/ot_fixed_back = 0.0001
+shader_parameter/debug_show_depth = false
+shader_parameter/depth_center_height = 0.9
+shader_parameter/body_palette_row = 0
+shader_parameter/wep1_palette_row = 0
+shader_parameter/eff1_palette_row = 0
+shader_parameter/mesh_size = Vector2(1, 1)
+shader_parameter/type1_tex_size = Vector2(256, 488)
+shader_parameter/wep1_tex_size = Vector2(256, 488)
+shader_parameter/eff1_tex_size = Vector2(256, 488)
+shader_parameter/type1_rects = [Vector2(80, 104), Vector2(96, 40), Vector2(56, 104)]
+shader_parameter/type1_rect_sizes = [Vector2(24, 24), Vector2(32, 40), Vector2(24, 24)]
+shader_parameter/type1_locs = [Vector2(-9, -25), Vector2(-17, -33), Vector2(-17, -22)]
+shader_parameter/type1_loc_offsets = [Vector2(100, 100), Vector2(100, 100), Vector2(100, 100)]
+shader_parameter/type1_inversions = [false, false, false]
+shader_parameter/type1_reversions = [false, false, false]
+shader_parameter/type1_rotations = [0.0, 0.0, 0.0]
+shader_parameter/type1_rot_points = [Vector2(100, 100), Vector2(100, 100), Vector2(100, 100)]
+shader_parameter/wep1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep_enable = false
+shader_parameter/wep_on_top = false
+shader_parameter/eff_enable = false
+shader_parameter/eff_on_top = false
+shader_parameter/shared_loc_offset = Vector2(24, 26)
+shader_parameter/priority = [0, 1, 2, 3]
+shader_parameter/global_reversion = false
+shader_parameter/ambient_brightness = 1.4
+shader_parameter/unit_tint = Vector3(0, 0, 0)
+
+[sub_resource type="QuadMesh" id="QuadMesh_viewer"]
+material = SubResource("ShaderMaterial_viewer")
+
+[node name="SequenceViewer" type="Node3D" unique_id=819907561]
+script = ExtResource("1_script")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=258280270]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+projection = 1
+size = 3.6
+
+[node name="SpriteMesh" type="MeshInstance3D" parent="." unique_id=1482620248]
+transform = Transform3D(7.999798, 0.04833153, -0.029976375, -0.04823246, 7.9998107, 0.026467245, 0.03013552, -0.026285902, 7.9999, -0.0013370514, 0.0051059723, -0.0024473667)
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_viewer")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1430797158]
+
+[node name="UI" type="Control" parent="CanvasLayer" unique_id=1980683397]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HSplitContainer" type="HSplitContainer" parent="CanvasLayer/UI" unique_id=713201979]
+visible = false
+layout_mode = 0
+
+[node name="LeftPanel" type="PanelContainer" parent="CanvasLayer/UI" unique_id=511898503]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 280.0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/UI/LeftPanel" unique_id=1716126520]
+layout_mode = 2
+
+[node name="SpriteTypeLabel" type="Label" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=1101703115]
+layout_mode = 2
+text = "Sprite Type:"
+
+[node name="SpriteTypeDropdown" type="OptionButton" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=1878919753]
+layout_mode = 2
+
+[node name="SpriteIDLabel" type="Label" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=1475811124]
+layout_mode = 2
+text = "Sprite ID (hex):"
+
+[node name="SpriteIDInput" type="LineEdit" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=1405605113]
+layout_mode = 2
+text = "01"
+placeholder_text = "e.g. 88"
+
+[node name="LoadSpriteButton" type="Button" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=304244229]
+layout_mode = 2
+text = "Load Sprite"
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=670822003]
+layout_mode = 2
+
+[node name="LayerTabs" type="TabBar" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=710174800]
+layout_mode = 2
+current_tab = 0
+tab_count = 3
+tab_0/title = "type1"
+tab_1/title = "wep1"
+tab_2/title = "eff1"
+
+[node name="SequenceList" type="ItemList" parent="CanvasLayer/UI/LeftPanel/VBox" unique_id=549910046]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RightPanel" type="PanelContainer" parent="CanvasLayer/UI" unique_id=700450673]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/UI/RightPanel" unique_id=154728822]
+layout_mode = 2
+
+[node name="PlaybackControls" type="HBoxContainer" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=1820038968]
+layout_mode = 2
+
+[node name="PlayPauseButton" type="Button" parent="CanvasLayer/UI/RightPanel/VBox/PlaybackControls" unique_id=449485978]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pause"
+
+[node name="StepBackButton" type="Button" parent="CanvasLayer/UI/RightPanel/VBox/PlaybackControls" unique_id=1564747617]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "<"
+
+[node name="StepForwardButton" type="Button" parent="CanvasLayer/UI/RightPanel/VBox/PlaybackControls" unique_id=1122400521]
+layout_mode = 2
+size_flags_horizontal = 3
+text = ">"
+
+[node name="ResetButton" type="Button" parent="CanvasLayer/UI/RightPanel/VBox/PlaybackControls" unique_id=1476571491]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reset"
+
+[node name="FrameLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=590222106]
+layout_mode = 2
+text = "Frame:"
+
+[node name="FrameSlider" type="HSlider" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=432460719]
+layout_mode = 2
+
+[node name="SpeedLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=512625629]
+layout_mode = 2
+text = "Speed:"
+
+[node name="SpeedSlider" type="HSlider" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=1992463158]
+layout_mode = 2
+min_value = 0.1
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="InfoLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=2126297033]
+layout_mode = 2
+size_flags_vertical = 3
+text = "No sequence selected"
+
+[node name="OptionsPanel" type="VBoxContainer" parent="CanvasLayer/UI/RightPanel/VBox" unique_id=714227906]
+layout_mode = 2
+
+[node name="ShowWeaponCheck" type="CheckBox" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=835658497]
+layout_mode = 2
+button_pressed = true
+text = "Show Weapon Layer"
+
+[node name="ShowEffectCheck" type="CheckBox" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=1725735765]
+layout_mode = 2
+button_pressed = true
+text = "Show Effect Layer"
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=1639765707]
+layout_mode = 2
+
+[node name="WeaponTypeLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=182422952]
+layout_mode = 2
+text = "Weapon Type:"
+
+[node name="WeaponTypeDropdown" type="OptionButton" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=83736186]
+layout_mode = 2
+
+[node name="WeaponGraphicLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=1407024401]
+layout_mode = 2
+text = "Weapon Graphic:"
+
+[node name="WeaponGraphicSpinbox" type="SpinBox" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=1823628189]
+layout_mode = 2
+
+[node name="OffsetInfoLabel" type="Label" parent="CanvasLayer/UI/RightPanel/VBox/OptionsPanel" unique_id=788597631]
+layout_mode = 2
+text = "WEP1 Frame: +0  V-Offset: 0px
+EFF1 Frame: +0"

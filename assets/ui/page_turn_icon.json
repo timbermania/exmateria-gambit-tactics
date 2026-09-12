@@ -1,0 +1,15 @@
+{
+  "_comment": "Animated page-turn 'more' icon for the boxed-portrait DialogueBox — shown at the box bottom-right while a NEXT PAGE is pending during scenario pagination. 4-frame page-corner-curl loop (bottom-left corner folds up 0->3, then resets). Frames live in the shared RANGETILE atlas (RANGETILE.tga; == ShiShi's FRAME sheet; LBA 0xE68 raw-sector disc asset, 256x256 4bpp, tpage 0x3F) — NOT in EVENT/FRAME.BIN. UVs are runtime-assembled in-game (no literal SPRT rodata); phase = dialogue_frame_counter & 0x3 (battle 0x8012f81c). These cells are ISO-verified by tools/parse_range_tiles.py (page_turn_icon, fixture-guarded) and also emitted into RANGETILE.json; committed here (assets/ui/*.json is git-tracked) so the coordinate data survives without the ISO/regeneration. See research/working_documents/scenario_1_captures/dialogue_pagination_and_page_icon_decode.md §3.4.",
+  "texture": "RANGETILE.tga",
+  "texture_dir": "res://assets/sprites/textures",
+  "cell_size": [10, 12],
+  "pitch_x": 16,
+  "phase_mask": 3,
+  "kind": "page_corner_curl_loop",
+  "frames": [
+    { "phase": 0, "atlas": [172, 19, 10, 12] },
+    { "phase": 1, "atlas": [188, 19, 10, 12] },
+    { "phase": 2, "atlas": [204, 19, 10, 12] },
+    { "phase": 3, "atlas": [220, 19, 10, 12] }
+  ]
+}

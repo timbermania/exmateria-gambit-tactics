@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_mainmenu_exit_slide_test"]
+
+[ext_resource type="Script" path="res://tests/FormationMainMenuExitSlideTest.gd" id="1_test"]
+
+[node name="FormationMainMenuExitSlideTest" type="Node3D"]
+script = ExtResource("1_test")

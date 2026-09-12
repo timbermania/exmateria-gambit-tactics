@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dk5wpj6yppo1t"]
+
+[ext_resource type="Script" path="res://tests/FormationSortColumnTest.gd" id="1_test"]
+
+[node name="FormationSortColumnTest" type="Node"]
+script = ExtResource("1_test")

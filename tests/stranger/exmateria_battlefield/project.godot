@@ -1,0 +1,25 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project").
+;
+; `config/name` is not decoration: `tests/stranger/shared/stranger_install.gd`
+; reads it to learn which of the staged addons is the SUBJECT. This rig stages
+; three — the subject plus the two `plugin.cfg` declares as deps — so "the only
+; addon here" is not a reading that works.
+;
+; The addon is NOT enabled here. `plugin.gd` is an editor entry point and the
+; consumer of this addon references its `class_name`s directly.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_battlefield"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

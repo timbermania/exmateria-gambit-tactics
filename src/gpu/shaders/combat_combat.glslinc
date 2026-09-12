@@ -1,0 +1,547 @@
+// =============================================================================
+// combat_combat.glslinc — combat helpers shared by 2-3 stages
+//
+// Include this *after* combat_common.glslinc in stages that resolve attacks,
+// breaks, or spell damage:
+//   - stage_compute      (uses every helper here)
+//   - stage_post_conflict (weapon range + attack-anim setup)
+//   - stage_damage        (break effects + spell damage)
+//
+// Stages that don't need these (stage_resolve, stage_victory) should NOT
+// include this file — keeping them slim is the whole point of the split.
+//
+// No `#version`, no `#[compute]`. Depends on combat_common.glslinc.
+// =============================================================================
+
+// =============================================================================
+// WEAPON RANGE SYSTEM
+// =============================================================================
+
+int get_attack_type(int battle_id, int unit_id) {
+    int weapon_range = read_unit(battle_id, unit_id, U_WEAPON_RANGE);
+    int flags = read_unit(battle_id, unit_id, U_WEAPON_FLAGS);
+
+    if (weapon_range >= 2) {
+        if ((flags & WFLAG_DIRECT) != 0) return ATTACK_DIRECT;
+        if ((flags & WFLAG_ARC) != 0) return ATTACK_ARCING;
+        if ((flags & WFLAG_LUNGING) != 0) return ATTACK_LUNGING;
+        return ATTACK_DIRECT;
+    }
+
+    if ((flags & WFLAG_STRIKING) != 0) return ATTACK_STRIKING;
+    if ((flags & WFLAG_LUNGING) != 0) return ATTACK_LUNGING;
+    if ((flags & WFLAG_DIRECT) != 0) return ATTACK_DIRECT;
+    if ((flags & WFLAG_ARC) != 0) return ATTACK_ARCING;
+    return ATTACK_STRIKING;
+}
+
+bool check_striking(int h_distance, int height_diff) {
+    if (h_distance != 1) return false;
+    if (height_diff > VERTICAL_UP_HALFSTEPS) return false;
+    if (height_diff < -VERTICAL_DOWN_HALFSTEPS) return false;
+    return true;
+}
+
+bool check_lunging(int ax, int az, int tx, int tz, int height_diff, int weapon_range) {
+    int h_distance = abs(tx - ax) + abs(tz - az);
+    if (h_distance < 1 || h_distance > weapon_range) return false;
+    if (ax != tx && az != tz) return false;
+    if (height_diff > VERTICAL_UP_HALFSTEPS) return false;
+    if (height_diff < -VERTICAL_DOWN_HALFSTEPS) return false;
+    return true;
+}
+
+bool check_direct(int h_distance, int weapon_range) {
+    return h_distance >= 1 && h_distance <= weapon_range;
+}
+
+bool check_arcing(int h_distance, int height_diff, int weapon_range) {
+    if (h_distance < 3) return false;
+    int range_modifier = -height_diff / 2;
+    int effective_range = weapon_range + range_modifier;
+    if (effective_range < 3) effective_range = 3;
+    if (effective_range > weapon_range) effective_range = weapon_range;
+    return h_distance <= effective_range;
+}
+
+// Trace straight line from (ax,az) to (tx,tz), check if terrain blocks path.
+// Max iterations = 8 (longest gun range).
+//
+// ⚠️ THE ENDPOINTS CARRY A LEVEL; THE TILES IN BETWEEN DO NOT, AND ADR-0224 DOES
+// NOT RULE ON THEM. Dec. 6 rules occupancy, single-target level resolution and
+// AoE shape, and says nothing about which of a column's two cells blocks a line
+// of sight passing over it. The two candidate rules are "the ground tile", which
+// is what this function has always used and which leaves every level-0 sight
+// line byte-identical, and "the tallest minted cell in the column", which would
+// let a bridge deck block a shot underneath it.
+//
+// The second is the more physical-sounding answer and it is NOT taken here,
+// because it is exactly the shape ADR-0219 warns about: a plausible rule with no
+// measurement behind it, that would silently move line-of-sight on the 45 maps
+// with upper cells without any decision authorizing it. The status quo is the
+// conservative choice and it is written down rather than left implicit.
+bool has_line_of_sight_direct(int ax, int az, int a_level, int tx, int tz, int t_level) {
+    float ah = float(get_tile_height(ax, az, a_level));
+    float th = float(get_tile_height(tx, tz, t_level));
+    int dx = tx - ax;
+    int dz = tz - az;
+    int steps = max(abs(dx), abs(dz));
+    if (steps <= 1) return true;
+
+    for (int i = 1; i < steps; i++) {
+        float t = float(i) / float(steps);
+        int cx = ax + int(round(float(dx) * t));
+        int cz = az + int(round(float(dz) * t));
+        float expected_height = ah + (th - ah) * t;
+        float tile_h = float(get_tile_height(cx, cz, MAP_GROUND_LEVEL));
+        if (tile_h > expected_height) return false;
+    }
+    return true;
+}
+
+// Parabolic arc LOS: arc_height * (1 - (2t-1)^2). Height units in half-steps.
+const float ARC_LOS_HEIGHT_PER_TILE = 0.5;
+
+// The intermediate tiles are read on the ground plane -- see the note on
+// `has_line_of_sight_direct`.
+bool has_line_of_sight_arc(int ax, int az, int a_level, int tx, int tz, int t_level) {
+    float ah = float(get_tile_height(ax, az, a_level));
+    float th = float(get_tile_height(tx, tz, t_level));
+    int dx = tx - ax;
+    int dz = tz - az;
+    int steps = max(abs(dx), abs(dz));
+    if (steps <= 1) return true;
+
+    float distance = float(abs(dx) + abs(dz));
+    float arc_peak = distance * ARC_LOS_HEIGHT_PER_TILE;
+
+    for (int i = 1; i < steps; i++) {
+        float t = float(i) / float(steps);
+        int cx = ax + int(round(float(dx) * t));
+        int cz = az + int(round(float(dz) * t));
+        float base_height = ah + (th - ah) * t;
+        float arc_offset = arc_peak * (1.0 - pow(2.0 * t - 1.0, 2.0));
+        float expected_height = base_height + arc_offset;
+        float tile_h = float(get_tile_height(cx, cz, MAP_GROUND_LEVEL));
+        if (tile_h > expected_height) return false;
+    }
+    return true;
+}
+
+// Lightweight: no LOS check, no unit reads — for scanning candidate positions.
+bool can_attack_from_adjacent(int ax, int az, int a_level, int tx, int tz, int t_level,
+                               int height_diff, int attack_type, int weapon_range) {
+    if (attack_type == ATTACK_STRIKING) return check_striking(1, height_diff);
+    if (attack_type == ATTACK_LUNGING)  return check_lunging(ax, az, tx, tz, height_diff, weapon_range);
+    if (attack_type == ATTACK_DIRECT)   return check_direct(1, weapon_range);
+    if (attack_type == ATTACK_ARCING)   return check_arcing(1, height_diff, weapon_range);
+    return false;
+}
+
+bool can_attack_target(int battle_id, int attacker_id, int target_id) {
+    int ax = read_unit(battle_id, attacker_id, U_POS_X);
+    int az = read_unit(battle_id, attacker_id, U_POS_Z);
+    int tx = read_unit(battle_id, target_id, U_POS_X);
+    int tz = read_unit(battle_id, target_id, U_POS_Z);
+
+    // ADR-0224 dec. 6: a single-target attack resolves its target's level from
+    // that TARGET's own `U_LEVEL`, not from the column. This is the pair of reads
+    // that closes the defect ADR-0224 opens with -- `U_HEIGHT` was packed from
+    // `lattice.terrain_at(cell)` (the right cell) while the shader answered
+    // `get_tile_height(x, z)` (the ground under it), and on MAP083 records
+    // 405/406 those two numbers differ by 9.
+    int a_level = read_unit(battle_id, attacker_id, U_LEVEL);
+    int t_level = read_unit(battle_id, target_id, U_LEVEL);
+
+    int attacker_height = get_tile_height(ax, az, a_level);
+    int target_height = get_tile_height(tx, tz, t_level);
+    int height_diff = target_height - attacker_height;
+
+    int h_distance = abs(tx - ax) + abs(tz - az);
+    int attack_type = get_attack_type(battle_id, attacker_id);
+    int weapon_range = read_unit(battle_id, attacker_id, U_WEAPON_RANGE);
+
+    if (attack_type == ATTACK_STRIKING) return check_striking(h_distance, height_diff);
+    if (attack_type == ATTACK_LUNGING) return check_lunging(ax, az, tx, tz, height_diff, weapon_range)
+        && has_line_of_sight_direct(ax, az, a_level, tx, tz, t_level);
+    if (attack_type == ATTACK_DIRECT) return check_direct(h_distance, weapon_range)
+        && has_line_of_sight_direct(ax, az, a_level, tx, tz, t_level);
+    if (attack_type == ATTACK_ARCING) return check_arcing(h_distance, height_diff, weapon_range)
+        && has_line_of_sight_arc(ax, az, a_level, tx, tz, t_level);
+    return false;
+}
+
+// =============================================================================
+// "IN RANGE" — ONE PREDICATE, ASKED BY THE KERNEL AND BY THE SCREEN
+// =============================================================================
+
+// Can `unit_id` cast `ability_id` at `target_id` from where it stands — range and the ROM's
+// vertical tolerance, no walking?
+//
+// ONE definition, called twice: `start_spell` gates on it to decide whether to cast or to
+// reposition, and `COND_IN_RANGE` asks it on the screen's behalf (ADR-0268 dec. 11). Two
+// copies of "distance and vertical" is exactly how an authoring surface and the kernel it
+// authors for stop agreeing — and the row would still read back correctly while doing nothing,
+// which is the failure ADR-0268 dec. 8 exists to prevent.
+//
+// The distance is a COLUMN manhattan and the vertical is separate, because that is what the
+// ROM does: a spell's `range` is horizontal reach, and height is bounded only for the abilities
+// carrying `ABFLAG_VERTICAL_TOLERANCE`. `effect_area` does not enter — the ROM measures an AoE
+// to its CENTRE tile.
+//
+// ⚠️ NO LINE-OF-SIGHT HERE, and that is not an omission. `start_spell` treats a projectile with
+// range but no LOS as "walk until you can see it", NOT as out of range; folding LOS in would
+// send that case down the reposition branch instead and change what the kernel does. An ATTACK
+// is the other way round — LOS is part of `can_attack_target`'s own gate — so each action's
+// condition asks that action's own reach test, which is the only rule under which the screen's
+// answer and the kernel's cannot differ.
+bool ability_in_reach(int battle_id, int unit_id, int target_id, int ability_id) {
+    int range = get_effective_ability_range(battle_id, unit_id, ability_id);
+    int my_x = read_unit(battle_id, unit_id, U_POS_X);
+    int my_z = read_unit(battle_id, unit_id, U_POS_Z);
+    int tx = read_unit(battle_id, target_id, U_POS_X);
+    int tz = read_unit(battle_id, target_id, U_POS_Z);
+    if (manhattan_distance(my_x, my_z, tx, tz) > range) return false;
+    if ((get_ability_flags(ability_id) & ABFLAG_VERTICAL_TOLERANCE) == 0) return true;
+    // ADR-0224 dec. 6 — each end resolves its height from its OWN level, never the column's.
+    int my_level = read_unit(battle_id, unit_id, U_LEVEL);
+    int t_level = read_unit(battle_id, target_id, U_LEVEL);
+    int dh = get_tile_height(tx, tz, t_level) - get_tile_height(my_x, my_z, my_level);
+    return abs(dh) <= get_ability_vertical(ability_id);
+}
+
+// `COND_IN_RANGE`: would the action THIS GAMBIT PERFORMS land on `target_id` from here?
+//
+// The reach is the ACTION'S, which is why the screen offers `Foe In Range` and not `In Melee
+// Range` / `In Spell Range` (ADR-0268 dec. 11). A row that named the range would ask the
+// player to restate what the `Do` column already says, and would be wrong the moment they
+// changed it.
+//
+// ATTACK, MOVE and WAIT carry no ability, so they fall to the equipped WEAPON's reach — which
+// is also `get_effective_ability_range`'s own fallback for an ability whose `range` is 0. The
+// row is therefore answerable whatever `Do` holds; there is no `Do` for which "in range" means
+// nothing.
+bool target_in_action_range(int battle_id, int unit_id, int target_id,
+                            int action_type, int action_id) {
+    if (target_id < 0) return false;
+    if (action_id >= 0 && (action_type == ACTION_SPELL || action_type == ACTION_ABILITY
+                           || action_type == ACTION_ITEM)) {
+        return ability_in_reach(battle_id, unit_id, target_id, action_id);
+    }
+    return can_attack_target(battle_id, unit_id, target_id);
+}
+
+// Tile occupancy from CURRENT state, and it is a CELL not a column (ADR-0224
+// dec. 6). This is a scan over unit records rather than a buffer plane, so
+// level-awareness costs exactly one added comparison.
+//
+// 🔴 A UNIT UNDER A BRIDGE NO LONGER BLOCKS A UNIT ON IT. Nothing in the tree
+// relied on column-exclusive occupancy, but any AI heuristic that read "tile
+// occupied" as "column blocked" now sees a different world -- ADR-0224's
+// Consequences say so in as many words.
+int get_tile_occupant(int battle_id, int x, int z, int level, int exclude_unit) {
+    for (int u = 0; u < config.units_per_battle; u++) {
+        if (u == exclude_unit) continue;
+        if (is_unit_dead(battle_id, u)) continue;
+        if (read_unit(battle_id, u, U_POS_X) == x &&
+            read_unit(battle_id, u, U_POS_Z) == z &&
+            read_unit(battle_id, u, U_LEVEL) == level) {
+            return u;
+        }
+    }
+    return -1;
+}
+
+bool is_tile_occupied(int battle_id, int x, int z, int level, int exclude_unit) {
+    return get_tile_occupant(battle_id, x, z, level, exclude_unit) >= 0;
+}
+
+// ⚠️ THERE IS DELIBERATELY NO `is_column_occupied` HERE. It would have no
+// callers: `stage_damage`'s AOE distribution is column-wide by construction,
+// comparing only `(tx, tz)` against `(center_x, center_z)`. That is a carried
+// defect, not the rule -- the ROM bounds an AoE vertically, and ADR-0224's
+// 2026-09-05 amendment retracts the dec. 6 clause that said otherwise. Fixing
+// the loop is #845; do not add a level-blind helper to serve it meanwhile.
+// See the note at that loop.
+
+// =============================================================================
+// BREAK EFFECTS (stat / equipment / MP-drain breaks)
+// =============================================================================
+
+bool roll_break_hit(int battle_id, int caster_id, int target_id, int hit_chance, int tick) {
+    int roll = rand_int(battle_id, caster_id * 100 + target_id, tick, 100) + 1;
+    return roll <= hit_chance;
+}
+
+// Apply non-damage break effects. Returns true if the effect landed.
+bool apply_break_effect(int battle_id, int unit_id, int target_id, int ability_id, int tick) {
+    int formula_id = get_ability_formula_id(ability_id);
+    int formula_x = get_ability_formula_x(ability_id);
+    int formula_y = get_ability_formula_y(ability_id);
+
+    if (formula_id == 43) {
+        // 0x2B: Hit_(PA+Y)% -Stat(X)
+        int pa = read_unit(battle_id, unit_id, U_PA);
+        int hit_chance = min(pa + formula_y, 100);
+        if (!roll_break_hit(battle_id, unit_id, target_id, hit_chance, tick)) return false;
+        int stat_field = -1;
+        if (ability_id == 143) stat_field = U_SPEED;
+        else if (ability_id == 144) stat_field = U_PA;
+        else if (ability_id == 145) stat_field = U_MA;
+        if (stat_field >= 0) {
+            int current_val = read_unit(battle_id, target_id, stat_field);
+            write_unit(battle_id, target_id, stat_field, max(1, current_val - formula_x));
+        }
+        return true;
+    }
+    else if (formula_id == 44) {
+        // 0x2C: Hit_(PA+Y)% DmgMP_(Y)%
+        int pa = read_unit(battle_id, unit_id, U_PA);
+        int hit_chance = min(pa + formula_y, 100);
+        if (!roll_break_hit(battle_id, unit_id, target_id, hit_chance, tick)) return false;
+        int max_mp = read_unit(battle_id, target_id, U_MAX_MP);
+        int current_mp = read_unit(battle_id, target_id, U_MP);
+        int mp_damage = max_mp * formula_y / 100;
+        write_unit(battle_id, target_id, U_MP, max(0, current_mp - mp_damage));
+        return true;
+    }
+    else if (formula_id == 37) {
+        // 0x25: Break Hit_(PA+WP+Y)%
+        int pa = read_unit(battle_id, unit_id, U_PA);
+        int wp = read_unit(battle_id, unit_id, U_WP);
+        int hit_chance = min(pa + wp + formula_y, 100);
+        if (!roll_break_hit(battle_id, unit_id, target_id, hit_chance, tick)) return false;
+        if (ability_id == BREAK_WEAPON_ID) {
+            write_unit(battle_id, target_id, U_WP, 0);
+        } else if (ability_id == BREAK_SHIELD_ID) {
+            write_unit(battle_id, target_id, U_S_EV, 0);
+        }
+        // HeadBreak / ArmorBreak: helmet/armor bonuses not separately tracked.
+        return true;
+    }
+    // Issue #103 -- status-only spell formulas. The mask + mode the encoder
+    // packed selects which bits get applied / cleared; INFLICT_MODE_NONE
+    // no-ops. Hit-rate split per FFT canon
+    // (research/wiki_articles/ability_effect_mechanics.txt §"Faith Scaling on
+    // Status Hit Rate"):
+    //
+    //   0x0A / 0x0B (10/11) -- Hit_F(MA+X)%, Faith-scaled. Roll once per cast.
+    //                          Innocent (Faith=0) is immune to both sides.
+    //   0x38 (56)           -- 100% status (Chemist items, no Faith roll).
+    //   0x2A / 0x50 (42/80) -- unused by the current ability database;
+    //                          treated as 100% until evidence demands otherwise.
+    else if (formula_id == 10 || formula_id == 11) {
+        int ma = read_unit(battle_id, unit_id, U_MA);
+        int caster_faith = read_unit(battle_id, unit_id, U_FAITH);
+        int target_faith = read_unit(battle_id, target_id, U_FAITH);
+        int base_chance = min(ma + formula_x, 100);
+        // Two (Faith/100) multipliers compose as / 10000. Clamp to [0, 100].
+        int hit_chance = clamp((base_chance * caster_faith * target_faith) / 10000, 0, 100);
+        if (!roll_break_hit(battle_id, unit_id, target_id, hit_chance, tick)) return false;
+        apply_inflict_all(battle_id, unit_id, target_id,
+                          get_ability_inflict_mask(ability_id),
+                          get_ability_inflict_mode(ability_id), tick);
+        return true;
+    }
+    else if (formula_id == 42 || formula_id == 56 || formula_id == 80) {
+        apply_inflict_all(battle_id, unit_id, target_id,
+                          get_ability_inflict_mask(ability_id),
+                          get_ability_inflict_mode(ability_id), tick);
+        return true;
+    }
+
+    return false;
+}
+
+// =============================================================================
+// ATTACK ANIMATION SETUP
+// =============================================================================
+
+int get_attack_anim_id(int weapon_type) {
+    if (weapon_type == 0) return TYPE1_UNARMED_ATTACK;
+    if (weapon_type == WEAPON_TYPE_GUN) return TYPE1_GUN;
+    if (weapon_type >= WEAPON_TYPE_CROSSBOW) return TYPE1_BOW;
+    return TYPE1_MELEE_SWING;
+}
+
+bool is_ranged_weapon(int weapon_type) {
+    return weapon_type >= WEAPON_TYPE_GUN && weapon_type <= WEAPON_TYPE_BOW;
+}
+
+int get_wep1_anim_id(int weapon_type) {
+    if (weapon_type == WEAPON_TYPE_GUN) return WEP1_GUN;
+    if (weapon_type == WEAPON_TYPE_CROSSBOW || weapon_type == WEAPON_TYPE_BOW) return WEP1_BOW;
+    return WEP1_MELEE;
+}
+
+int get_wep1_projectile_frame(int wep_anim_id) {
+    if (wep_anim_id < 0 || wep_anim_id >= 64) return -1;
+    return anim_timings.timings[WEP1_TIMING_OFFSET + wep_anim_id * 2];
+}
+
+int get_wep1_total_frames(int wep_anim_id) {
+    if (wep_anim_id < 0 || wep_anim_id >= 64) return -1;
+    return anim_timings.timings[WEP1_TIMING_OFFSET + wep_anim_id * 2 + 1];
+}
+
+// Set up melee/ranged attack animation fields on a unit.
+// Writes LOGICAL_ACTIVITY_ACTING, ANIM_ID, ANIM_FRAME, DAMAGE_FRAME, TOTAL_FRAMES, ANIM_FLAGS,
+// PROJECTILE_FRAME, TIMER. Callers handle U_TARGET / U_DBG_STATE_REASON.
+void setup_attack_animation(int battle_id, int unit_id, int target_id, int weapon_type) {
+    int anim_id = get_attack_anim_id(weapon_type);
+    int damage_frame_seq = get_anim_damage_frame(anim_id);
+    int total_frames_seq = get_anim_total_frames(anim_id);
+    int attack_duration = max(MIN_ATTACK_DURATION, total_frames_seq);
+    int scaled_damage_frame = (total_frames_seq > 0)
+        ? damage_frame_seq : attack_duration / 2;
+
+    int projectile_frame = -1;
+    if (is_ranged_weapon(weapon_type)) {
+        int wep_anim_id = get_wep1_anim_id(weapon_type);
+        int wep_proj_frame_seq = get_wep1_projectile_frame(wep_anim_id);
+        int wep_total_seq = get_wep1_total_frames(wep_anim_id);
+        if (wep_proj_frame_seq >= 0 && wep_total_seq > 0) {
+            projectile_frame = wep_proj_frame_seq;
+
+            int my_x = read_unit(battle_id, unit_id, U_POS_X);
+            int my_z = read_unit(battle_id, unit_id, U_POS_Z);
+            int target_x = read_unit(battle_id, target_id, U_POS_X);
+            int target_z = read_unit(battle_id, target_id, U_POS_Z);
+            int dist = abs(my_x - target_x) + abs(my_z - target_z);
+            int flight_ticks = max(dist * FLIGHT_TICKS_PER_TILE, MIN_FLIGHT_TICKS);
+
+            scaled_damage_frame = projectile_frame + flight_ticks;
+        }
+    }
+
+    int scaled_attack_duration = int(float(attack_duration) * GLOBAL_SPEED_DIVISOR) / ABILITY_SEQ_SPEED;
+    // Per ADR-0032: LOGICAL_ACTIVITY_ACTING covers SEQ playback only. The flight tail
+    // (when damage_frame > anim_frame) is handled by LOGICAL_ACTIVITY_AWAITING_IMPACT,
+    // entered from LOGICAL_ACTIVITY_ACTING's exit branch in compute_unit_state.
+    int timer_value = scaled_attack_duration;
+
+    // THE LEVERED ATTACK PERIOD (#1107, ADR-0279). The difference between the
+    // levered period and the unlevered one is owed as RECOVERY after the action
+    // completes, never as a longer animation (ADR-0032: ACTING is SEQ playback
+    // only).
+    //
+    // 🔴 THE BASE IS THE WHOLE PERIOD, NOT THE ANIMATION. For a melee weapon
+    // those are the same number and `scaled_damage_frame` (18 for the swing) is
+    // well inside the SEQ, so the `max` picks the duration. For a RANGED weapon
+    // they are not: `scaled_damage_frame` is `projectile_frame + max(dist * 10,
+    // 15)`, the firer waits that tail out in AWAITING_IMPACT before it may choose
+    // again, and a bow at its native range 5 is therefore a 76-tick period
+    // against a 52-frame animation. Scaling only the animation would make
+    // `attack_period x2.0` mean "x2.0, except on the three weapon types where it
+    // is x1.68, varying with how far away the target stood" -- a quantity whose
+    // name does not describe what it does. The period is defined as the ticks
+    // from commit to next decision, so that is what is scaled.
+    //
+    // 🔴 THE UNLEVERED PERIOD IS THE FLOOR. `max(0, ...)` means a factor below
+    // 1.0 realises as zero recovery rather than a faster attack: there is no
+    // shorter SEQ to play and no faster arrow, so a unit cannot act faster than
+    // its own sprite and its own projectile. A physical constraint, not a policy,
+    // and it is why `attack_period` has no host-side realised-factor report --
+    // see the ADR's soft spots.
+    //
+    // Q8 (256 == 1.0x), the same fixed-point idiom and for the same reason as
+    // `scale_move_ticks` / `scale_hp_transfer`: at these magnitudes integer
+    // division would let rounding, not the factor, decide the ordering between
+    // two weapon types.
+    int rom_period = max(timer_value, scaled_damage_frame);
+    int period_q8 = read_unit(battle_id, unit_id, U_ATTACK_PERIOD_FACTOR_Q8);
+    int recovery = 0;
+    if (period_q8 != 256) {
+        int levered = (rom_period * period_q8 + 128) / 256;  // round, don't truncate
+        recovery = max(0, levered - rom_period);
+    }
+    write_unit(battle_id, unit_id, U_ATTACK_RECOVERY, recovery);
+
+    write_unit(battle_id, unit_id, U_CAST_STEP_ID,
+               read_unit(battle_id, unit_id, U_CAST_STEP_ID) + 1);
+    write_unit(battle_id, unit_id, U_STATE, LOGICAL_ACTIVITY_ACTING);
+    write_unit(battle_id, unit_id, U_ANIM_ID, anim_id);
+    write_unit(battle_id, unit_id, U_ANIM_FRAME, 0);
+    write_unit(battle_id, unit_id, U_DAMAGE_FRAME, scaled_damage_frame);
+    write_unit(battle_id, unit_id, U_TOTAL_FRAMES, attack_duration);
+    write_unit(battle_id, unit_id, U_ANIM_FLAGS, 0);
+    write_unit(battle_id, unit_id, U_PROJECTILE_FRAME, projectile_frame);
+    write_unit(battle_id, unit_id, U_TIMER, timer_value);
+}
+
+// =============================================================================
+// SPELL DAMAGE FORMULA DISPATCH
+// =============================================================================
+
+int calculate_spell_damage(int battle_id, int caster_id, int target_id, int ability_id) {
+    int ma = read_unit(battle_id, caster_id, U_MA);
+    int pa = read_unit(battle_id, caster_id, U_PA);
+    int wp = read_unit(battle_id, caster_id, U_WP);
+    int faith_caster = read_unit(battle_id, caster_id, U_FAITH);
+    int faith_target = read_unit(battle_id, target_id, U_FAITH);
+    int formula_y = get_ability_formula_y(ability_id);
+    int formula_id = get_ability_formula_id(ability_id);
+
+    int damage = 0;
+
+    // === PHYSICAL FORMULAS ===
+    if (formula_id == 1) {
+        // 0x01: PA * WP (standard weapon-based attack)
+        damage = pa * wp;
+    }
+    else if (formula_id == 55) {
+        // 0x37: PA * Y (ThrowStone, ranged physical)
+        damage = pa * formula_y;
+    }
+    else if (formula_id == 49) {
+        // 0x31: ((PA + Y) / 2) * PA — PA-hybrid
+        damage = ((pa + formula_y) / 2) * pa;
+    }
+    // === MAGIC FORMULAS (Faith-scaled) ===
+    else if (formula_id == 8 || formula_id == 12) {
+        // 0x08: Dmg_F(MA*Y) — Fire, Ice, Bolt, Holy, Flare
+        // 0x0C: Heal_F(MA*Y) — Cure, Cure2, Cure3, Cure4 (healing flag handles +HP)
+        damage = (ma * formula_y * faith_caster * faith_target) / 10000;
+    }
+    // === MAGIC FORMULAS (No faith) ===
+    else if (formula_id == 32 || formula_id == 78) {
+        // 0x20: MA * Y — Summons (Ifrit, Shiva, Ramuh)
+        // 0x4E: MA * Y — Monster magic
+        damage = ma * formula_y;
+    }
+    // === HYBRID FORMULAS ===
+    else if (formula_id == 36) {
+        // 0x24: ((PA + Y) / 2) * MA — Holy Sword abilities
+        damage = ((pa + formula_y) / 2) * ma;
+    }
+    // === PERCENTAGE FORMULAS ===
+    else if (formula_id == 13 || formula_id == 53) {
+        // 0x0D: Heal_(Y)% Hit_F(MA+X)% — Y% of target MaxHP. Raise (Y=50), Raise2 (Y=100).
+        // 0x35: Heal_(Y)% Hit_(PA+X)% — the SAME percentage heal with a PA-based hit roll
+        //       instead of an MA-based one. Revive (107, Y=20) and Oink (312, Y=100), the
+        //       two cancel-Dead abilities #1113 admits that are not `ABFLAG_HEALING`.
+        // The hit roll is what differs between the two formulas and this function does not
+        // compute one — it returns the AMOUNT — so the two share an arm. Before #1113, 0x35
+        // fell through to the `damage = formula_y` default and a Revive restored 20 flat HP
+        // rather than 20% of the target's maximum.
+        int max_hp = get_max_hp(battle_id, target_id);
+        damage = max_hp * formula_y / 100;
+    }
+    // === ITEM FORMULA ===
+    else if (formula_id == 72) {
+        // 0x48: Item healing (z_value * 10)
+        damage = formula_y * 10;
+    }
+    // === DEFAULT: unhandled formula, use Y as-is ===
+    else {
+        damage = formula_y;
+    }
+
+    // Shell halves magic damage (faith-based, summon, hybrid, and monster magic).
+    bool is_magic_formula = (formula_id == 8 || formula_id == 12 || formula_id == 32
+                          || formula_id == 78 || formula_id == 36);
+    if (is_magic_formula && has_status(battle_id, target_id, STATUS_SHELL))
+        damage = max(1, damage / 2);
+
+    return max(1, damage);
+}

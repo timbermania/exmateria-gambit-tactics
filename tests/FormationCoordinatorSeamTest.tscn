@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_coordinator_seam_test"]
+
+[ext_resource type="Script" path="res://tests/FormationCoordinatorSeamTest.gd" id="1_test"]
+
+[node name="FormationCoordinatorSeamTest" type="Node3D"]
+script = ExtResource("1_test")

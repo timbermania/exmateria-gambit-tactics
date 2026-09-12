@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cinematic_low_range_seq_key_test"]
+
+[ext_resource type="Script" path="res://tests/CinematicLowRangeSeqKeyTest.gd" id="1_test"]
+
+[node name="CinematicLowRangeSeqKeyTest" type="Node"]
+script = ExtResource("1_test")

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dfjwop7dlja25"
+path="res://.godot/imported/stage_pathfind.glsl-1ebeeb112e1c7a3852ad2580ee943f5e.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_pathfind.glsl"
+dest_files=["res://.godot/imported/stage_pathfind.glsl-1ebeeb112e1c7a3852ad2580ee943f5e.res"]
+
+[params]
+

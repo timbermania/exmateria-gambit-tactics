@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://11n70cx6gydm"
+path="res://.godot/imported/foldsurface_seed.glsl-32eff4ab1d605d881eb2009375a45e0c.res"
+
+[deps]
+
+source_file="res://addons/exmateria_render/fold_bracket/foldsurface_seed.glsl"
+dest_files=["res://.godot/imported/foldsurface_seed.glsl-32eff4ab1d605d881eb2009375a45e0c.res"]
+
+[params]
+

@@ -1,0 +1,44 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_battlefield/project.godot`; this is that rig pointed
+; at the FIFTH in-walk addon, not a fifth invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; `config/name` is not decoration: `tests/stranger/shared/stranger_install.gd`
+; reads it to learn which of the staged addons is the SUBJECT. This rig stages
+; three — the subject plus the two `plugin.cfg` declares as deps
+; (`exmateria_schema`, `exmateria_platform`) — so "the only addon here" is not a
+; reading that works.
+;
+; THE ADDON IS NOT ENABLED HERE. `plugin.gd` is an editor entry point; a consumer
+; names `ExMateriaSpriteRig` — the addon's ONE global name (ADR-0217) — directly.
+;
+; 🔴 NO `exmateria_sprite_rig/content_root` IS DECLARED, AND THAT IS THE ARM.
+; `install/SpriteRigContentRoot.gd` is the addon's single injection point for the
+; ROM-derived content ADR-0215 dec. 7 books Class B — gitignored, un-shippable —
+; and its default is EMPTY on purpose: a default of `res://assets/` would leave
+; the literal in an addon file and P4 would never reach 0. The host declares
+; `exmateria_sprite_rig/content_root="res://assets/"`; a stranger declares its own
+; or gets `resolve()`'s once-per-run refusal, in words that name the setting.
+; A stranger project HAS no ROM rips, so the setting stays absent here and what
+; this rig measures is that the addon comes up and REFUSES in words rather than
+; crashing or silently rendering nothing.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_sprite_rig"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

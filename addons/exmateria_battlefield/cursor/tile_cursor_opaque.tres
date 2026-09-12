@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+; Tile-cursor OPAQUE pass — STP=0 body texels of the dagger sprite from the
+; RANGETILE atlas (U[66..78] V[128..151]), BATTLE.BIN palette slot 4. Paired
+; with tile_cursor_semi.tres (the STP=1 outline). See tile_cursor_opaque.gdshader.
+;
+; ⚠️ `range_tex` and `range_palette` are deliberately NOT bound here. They were two
+; `[ext_resource]` links into res://assets/sprites/textures/ — ADR-0202 Class B,
+; ROM-derived content the addon can never ship. NO SETTING FIXES AN `ext_resource`:
+; it resolves at LOAD time, before any code runs, so dec. 5's search root could not
+; reach them. That is why this file — and, as a pure cascade, `TileCursor.gd`'s
+; `preload` of it — sat on the stranger rig's known_failures.tsv as one debt wearing
+; two addresses. `TileCursor._bind_range_textures()` supplies both at runtime from
+; `Tile.range_texture()` / `Tile.range_palette_texture()`, which resolve through
+; `BattlefieldContent`. Re-adding either as an `ext_resource` re-opens both rows.
+[ext_resource type="Shader" path="res://addons/exmateria_battlefield/cursor/tile_cursor_opaque.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/palette_row = 4
+shader_parameter/palette_count = 9
+shader_parameter/cursor_uv_offset = Vector2(0.2578125, 0.5)
+shader_parameter/cursor_uv_size = Vector2(0.05078125, 0.09375)
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/srgb_to_linear = true

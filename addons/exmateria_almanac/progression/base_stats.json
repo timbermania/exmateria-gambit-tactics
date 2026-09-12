@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "description": "FFT base stats by unit type. Values are fixed-point (raw << 14)",
+    "source": "FFT PSX \u2014 ROM-derived VALUES, transcribed by hand. There is no parser.",
+    "conversion_note": "Display value = raw_value / 16384",
+    "provenance": "hand-authored in root ADR-0001's sense, and the classification is deliberate rather than a leftover (register step 15). The five numbers per unit type are the disc's, but NOTHING in tools/ reads them out: no generator exists, and a bounded search of SCUS_942.21 and BATTLE.BIN for the three rows as contiguous 32-bit LE, as raw>>14 bytes and as raw>>13 bytes found no table in any of the six encodings tried. That is consistent with ADR-0001's ISO CODE class -- an immediate in .text that a hex grep of the disc cannot find -- but it does not prove it, and locating the instruction was not attempted. So this file cannot be gitignored the way an iso-data artifact is: it is committed because nothing can rebuild it, which is exactly what ADR-0001 says a COMMITTED provenance means."
+  },
+  "base_stats": {
+    "male": {
+      "hp": 507904,
+      "mp": 237568,
+      "speed": 98304,
+      "pa": 81920,
+      "ma": 65536
+    },
+    "female": {
+      "hp": 475136,
+      "mp": 253952,
+      "speed": 98304,
+      "pa": 65536,
+      "ma": 81920
+    },
+    "monster": {
+      "hp": 598016,
+      "mp": 139264,
+      "speed": 81920,
+      "pa": 90112,
+      "ma": 90112
+    }
+  },
+  "display_values": {
+    "description": "Pre-computed display values for reference (raw / 16384)",
+    "male": {
+      "hp": 31.0,
+      "mp": 14.5,
+      "speed": 6.0,
+      "pa": 5.0,
+      "ma": 4.0
+    },
+    "female": {
+      "hp": 29.0,
+      "mp": 15.5,
+      "speed": 6.0,
+      "pa": 4.0,
+      "ma": 5.0
+    },
+    "monster": {
+      "hp": 36.5,
+      "mp": 8.5,
+      "speed": 5.0,
+      "pa": 5.5,
+      "ma": 5.5
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# The blueprint baseline — ADR-0145, prologue pass 5. FROZEN.
+# code_commit	de055dc49	trunk import-godot-game, 2026-08-21
+# classifier_rev	1b9ba2ba3	tools/classify_blueprint.py + tools/touch_matrix.py
+# data_sha256	47839a6afad4bfaa24f00fdf2e648a5d9ad95ef422453e45cb830d47cd13fcdb	over every non-`#` line; a hand-edited number goes red (check_baseline.py)
+# taken_on	2026-08-21
+# unit_lines	hand-written .gd + shader source under src/ and assets/ (ADR-0131 dec. 3)
+# unit_reaches	cross-SYSTEM lines, five shapes, none an interface (ADR-0131 dec. 5) — a FLOOR (dec. 6)
+# note	never divide the two counts (ADR-0131 dec. 1). `other` buckets are not systems, so reaches through them are not counted.
+# note	`extracted` rows are read from the canonical package, not the host's copy (ADR-0131 dec. 8).
+# note	`tests` is ADR-0194 dec. 9's bucket for `addons/<name>/tests/`, added to `classify_blueprint.OTHER` after this reading was frozen. Its row is a MEASURED zero, not a placeholder: at de055dc49 the walk was `src/` + `assets/` and `godot-learning/addons/` did not exist in the tree at all, so no file could be booked to it. The schema widened; no number moved. `# data_sha256` was recomputed for that one row and for nothing else.
+bucket	kind	files	lines	shader_files	shader_lines	reaches_out	reaches_in
+Battlefield	system	49	8247	16	925	105	131
+Battle	system	79	23066	14	6239	343	201
+Character Catalogue	system	14	2138	0	0	73	21
+Sprite Rig	system	26	4957	3	1029	29	118
+Effects	system	183	57480	5	335	110	37
+UI	system	126	38432	37	3122	277	4
+Audio	system	13	2817	0	0	8	46
+Cutscene	system	57	16166	13	427	128	16
+Campaign	system	7	1123	0	0	51	10
+Render	system	15	1163	9	258	17	27
+Debug	system	15	2998	0	0	2	532
+assembler	other	20	8419	0	0	.	.
+schema	other	6	1086	2	177	.	.
+content	other	14	1424	0	0	.	.
+generated	other	2	19677	0	0	.	.
+infrastructure	other	4	313	0	0	.	.
+platform	other	4	863	2	115	.	.
+tests	other	0	0	0	0	.	.
+DELETE	other	1	39	0	0	.	.
+exmateria_sound	extracted	152	15961	0	0	.	.

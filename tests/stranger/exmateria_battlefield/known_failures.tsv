@@ -1,0 +1,40 @@
+# Files in `addons/exmateria_battlefield/` that do NOT compile in a stranger
+# project. `path <TAB> ticket <TAB> error signature <TAB> why`, read by
+# tests/stranger/shared/{stranger_install,stranger_burn_down}.gd and by rig.sh.
+#
+# NAMED, NEVER COUNTED, AND CHECKED IN BOTH DIRECTIONS. A row says "we know, it is
+# ticketed, it is goal #5 unmet on record" — the same contract
+# `check_addon_portability.ARM1_BURN_DOWN` has. The arm fails if an UNLISTED file
+# stops compiling AND if a LISTED one starts, because a burn-down that only grows
+# is a list nobody ever deletes from.
+#
+# THE SIGNATURE COLUMN IS LOAD-BEARING. A broken script throws when ANY script
+# that names it is loaded, so the rig cannot simply not-look: it has to be able to
+# say which throws this list already explains. The signature is the substring of
+# the engine's own parse error, and a `SCRIPT ERROR` line matching no signature is
+# still the finding. `Failed to compile depended scripts` is allowed unconditionally
+# — it is a cascade line naming no file and no symbol, and a genuinely new defect
+# always emits its own specific line beside it.
+#
+# TWO ROWS LEFT THIS LIST BY BEING FIXED, and that is the direction a burn-down
+# usually does not have. `lattice/Tile.gd` and `overlay/TileOverlayCompositor.gd`
+# were `ARM1_BURN_DOWN`'s own rows — booked by the static guard as "reach line(s)
+# leave an addon for a SYSTEM", which sounds like coupling to tidy later, and in a
+# stranger project was a HARD COMPILE FAILURE. The lattice port (ADR-0192/0193,
+# extraction #3 pass 6) paid both. The rig said so the first time the two lines met
+# — `is on known_failures.tsv … and it now COMPILES. Delete the row.` — and this is
+# that deletion.
+#
+# THE LAST TWO LEFT THIS LIST BY BEING FIXED, and they were ONE debt wearing two
+# addresses. `tile_cursor_opaque.tres` named the `RANGETILE` atlas + palette as two
+# `ext_resource` links (ADR-0202 Class B), and `TileCursor.gd:150`'s `preload` of it
+# failed as a pure CASCADE of that, with no defect of its own left. ADR-0202 dec. 5's
+# search root could not reach either: an `ext_resource` resolves at LOAD time, before
+# any code runs. The material stopped referencing them and takes both at runtime from
+# `Tile.range_texture()` / `Tile.range_palette_texture()`, which resolve through the
+# host-injected `BattlefieldContent` root — so fixing the first row fixed the second,
+# and BOTH rows had to go together or the burn-down would red on a row it had fixed.
+#
+# THIS FILE NOW LISTS NOTHING. That is the goal state, and it is also the state in
+# which this arm passes vacuously — the rig's own check is that an UNLISTED file
+# failing to compile is still the finding, which is what keeps an empty list honest.

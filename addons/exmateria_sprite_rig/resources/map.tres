@@ -1,0 +1,822 @@
+[gd_resource type="Resource" script_class="AnimationResolutionMapResource" format=3]
+
+[ext_resource type="Script" path="res://addons/exmateria_sprite_rig/resources/AnimationResolutionMapResource.gd" id="1_1s6sn"]
+[ext_resource type="Script" path="res://addons/exmateria_sprite_rig/resources/SpriteTypeResource.gd" id="2_wvljk"]
+[ext_resource type="Script" path="res://addons/exmateria_sprite_rig/resources/ActivityRowResource.gd" id="3_1diuv"]
+
+[sub_resource type="Resource" id="Resource_ob6bw"]
+script = ExtResource("3_1diuv")
+front = 62
+back = 63
+
+[sub_resource type="Resource" id="Resource_fvfra"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_p4k15"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_v3bu8"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_n55y6"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_qcl05"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_4sxhe"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_4828q"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_gvl0e"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_utorl"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_52fc7"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_jsdcy"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_0e5gs"]
+script = ExtResource("2_wvljk")
+seq_file = "ARUTE.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_ob6bw"),
+"AWAITING_IMPACT": SubResource("Resource_n55y6"),
+"DEAD": SubResource("Resource_fvfra"),
+"DYING": SubResource("Resource_p4k15"),
+"GETTING_UP": SubResource("Resource_v3bu8"),
+"IDLE": SubResource("Resource_n55y6"),
+"IDLE_LOW_HEALTH": SubResource("Resource_qcl05"),
+"JUMPING": SubResource("Resource_4sxhe"),
+"LANDING": SubResource("Resource_4828q"),
+"SPELL_CASTING": SubResource("Resource_gvl0e"),
+"SPELL_CHARGING": SubResource("Resource_utorl"),
+"USING_ITEM": SubResource("Resource_52fc7"),
+"WALKING": SubResource("Resource_jsdcy")
+})
+
+[sub_resource type="Resource" id="Resource_jhoe0"]
+script = ExtResource("3_1diuv")
+front = 62
+back = 63
+
+[sub_resource type="Resource" id="Resource_5awbr"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_d23d8"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_bjugo"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_milac"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_oolbv"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_vakdp"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_5ujdg"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_1lpcp"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_tux16"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_a347g"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_hju81"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_m5rvd"]
+script = ExtResource("2_wvljk")
+seq_file = "CYOKO.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_jhoe0"),
+"AWAITING_IMPACT": SubResource("Resource_milac"),
+"DEAD": SubResource("Resource_5awbr"),
+"DYING": SubResource("Resource_d23d8"),
+"GETTING_UP": SubResource("Resource_bjugo"),
+"IDLE": SubResource("Resource_milac"),
+"IDLE_LOW_HEALTH": SubResource("Resource_oolbv"),
+"JUMPING": SubResource("Resource_vakdp"),
+"LANDING": SubResource("Resource_5ujdg"),
+"SPELL_CASTING": SubResource("Resource_1lpcp"),
+"SPELL_CHARGING": SubResource("Resource_tux16"),
+"USING_ITEM": SubResource("Resource_a347g"),
+"WALKING": SubResource("Resource_hju81")
+})
+
+[sub_resource type="Resource" id="Resource_t4d0i"]
+script = ExtResource("3_1diuv")
+front = 62
+back = 63
+
+[sub_resource type="Resource" id="Resource_3sari"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_pvwm0"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_ydfs5"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_frjcu"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_ywdyy"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_0tpci"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_bcg1q"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_hgb61"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_lawi4"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_hxl0h"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_ihjvo"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_qetrd"]
+script = ExtResource("2_wvljk")
+seq_file = "KANZEN.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_t4d0i"),
+"AWAITING_IMPACT": SubResource("Resource_frjcu"),
+"DEAD": SubResource("Resource_3sari"),
+"DYING": SubResource("Resource_pvwm0"),
+"GETTING_UP": SubResource("Resource_ydfs5"),
+"IDLE": SubResource("Resource_frjcu"),
+"IDLE_LOW_HEALTH": SubResource("Resource_ywdyy"),
+"JUMPING": SubResource("Resource_0tpci"),
+"LANDING": SubResource("Resource_bcg1q"),
+"SPELL_CASTING": SubResource("Resource_hgb61"),
+"SPELL_CHARGING": SubResource("Resource_lawi4"),
+"USING_ITEM": SubResource("Resource_hxl0h"),
+"WALKING": SubResource("Resource_ihjvo")
+})
+
+[sub_resource type="Resource" id="Resource_6kku2"]
+script = ExtResource("3_1diuv")
+front = 124
+back = 125
+
+[sub_resource type="Resource" id="Resource_36m5h"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_kiit5"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_aj8e8"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_dmoxq"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_ubbh4"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_lvias"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_tut2y"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_ht23u"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_7fs67"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_drpy5"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_md0pv"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_2qjwt"]
+script = ExtResource("2_wvljk")
+seq_file = "MON.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_6kku2"),
+"AWAITING_IMPACT": SubResource("Resource_dmoxq"),
+"DEAD": SubResource("Resource_36m5h"),
+"DYING": SubResource("Resource_kiit5"),
+"GETTING_UP": SubResource("Resource_aj8e8"),
+"IDLE": SubResource("Resource_dmoxq"),
+"IDLE_LOW_HEALTH": SubResource("Resource_ubbh4"),
+"JUMPING": SubResource("Resource_lvias"),
+"LANDING": SubResource("Resource_tut2y"),
+"SPELL_CASTING": SubResource("Resource_ht23u"),
+"SPELL_CHARGING": SubResource("Resource_7fs67"),
+"USING_ITEM": SubResource("Resource_drpy5"),
+"WALKING": SubResource("Resource_md0pv")
+})
+
+[sub_resource type="Resource" id="Resource_5o0x3"]
+script = ExtResource("3_1diuv")
+front = 62
+back = 63
+
+[sub_resource type="Resource" id="Resource_wp4wn"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_7cwit"]
+script = ExtResource("3_1diuv")
+front = 52
+back = 53
+
+[sub_resource type="Resource" id="Resource_lrglq"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_ja7l6"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_ers1i"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_0u2mb"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_1t4w3"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_1xcam"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_j30y1"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_dpdgy"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_sloak"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_tv32d"]
+script = ExtResource("2_wvljk")
+seq_file = "OTHER.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_5o0x3"),
+"AWAITING_IMPACT": SubResource("Resource_ja7l6"),
+"DEAD": SubResource("Resource_wp4wn"),
+"DYING": SubResource("Resource_7cwit"),
+"GETTING_UP": SubResource("Resource_lrglq"),
+"IDLE": SubResource("Resource_ja7l6"),
+"IDLE_LOW_HEALTH": SubResource("Resource_ers1i"),
+"JUMPING": SubResource("Resource_0u2mb"),
+"LANDING": SubResource("Resource_1t4w3"),
+"SPELL_CASTING": SubResource("Resource_1xcam"),
+"SPELL_CHARGING": SubResource("Resource_j30y1"),
+"USING_ITEM": SubResource("Resource_dpdgy"),
+"WALKING": SubResource("Resource_sloak")
+})
+
+[sub_resource type="Resource" id="Resource_omq7k"]
+script = ExtResource("3_1diuv")
+front = 124
+back = 125
+
+[sub_resource type="Resource" id="Resource_wqu58"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_b1e0c"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_lc1pe"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_hxrus"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_72w0n"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_2u8qq"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_g4t18"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_1n6yh"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_1x368"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_plt2x"]
+script = ExtResource("3_1diuv")
+front = 1
+back = 1
+
+[sub_resource type="Resource" id="Resource_serm2"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_c1gyl"]
+script = ExtResource("2_wvljk")
+seq_file = "RUKA.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_omq7k"),
+"AWAITING_IMPACT": SubResource("Resource_hxrus"),
+"DEAD": SubResource("Resource_wqu58"),
+"DYING": SubResource("Resource_b1e0c"),
+"GETTING_UP": SubResource("Resource_lc1pe"),
+"IDLE": SubResource("Resource_hxrus"),
+"IDLE_LOW_HEALTH": SubResource("Resource_72w0n"),
+"JUMPING": SubResource("Resource_2u8qq"),
+"LANDING": SubResource("Resource_g4t18"),
+"SPELL_CASTING": SubResource("Resource_1n6yh"),
+"SPELL_CHARGING": SubResource("Resource_1x368"),
+"USING_ITEM": SubResource("Resource_plt2x"),
+"WALKING": SubResource("Resource_serm2")
+})
+
+[sub_resource type="Resource" id="Resource_onak4"]
+script = ExtResource("3_1diuv")
+front = 130
+back = 131
+
+[sub_resource type="Resource" id="Resource_2mnub"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_354fj"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_f0dg8"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_gi57y"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_vqct1"]
+script = ExtResource("3_1diuv")
+front = 44
+back = 45
+
+[sub_resource type="Resource" id="Resource_7dqo5"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_53agh"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_aolus"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_kw5f8"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_ifei1"]
+script = ExtResource("3_1diuv")
+front = 114
+back = 115
+
+[sub_resource type="Resource" id="Resource_wpxsf"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_celt1"]
+script = ExtResource("3_1diuv")
+front = 82
+back = 83
+
+[sub_resource type="Resource" id="Resource_cojw8"]
+script = ExtResource("2_wvljk")
+seq_file = "TYPE1.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_onak4"),
+"AWAITING_IMPACT": SubResource("Resource_gi57y"),
+"CELEBRATING": SubResource("Resource_celt1"),
+"DEAD": SubResource("Resource_2mnub"),
+"DYING": SubResource("Resource_354fj"),
+"GETTING_UP": SubResource("Resource_f0dg8"),
+"IDLE": SubResource("Resource_gi57y"),
+"IDLE_LOW_HEALTH": SubResource("Resource_vqct1"),
+"JUMPING": SubResource("Resource_7dqo5"),
+"LANDING": SubResource("Resource_53agh"),
+"SPELL_CASTING": SubResource("Resource_aolus"),
+"SPELL_CHARGING": SubResource("Resource_kw5f8"),
+"USING_ITEM": SubResource("Resource_ifei1"),
+"WALKING": SubResource("Resource_wpxsf")
+})
+
+[sub_resource type="Resource" id="Resource_jal7c"]
+script = ExtResource("3_1diuv")
+front = 130
+back = 131
+
+[sub_resource type="Resource" id="Resource_lwa77"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_3csrf"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_s7huv"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_pq7tk"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_xinwo"]
+script = ExtResource("3_1diuv")
+front = 44
+back = 45
+
+[sub_resource type="Resource" id="Resource_ypqbt"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_qxiac"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_3p4f3"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_btjxa"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_jax5v"]
+script = ExtResource("3_1diuv")
+front = 114
+back = 115
+
+[sub_resource type="Resource" id="Resource_ra7cu"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_vrmvu"]
+script = ExtResource("2_wvljk")
+seq_file = "TYPE2.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_jal7c"),
+"AWAITING_IMPACT": SubResource("Resource_pq7tk"),
+"DEAD": SubResource("Resource_lwa77"),
+"DYING": SubResource("Resource_3csrf"),
+"GETTING_UP": SubResource("Resource_s7huv"),
+"IDLE": SubResource("Resource_pq7tk"),
+"IDLE_LOW_HEALTH": SubResource("Resource_xinwo"),
+"JUMPING": SubResource("Resource_ypqbt"),
+"LANDING": SubResource("Resource_qxiac"),
+"SPELL_CASTING": SubResource("Resource_3p4f3"),
+"SPELL_CHARGING": SubResource("Resource_btjxa"),
+"USING_ITEM": SubResource("Resource_jax5v"),
+"WALKING": SubResource("Resource_ra7cu")
+})
+
+[sub_resource type="Resource" id="Resource_s38wc"]
+script = ExtResource("3_1diuv")
+front = 130
+back = 131
+
+[sub_resource type="Resource" id="Resource_ya2nn"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_jf13e"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_vtn0a"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_wfw2o"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_kvh5h"]
+script = ExtResource("3_1diuv")
+front = 44
+back = 45
+
+[sub_resource type="Resource" id="Resource_5payc"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_m4k28"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_7cq6i"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_yr1y8"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_1ygb6"]
+script = ExtResource("3_1diuv")
+front = 114
+back = 115
+
+[sub_resource type="Resource" id="Resource_l1k1r"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_celt3"]
+script = ExtResource("3_1diuv")
+front = 82
+back = 83
+
+[sub_resource type="Resource" id="Resource_fkgnx"]
+script = ExtResource("2_wvljk")
+seq_file = "TYPE3.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_s38wc"),
+"AWAITING_IMPACT": SubResource("Resource_wfw2o"),
+"CELEBRATING": SubResource("Resource_celt3"),
+"DEAD": SubResource("Resource_ya2nn"),
+"DYING": SubResource("Resource_jf13e"),
+"GETTING_UP": SubResource("Resource_vtn0a"),
+"IDLE": SubResource("Resource_wfw2o"),
+"IDLE_LOW_HEALTH": SubResource("Resource_kvh5h"),
+"JUMPING": SubResource("Resource_5payc"),
+"LANDING": SubResource("Resource_m4k28"),
+"SPELL_CASTING": SubResource("Resource_7cq6i"),
+"SPELL_CHARGING": SubResource("Resource_yr1y8"),
+"USING_ITEM": SubResource("Resource_1ygb6"),
+"WALKING": SubResource("Resource_l1k1r")
+})
+
+[sub_resource type="Resource" id="Resource_rc6ob"]
+script = ExtResource("3_1diuv")
+front = 130
+back = 131
+
+[sub_resource type="Resource" id="Resource_6cpd8"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_crfja"]
+script = ExtResource("3_1diuv")
+front = 104
+back = 105
+
+[sub_resource type="Resource" id="Resource_4gcym"]
+script = ExtResource("3_1diuv")
+front = 106
+back = 107
+
+[sub_resource type="Resource" id="Resource_pqsx8"]
+script = ExtResource("3_1diuv")
+front = 6
+back = 7
+
+[sub_resource type="Resource" id="Resource_s65vn"]
+script = ExtResource("3_1diuv")
+front = 44
+back = 45
+
+[sub_resource type="Resource" id="Resource_a43rn"]
+script = ExtResource("3_1diuv")
+front = 60
+back = 61
+
+[sub_resource type="Resource" id="Resource_fc1mc"]
+script = ExtResource("3_1diuv")
+front = 64
+back = 65
+
+[sub_resource type="Resource" id="Resource_2yxtq"]
+script = ExtResource("3_1diuv")
+front = 84
+back = 85
+
+[sub_resource type="Resource" id="Resource_7b1ry"]
+script = ExtResource("3_1diuv")
+front = 86
+back = 87
+
+[sub_resource type="Resource" id="Resource_natfd"]
+script = ExtResource("3_1diuv")
+front = 114
+back = 115
+
+[sub_resource type="Resource" id="Resource_nvust"]
+script = ExtResource("3_1diuv")
+front = 8
+back = 9
+
+[sub_resource type="Resource" id="Resource_bo05x"]
+script = ExtResource("2_wvljk")
+seq_file = "TYPE4.SEQ"
+states = Dictionary[String, ExtResource("3_1diuv")]({
+"ATTACKING": SubResource("Resource_rc6ob"),
+"AWAITING_IMPACT": SubResource("Resource_pqsx8"),
+"DEAD": SubResource("Resource_6cpd8"),
+"DYING": SubResource("Resource_crfja"),
+"GETTING_UP": SubResource("Resource_4gcym"),
+"IDLE": SubResource("Resource_pqsx8"),
+"IDLE_LOW_HEALTH": SubResource("Resource_s65vn"),
+"JUMPING": SubResource("Resource_a43rn"),
+"LANDING": SubResource("Resource_fc1mc"),
+"SPELL_CASTING": SubResource("Resource_2yxtq"),
+"SPELL_CHARGING": SubResource("Resource_7b1ry"),
+"USING_ITEM": SubResource("Resource_natfd"),
+"WALKING": SubResource("Resource_nvust")
+})
+
+[resource]
+script = ExtResource("1_1s6sn")
+sprite_types = Dictionary[String, ExtResource("2_wvljk")]({
+"arute": SubResource("Resource_0e5gs"),
+"cyoko": SubResource("Resource_m5rvd"),
+"kanzen": SubResource("Resource_qetrd"),
+"mon": SubResource("Resource_2qjwt"),
+"other": SubResource("Resource_tv32d"),
+"ruka": SubResource("Resource_c1gyl"),
+"type1": SubResource("Resource_cojw8"),
+"type2": SubResource("Resource_vrmvu"),
+"type3": SubResource("Resource_fkgnx"),
+"type4": SubResource("Resource_bo05x")
+})

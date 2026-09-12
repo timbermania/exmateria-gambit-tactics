@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bdnjxehbdu0tm"]
+
+[ext_resource type="Script" path="res://tests/EffectScoreWindowParityTest.gd" id="1"]
+
+[node name="EffectScoreWindowParityTest" type="Node"]
+script = ExtResource("1")

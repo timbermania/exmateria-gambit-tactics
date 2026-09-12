@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://get_pose_octant_test"]
+
+[ext_resource type="Script" path="res://tests/GetPoseOctantTest.gd" id="1_test"]
+
+[node name="GetPoseOctantTest" type="Node"]
+script = ExtResource("1_test")

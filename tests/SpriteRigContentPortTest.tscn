@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_sprite_rig_content_port_01"]
+
+[ext_resource type="Script" path="res://tests/SpriteRigContentPortTest.gd" id="1_test"]
+
+[node name="SpriteRigContentPortTest" type="Node"]
+script = ExtResource("1_test")

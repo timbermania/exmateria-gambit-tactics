@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://fire_cast_repro_scene"]
+
+[ext_resource type="Script" path="res://src/scenes/FireCastReproScene.gd" id="1_repro"]
+[ext_resource type="PackedScene" uid="uid://bcmbtcam4mnt77" path="res://assets/scenes/CombatCamera.tscn" id="2_camera"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="3_map"]
+[ext_resource type="PackedScene" uid="uid://btilecursormnt7" path="res://assets/scenes/CombatCursor.tscn" id="4_tile_cursor"]
+
+[node name="FireCastRepro" type="Node3D"]
+script = ExtResource("1_repro")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("3_map")]
+
+[node name="TileCursor" parent="." instance=ExtResource("4_tile_cursor")]
+procedural_map_path = NodePath("../ProceduralMap")
+player_camera_path = NodePath("../PlayerCamera")
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_camera")]
+transform = Transform3D(-0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 5, 5, 5)
+procedural_map_path = NodePath("../ProceduralMap")
+
+[node name="Camera" parent="PlayerCamera/FocusPoint" index="0"]
+size = 12.6
+
+[editable path="PlayerCamera"]

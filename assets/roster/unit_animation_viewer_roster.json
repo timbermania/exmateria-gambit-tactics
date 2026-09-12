@@ -1,0 +1,24 @@
+{
+	"_comment": "Single-unit seed for the Unit Animation Viewer (ADR-0024). The viewer reconfigures this one unit in-place via the debug panel — changing job, gender, and equipment through the production paths (unit.change_job + unit_progression.equip_item) rather than spawning prebaked variants. The seed is intentionally minimal: a level-1 Male Squire with no weapon. Everything else is set at runtime by the panel.",
+	"units": [
+		{
+			"unit_name": "Viewer Unit",
+			"current_job_id": "4a",
+			"is_female": false,
+			"level": 1,
+			"weapon_id": -1,
+			"shield_id": -1,
+			"helm_id": -1,
+			"body_id": -1,
+			"accessory_id": -1,
+			"brave": 50,
+			"faith": 50,
+			"experience": 0,
+			"raw_hp": 0, "raw_mp": 0, "raw_pa": 0, "raw_ma": 0, "raw_speed": 0,
+			"job_levels": {}, "job_jp": {}, "learned_abilities": {},
+			"equipped_action_set": "", "equipped_movement": -1,
+			"equipped_reaction": -1, "equipped_support": -1,
+			"gambits_data": []
+		}
+	]
+}

@@ -1,0 +1,35 @@
+scene	script	set	status	declared_by	note
+assets/scenes/GPUArena.tscn	src/scenes/GPUArena.gd	game	root	0135 dec. 5	project.godot run/main_scene
+assets/scenes/GambitBattle.tscn	src/scenes/GambitBattle.gd	game	root	0242	the gambit-mode host — boots a scenario_id, runs the deployment assignment, mounts TurnDirector; standalone headful beside GPUArena (#892)
+assets/scenes/NavigatorMain.tscn	src/scenarios/NavigatorMain.gd	game	root	0135 dec. 5	the campaign spine
+assets/scenes/OpeningScene.tscn	src/scenes/OpeningScene.gd	game	root	0135 dec. 5	title + opening menu
+assets/scenes/Formation.tscn	src/ui3/formation/FormationScene.gd	game	root	0135 dec. 5	mounted as an overlay by NavigatorMain; script is also a base class — 0143 dec. 3/4
+assets/scenes/AllTemplatesFormation.tscn	src/ui3/formation/AllTemplatesFormationBoot.gd	game	root	0135 dec. 5	catalogue-wide Formation, seeded by AllTemplatesSeeder
+assets/scenes/DetailScreen.tscn	src/ui3/detail/DetailSceneBoot.gd	game	root	0135 dec. 5	
+assets/scenes/FormationDetailTransition.tscn	src/ui3/formation/FormationDetailTransition.gd	game	root	0135 dec. 5	script hosts static mount_over_map(), called by two roots — 0143 dec. 4
+assets/scenes/FormationDev.tscn	src/ui3/formation/FormationDevBoot.gd	game	root	0181	the MUTATING Formation harness — PromotedRosterSeeder + every job unlocked, then the coordinator; the sibling of AllTemplatesFormation.tscn
+assets/scenes/WorldMap.tscn	src/world_map/WorldMapScene.gd	game	root	0161 / 0162	the overworld; standalone headful OR mounted as an overlay by NavigatorMain (run_world_map), which awaits its dismissed
+assets/scenes/ScenarioPlayer.tscn	src/scenarios/ScenarioPlayerScene.gd	game	root	0135 dec. 5	
+assets/scenes/EffectViewer.tscn	src/scenes/EffectViewerScene.gd	authoring	root	0135 dec. 5	Effect Studio's assembler — ADR-0134
+addons/exmateria_sprite_rig/viewer/SequenceViewer.tscn	addons/exmateria_sprite_rig/viewer/SequenceViewer.gd	authoring	root	0135 dec. 5	exercises the whole sprite rig; BOTH halves moved into the addon by #744 (the script column was already stale — src/scenes/SequenceViewer.gd has not existed since ADR-0184)
+assets/scenes/TrapViewer.tscn	src/scenes/TrapViewerScene.gd	authoring	root	0135 dec. 5	the effect viewer for a different particle class
+assets/scenes/AttackSfxTest.tscn	src/audio/AttackSfxTestScene.gd	-	declined	0112 dec. 2	
+assets/scenes/CombatUITest.tscn	src/ui3/testing/CombatUITestScene.gd	-	declined	0112 dec. 2	named by godot-learning/CLAUDE.md -> Test scenes, which is wrong
+assets/scenes/FEDSTest.tscn	src/audio/FEDSTestScene.gd	-	declined	0112 dec. 2	
+assets/scenes/SfxBankTest.tscn	src/audio/SfxBankTestScene.gd	-	declined	0112 dec. 2	
+assets/scenes/SfxStressTest.tscn	src/audio/SfxStressTest.gd	-	declined	0112 dec. 2	
+assets/scenes/SMDTest.tscn	src/audio/SMDTestScene.gd	-	declined	0112 dec. 2	
+assets/scenes/FireCastRepro.tscn	src/scenes/FireCastReproScene.gd	-	declined	0112 dec. 2 + 0135 dec. 6	declined twice while the classifier booked its script assembler
+assets/scenes/ProgressionTester.tscn	src/scenes/ProgressionTester.gd	-	declined	0135 dec. 6	named by godot-learning/CLAUDE.md -> Test scenes, which is wrong
+assets/scenes/ProjectileTester.tscn	src/scenes/ProjectileTester.gd	-	declined	0135 dec. 6	
+assets/scenes/DepthDebugScene.tscn	src/scenes/DepthDebugScene.gd	-	declined	0135 dec. 6	a known drop: DepthMode's sub-bucket nudges were tuned here
+assets/scenes/RangeTileAtlasViewer.tscn	src/scenes/RangeTileAtlasViewer.gd	-	declined	0135 dec. 6	
+assets/scenes/UnitAnimationViewerScene.tscn	src/scenes/UnitAnimationViewerScene.gd	-	declined	0135 dec. 6	takes UnitAnimationViewerRoster.gd and ResourceHotReload.gd with it
+assets/scenes/UnitInfoWindowViewer.tscn	src/scenes/UnitInfoWindowViewer.gd	-	declined	0135 dec. 6	
+src/ui3/detail/StartActionMenu.tscn	src/ui3/detail/StartActionMenuBoot.gd	-	declined	0135 dec. 6	
+assets/scenes/CombatUI.tscn	src/ui3/UICombatManager.gd	-	component	0135 dec. 3	struck from the root set: an ext_resource child of PlayerCamera.tscn
+addons/exmateria_battlefield/camera/PlayerCamera.tscn	addons/exmateria_battlefield/camera/PlayerCamera.gd	-	component	0112 dec. 1	embedded in eight scenes
+addons/exmateria_battlefield/cursor/TileCursor.tscn	addons/exmateria_battlefield/cursor/TileCursor.gd	-	component	0112 dec. 1	
+assets/scenes/Unit.tscn	src/units/Unit.gd	-	component	0112 dec. 1	INHERITS addons/exmateria_sprite_rig/UnitRig.tscn since #744 — it is the addon's declared mount (check_lattice_scene DECLARED_MOUNTS); five .gd sites instance it — 0135 dec. 1
+addons/exmateria_sprite_rig/UnitRig.tscn	-	-	component	0217 dec. 3	the rig's own node tree, and the BASE Unit.tscn inherits; script column is `-` because its root node carries none — Unit.gd is attached by the inheritor. Exactly one composition site, which is what the mount is for (#744)
+src/ui3/assemblies/DialogueBox.tscn	src/ui3/assemblies/DialogueBox.gd	-	component	0143 dec. 2	

@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://btilecursormnt7"]
+
+; The HOST's tile cursor — ADR-0207 dec. 5. A Godot INHERITED SCENE whose base is the
+; addon's cursor scene, so the host owns the cursor NODE while the addon keeps the
+; implementation. The third declared mount, after ADR-0204's camera and ADR-0207 dec. 1's
+; map composer.
+;
+; 🔴 WHY A MOUNT AT ALL. ADR-0206 dec. 2 deliberately left `$TileCursor` AUTHORED IN THE
+; SCENE: a node path is a scene-tree coupling, not a type reference, so publishing
+; `CursorRig` closed criterion 1 without touching these. The host legitimately owns a
+; cursor node; what it must not own is the addon's file path. Seven files named that path
+; — three host scenes by `ext_resource` and four tests by `preload`/`load` — and now one
+; does.
+;
+; 🔴 INHERITED, NOT INSTANCED, AND THAT IS THE DIFFERENCE FROM THE COMPOSER. ADR-0207
+; dec. 2 rejected inheritance for `ProceduralMap.tscn` on a measurement: nothing added a
+; child and the composer node had no internal structure, so inheritance bought nothing and
+; cost a file existing only to be inherited. The cursor's base scene DOES have internal
+; structure — a `HighlightMesh` child the script drives — and an instance-wrapper would
+; either flatten it or bury it one level deeper, moving every `TileCursor/...` path. An
+; inherited scene keeps the root's name, type and children byte-identical, which is
+; ADR-0204's stated reason and the reason dec. 5 rules this the camera's form.
+;
+; 🔴 NAMED `CombatCursor`, NOT `TileCursor`, AND THE GUARD IS WHY. The moved file's
+; ORIGINAL host path was `assets/scenes/TileCursor.tscn`, and that path is row 3 of
+; docs/EXTRACTION-3-MOVE-MANIFEST.tsv. `check_move_manifest.py` arm 1 asserts every row is
+; in exactly ONE of its two places; a mount re-created at the src path makes the row read
+; BOTH src and dst exist (copied, not moved) — measured, it reds. The mount is not the
+; moved file and should not wear its name. `assets/scenes/CombatCamera.tscn` dodged the
+; same collision by accident (the addon file it fronts is `PlayerCamera.tscn`); this one
+; is deliberate, and the two mounts now read as a pair.
+;
+; ⚠️ IT ADDS NOTHING TODAY, deliberately, and that is not the same as being empty. The
+; camera mount had a child to carry; this one exists so the seam is host-owned BEFORE a
+; host has something to hang there. Overriding a base property or adding a child is a
+; one-line edit here instead of a three-scene edit.
+
+[ext_resource type="PackedScene" uid="uid://b6tcursor4444" path="res://addons/exmateria_battlefield/cursor/TileCursor.tscn" id="1_cursor_base"]
+
+[node name="TileCursor" instance=ExtResource("1_cursor_base")]

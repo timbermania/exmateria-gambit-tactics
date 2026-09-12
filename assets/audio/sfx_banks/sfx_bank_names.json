@@ -1,0 +1,1171 @@
+{
+  "_comment": "Hand-authored semantic labels for the global FFT SFX banks. Source: research/wiki_articles/event_instructions_sound.md (FFTorama Event Instructions {21} Sound Effect and {6B} Background Sound). NOT ISO-derived: the slot->meaning mapping is human knowledge, not reproducible from system.feds/env.feds, so this is not a committed extracted artifact. Keys are the FFT sound id (decimal string). loop mirrors the wiki '*' marker.",
+  "system": {
+    "1": {
+      "name": "Confirm Selection",
+      "slug": "confirm_selection",
+      "loop": false,
+      "hex": "0x01"
+    },
+    "2": {
+      "name": "Cancel Selection",
+      "slug": "cancel_selection",
+      "loop": false,
+      "hex": "0x02"
+    },
+    "3": {
+      "name": "Move Cursor",
+      "slug": "move_cursor",
+      "loop": false,
+      "hex": "0x03"
+    },
+    "4": {
+      "name": "Rolling Numbers (gil won)",
+      "slug": "rolling_numbers_gil_won",
+      "loop": true,
+      "hex": "0x04"
+    },
+    "5": {
+      "name": "Invalid",
+      "slug": "invalid",
+      "loop": false,
+      "hex": "0x05"
+    },
+    "6": {
+      "name": "L1/R1/L2/R2 shifting",
+      "slug": "l1_r1_l2_r2_shifting",
+      "loop": false,
+      "hex": "0x06"
+    },
+    "7": {
+      "name": "Remove Item or Ability",
+      "slug": "remove_item_or_ability",
+      "loop": false,
+      "hex": "0x07"
+    },
+    "8": {
+      "name": "Power Up",
+      "slug": "power_up",
+      "loop": false,
+      "hex": "0x08"
+    },
+    "9": {
+      "name": "Unit Removal",
+      "slug": "unit_removal",
+      "loop": false,
+      "hex": "0x09"
+    },
+    "10": {
+      "name": "Set",
+      "slug": "set",
+      "loop": false,
+      "hex": "0x0A"
+    },
+    "11": {
+      "name": "Clockwise Rotation",
+      "slug": "clockwise_rotation",
+      "loop": true,
+      "hex": "0x0B"
+    },
+    "12": {
+      "name": "Anti-Clockwise Rotation",
+      "slug": "anti_clockwise_rotation",
+      "loop": true,
+      "hex": "0x0C"
+    },
+    "13": {
+      "name": "Stop Rotation",
+      "slug": "stop_rotation",
+      "loop": false,
+      "hex": "0x0D"
+    },
+    "14": {
+      "name": "Zoom In (quick)",
+      "slug": "zoom_in_quick",
+      "loop": false,
+      "hex": "0x0E"
+    },
+    "15": {
+      "name": "Zoom In",
+      "slug": "zoom_in",
+      "loop": false,
+      "hex": "0x0F"
+    },
+    "16": {
+      "name": "Zoom Out",
+      "slug": "zoom_out",
+      "loop": false,
+      "hex": "0x10"
+    },
+    "17": {
+      "name": "Zoom Out (quick)",
+      "slug": "zoom_out_quick",
+      "loop": false,
+      "hex": "0x11"
+    },
+    "18": {
+      "name": "Help Message Popup",
+      "slug": "help_message_popup",
+      "loop": false,
+      "hex": "0x12"
+    },
+    "19": {
+      "name": "Slash",
+      "slug": "slash",
+      "loop": false,
+      "hex": "0x13"
+    },
+    "20": {
+      "name": "Double Slash",
+      "slug": "double_slash",
+      "loop": false,
+      "hex": "0x14"
+    },
+    "21": {
+      "name": "Punch, Bag, Cloth Blocked",
+      "slug": "punch_bag_cloth_blocked",
+      "loop": false,
+      "hex": "0x15"
+    },
+    "22": {
+      "name": "Punch 2",
+      "slug": "punch_2",
+      "loop": false,
+      "hex": "0x16"
+    },
+    "23": {
+      "name": "Punch 3",
+      "slug": "punch_3",
+      "loop": false,
+      "hex": "0x17"
+    },
+    "24": {
+      "name": "Blunt Weapon Hit",
+      "slug": "blunt_weapon_hit",
+      "loop": false,
+      "hex": "0x18"
+    },
+    "25": {
+      "name": "Light Weapon Swing",
+      "slug": "light_weapon_swing",
+      "loop": false,
+      "hex": "0x19"
+    },
+    "26": {
+      "name": "Medium Weapon Swing",
+      "slug": "medium_weapon_swing",
+      "loop": false,
+      "hex": "0x1A"
+    },
+    "27": {
+      "name": "Heavy Weapon Swing",
+      "slug": "heavy_weapon_swing",
+      "loop": false,
+      "hex": "0x1B"
+    },
+    "28": {
+      "name": "Landing (Dragoon)",
+      "slug": "landing_dragoon",
+      "loop": false,
+      "hex": "0x1C"
+    },
+    "29": {
+      "name": "Igros Castle Gate Opening",
+      "slug": "igros_castle_gate_opening",
+      "loop": false,
+      "hex": "0x1D"
+    },
+    "30": {
+      "name": "Beta Magic Charging",
+      "slug": "beta_magic_charging",
+      "loop": true,
+      "hex": "0x1E"
+    },
+    "31": {
+      "name": "Magic Charging",
+      "slug": "magic_charging",
+      "loop": true,
+      "hex": "0x1F"
+    },
+    "32": {
+      "name": "Female Scream 1 (Balmafula)",
+      "slug": "female_scream_1_balmafula",
+      "loop": false,
+      "hex": "0x20"
+    },
+    "33": {
+      "name": "Summoning",
+      "slug": "summoning",
+      "loop": true,
+      "hex": "0x21"
+    },
+    "34": {
+      "name": "Trap",
+      "slug": "trap",
+      "loop": false,
+      "hex": "0x22"
+    },
+    "35": {
+      "name": "Water Landing 1",
+      "slug": "water_landing_1",
+      "loop": false,
+      "hex": "0x23"
+    },
+    "36": {
+      "name": "Water Landing 2",
+      "slug": "water_landing_2",
+      "loop": false,
+      "hex": "0x24"
+    },
+    "37": {
+      "name": "Walking with soaked shoes???",
+      "slug": "walking_with_soaked_shoes",
+      "loop": false,
+      "hex": "0x25"
+    },
+    "38": {
+      "name": "Unknown",
+      "slug": "unknown_26",
+      "loop": false,
+      "hex": "0x26"
+    },
+    "39": {
+      "name": "Jumping",
+      "slug": "jumping",
+      "loop": false,
+      "hex": "0x27"
+    },
+    "40": {
+      "name": "Land 1",
+      "slug": "land_1",
+      "loop": false,
+      "hex": "0x28"
+    },
+    "41": {
+      "name": "Land 2",
+      "slug": "land_2",
+      "loop": false,
+      "hex": "0x29"
+    },
+    "42": {
+      "name": "Land 3",
+      "slug": "land_3",
+      "loop": false,
+      "hex": "0x2A"
+    },
+    "43": {
+      "name": "Female Scream 2",
+      "slug": "female_scream_2",
+      "loop": false,
+      "hex": "0x2B"
+    },
+    "44": {
+      "name": "Throw ??",
+      "slug": "throw",
+      "loop": false,
+      "hex": "0x2C"
+    },
+    "45": {
+      "name": "Flip Page",
+      "slug": "flip_page",
+      "loop": false,
+      "hex": "0x2D"
+    },
+    "46": {
+      "name": "Shield Block Light",
+      "slug": "shield_block_light",
+      "loop": false,
+      "hex": "0x2E"
+    },
+    "47": {
+      "name": "Shield Block Heavy 1",
+      "slug": "shield_block_heavy_1",
+      "loop": false,
+      "hex": "0x2F"
+    },
+    "48": {
+      "name": "Blade Grasp / Catch",
+      "slug": "blade_grasp_catch",
+      "loop": false,
+      "hex": "0x30"
+    },
+    "49": {
+      "name": "Change Camera Angle",
+      "slug": "change_camera_angle",
+      "loop": false,
+      "hex": "0x31"
+    },
+    "50": {
+      "name": "Sparkle 1",
+      "slug": "sparkle_1",
+      "loop": false,
+      "hex": "0x32"
+    },
+    "51": {
+      "name": "Sparkle 2",
+      "slug": "sparkle_2",
+      "loop": false,
+      "hex": "0x33"
+    },
+    "52": {
+      "name": "Sparkle 3",
+      "slug": "sparkle_3",
+      "loop": false,
+      "hex": "0x34"
+    },
+    "53": {
+      "name": "Sparkle 4",
+      "slug": "sparkle_4",
+      "loop": false,
+      "hex": "0x35"
+    },
+    "54": {
+      "name": "Sparkle 5",
+      "slug": "sparkle_5",
+      "loop": false,
+      "hex": "0x36"
+    },
+    "55": {
+      "name": "Sparkle 6",
+      "slug": "sparkle_6",
+      "loop": false,
+      "hex": "0x37"
+    },
+    "56": {
+      "name": "Hit with Staff or Rod",
+      "slug": "hit_with_staff_or_rod",
+      "loop": false,
+      "hex": "0x38"
+    },
+    "57": {
+      "name": "Hit 2",
+      "slug": "hit_2",
+      "loop": false,
+      "hex": "0x39"
+    },
+    "58": {
+      "name": "Land on Wood",
+      "slug": "land_on_wood",
+      "loop": false,
+      "hex": "0x3A"
+    },
+    "59": {
+      "name": "Land on Water",
+      "slug": "land_on_water",
+      "loop": false,
+      "hex": "0x3B"
+    },
+    "60": {
+      "name": "Menu Cursor Move 1",
+      "slug": "menu_cursor_move_1",
+      "loop": false,
+      "hex": "0x3C"
+    },
+    "61": {
+      "name": "Menu Cursor Move 2",
+      "slug": "menu_cursor_move_2",
+      "loop": false,
+      "hex": "0x3D"
+    },
+    "62": {
+      "name": "Hit with Pole or Polearm",
+      "slug": "hit_with_pole_or_polearm",
+      "loop": false,
+      "hex": "0x3E"
+    },
+    "63": {
+      "name": "Unknown",
+      "slug": "unknown_3f",
+      "loop": false,
+      "hex": "0x3F"
+    },
+    "64": {
+      "name": "Footsteps Arrive",
+      "slug": "footsteps_arrive",
+      "loop": false,
+      "hex": "0x40"
+    },
+    "65": {
+      "name": "Exit Map/Generic Sound",
+      "slug": "exit_map_generic_sound",
+      "loop": false,
+      "hex": "0x41"
+    },
+    "66": {
+      "name": "Cloud Freaking / Murond Death City",
+      "slug": "cloud_freaking_murond_death_city",
+      "loop": false,
+      "hex": "0x42"
+    },
+    "67": {
+      "name": "Menu Confirmation Yes",
+      "slug": "menu_confirmation_yes",
+      "loop": false,
+      "hex": "0x43"
+    },
+    "68": {
+      "name": "Male Scream",
+      "slug": "male_death",
+      "loop": false,
+      "hex": "0x44"
+    },
+    "69": {
+      "name": "Female Death",
+      "slug": "female_death",
+      "loop": false,
+      "hex": "0x45"
+    },
+    "70": {
+      "name": "Monster Death",
+      "slug": "monster_death",
+      "loop": false,
+      "hex": "0x46"
+    },
+    "71": {
+      "name": "Blocked Bullet",
+      "slug": "blocked_bullet",
+      "loop": false,
+      "hex": "0x47"
+    },
+    "72": {
+      "name": "Locked Door",
+      "slug": "locked_door",
+      "loop": false,
+      "hex": "0x48"
+    },
+    "73": {
+      "name": "Blocked Arrow",
+      "slug": "blocked_arrow",
+      "loop": false,
+      "hex": "0x49"
+    },
+    "74": {
+      "name": "Unknown",
+      "slug": "unknown_4a",
+      "loop": false,
+      "hex": "0x4A"
+    },
+    "75": {
+      "name": "Banging on / Slamming Door",
+      "slug": "banging_on_slamming_door",
+      "loop": false,
+      "hex": "0x4B"
+    },
+    "76": {
+      "name": "Open/Close Door",
+      "slug": "open_close_door",
+      "loop": false,
+      "hex": "0x4C"
+    },
+    "77": {
+      "name": "Proposition Completed 1",
+      "slug": "proposition_completed_1",
+      "loop": false,
+      "hex": "0x4D"
+    },
+    "78": {
+      "name": "Proposition Completed 2",
+      "slug": "proposition_completed_2",
+      "loop": false,
+      "hex": "0x4E"
+    },
+    "79": {
+      "name": "Proposition Completed 3",
+      "slug": "proposition_completed_3",
+      "loop": false,
+      "hex": "0x4F"
+    },
+    "80": {
+      "name": "Applause (Propositions?)",
+      "slug": "applause_propositions",
+      "loop": false,
+      "hex": "0x50"
+    },
+    "81": {
+      "name": "Trumpet (Propositions?)",
+      "slug": "trumpet_propositions",
+      "loop": false,
+      "hex": "0x51"
+    },
+    "82": {
+      "name": "Choke Hold 1",
+      "slug": "choke_hold_1",
+      "loop": false,
+      "hex": "0x52"
+    },
+    "83": {
+      "name": "Choke Hold 2",
+      "slug": "choke_hold_2",
+      "loop": false,
+      "hex": "0x53"
+    },
+    "84": {
+      "name": "Arrow 1",
+      "slug": "arrow_1",
+      "loop": false,
+      "hex": "0x54"
+    },
+    "85": {
+      "name": "Arrow 2",
+      "slug": "arrow_2",
+      "loop": false,
+      "hex": "0x55"
+    },
+    "86": {
+      "name": "Unknown",
+      "slug": "unknown_56",
+      "loop": false,
+      "hex": "0x56"
+    },
+    "87": {
+      "name": "Unknown",
+      "slug": "unknown_57",
+      "loop": false,
+      "hex": "0x57"
+    },
+    "88": {
+      "name": "Unknown",
+      "slug": "unknown_58",
+      "loop": false,
+      "hex": "0x58"
+    },
+    "89": {
+      "name": "Arrow 3",
+      "slug": "arrow_3",
+      "loop": false,
+      "hex": "0x59"
+    },
+    "90": {
+      "name": "Gun Load",
+      "slug": "gun_load",
+      "loop": false,
+      "hex": "0x5A"
+    },
+    "91": {
+      "name": "Gun Shot Loud 1",
+      "slug": "gun_shot_loud_1",
+      "loop": false,
+      "hex": "0x5B"
+    },
+    "92": {
+      "name": "Gun Shot Loud 2",
+      "slug": "gun_shot_loud_2",
+      "loop": false,
+      "hex": "0x5C"
+    },
+    "93": {
+      "name": "Gun Shot Loud 3",
+      "slug": "gun_shot_loud_3",
+      "loop": false,
+      "hex": "0x5D"
+    },
+    "94": {
+      "name": "Crush / Explosion",
+      "slug": "crush_explosion",
+      "loop": false,
+      "hex": "0x5E"
+    },
+    "95": {
+      "name": "Unknown",
+      "slug": "unknown_5f",
+      "loop": false,
+      "hex": "0x5F"
+    },
+    "96": {
+      "name": "Unknown",
+      "slug": "unknown_60",
+      "loop": false,
+      "hex": "0x60"
+    },
+    "97": {
+      "name": "Ability Un-Equipped",
+      "slug": "ability_un_equipped",
+      "loop": false,
+      "hex": "0x61"
+    },
+    "98": {
+      "name": "Unknown",
+      "slug": "unknown_62",
+      "loop": false,
+      "hex": "0x62"
+    },
+    "99": {
+      "name": "Slap",
+      "slug": "slap",
+      "loop": false,
+      "hex": "0x63"
+    },
+    "100": {
+      "name": "Female Scream 3",
+      "slug": "female_scream_3",
+      "loop": false,
+      "hex": "0x64"
+    },
+    "101": {
+      "name": "Sword Clash",
+      "slug": "sword_clash",
+      "loop": false,
+      "hex": "0x65"
+    },
+    "102": {
+      "name": "Zodiac Stone Spirit Howl 1",
+      "slug": "zodiac_stone_spirit_howl_1",
+      "loop": false,
+      "hex": "0x66"
+    },
+    "103": {
+      "name": "Zodiac Stone Spirit Howl 2",
+      "slug": "zodiac_stone_spirit_howl_2",
+      "loop": false,
+      "hex": "0x67"
+    },
+    "104": {
+      "name": "Zodiac Stone Spirit Howl 3",
+      "slug": "zodiac_stone_spirit_howl_3",
+      "loop": false,
+      "hex": "0x68"
+    },
+    "105": {
+      "name": "Door Lever Pull",
+      "slug": "door_lever_pull",
+      "loop": false,
+      "hex": "0x69"
+    },
+    "106": {
+      "name": "Teleport Out",
+      "slug": "teleport_out",
+      "loop": false,
+      "hex": "0x6A"
+    },
+    "107": {
+      "name": "Teleport In",
+      "slug": "teleport_in",
+      "loop": false,
+      "hex": "0x6B"
+    },
+    "108": {
+      "name": "Random Encounter 1",
+      "slug": "random_encounter_1",
+      "loop": false,
+      "hex": "0x6C"
+    },
+    "109": {
+      "name": "Random Encounter 2",
+      "slug": "random_encounter_2",
+      "loop": false,
+      "hex": "0x6D"
+    },
+    "110": {
+      "name": "Crossbow Arrow 1",
+      "slug": "crossbow_arrow_1",
+      "loop": false,
+      "hex": "0x6E"
+    },
+    "111": {
+      "name": "Crossbow Arrow 2",
+      "slug": "crossbow_arrow_2",
+      "loop": false,
+      "hex": "0x6F"
+    },
+    "112": {
+      "name": "Riovanes Castle Footsteps",
+      "slug": "riovanes_castle_footsteps",
+      "loop": false,
+      "hex": "0x70"
+    },
+    "113": {
+      "name": "In-Battle AT Halt",
+      "slug": "in_battle_at_halt",
+      "loop": false,
+      "hex": "0x71"
+    },
+    "114": {
+      "name": "Cinematic Impaling Hit",
+      "slug": "cinematic_impaling_hit",
+      "loop": false,
+      "hex": "0x72"
+    },
+    "115": {
+      "name": "Text Typing",
+      "slug": "text_typing",
+      "loop": false,
+      "hex": "0x73"
+    },
+    "116": {
+      "name": "Lever Pull",
+      "slug": "lever_pull",
+      "loop": false,
+      "hex": "0x74"
+    },
+    "117": {
+      "name": "Sparkle 7",
+      "slug": "sparkle_7",
+      "loop": false,
+      "hex": "0x75"
+    },
+    "118": {
+      "name": "New Map Course Drawn",
+      "slug": "new_map_course_drawn",
+      "loop": false,
+      "hex": "0x76"
+    },
+    "119": {
+      "name": "In-Battle Selection",
+      "slug": "in_battle_selection",
+      "loop": false,
+      "hex": "0x77"
+    },
+    "120": {
+      "name": "Reinforcements Footsteps Arrive",
+      "slug": "reinforcements_footsteps_arrive",
+      "loop": false,
+      "hex": "0x78"
+    },
+    "121": {
+      "name": "Reed Flute 1",
+      "slug": "reed_flute_1",
+      "loop": false,
+      "hex": "0x79"
+    },
+    "122": {
+      "name": "Reed Flute 2",
+      "slug": "reed_flute_2",
+      "loop": false,
+      "hex": "0x7A"
+    },
+    "123": {
+      "name": "Reed Flute 3",
+      "slug": "reed_flute_3",
+      "loop": false,
+      "hex": "0x7B"
+    },
+    "124": {
+      "name": "Failed Reed Flute",
+      "slug": "failed_reed_flute",
+      "loop": false,
+      "hex": "0x7C"
+    },
+    "125": {
+      "name": "Whistle",
+      "slug": "whistle",
+      "loop": false,
+      "hex": "0x7D"
+    },
+    "126": {
+      "name": "Unknown",
+      "slug": "unknown_7e",
+      "loop": false,
+      "hex": "0x7E"
+    },
+    "127": {
+      "name": "Lionel Gate Open",
+      "slug": "lionel_gate_open",
+      "loop": false,
+      "hex": "0x7F"
+    },
+    "128": {
+      "name": "Unknown",
+      "slug": "unknown_80",
+      "loop": false,
+      "hex": "0x80"
+    },
+    "129": {
+      "name": "Unknown",
+      "slug": "unknown_81",
+      "loop": false,
+      "hex": "0x81"
+    },
+    "130": {
+      "name": "Unknown",
+      "slug": "unknown_82",
+      "loop": false,
+      "hex": "0x82"
+    },
+    "131": {
+      "name": "Unknown",
+      "slug": "unknown_83",
+      "loop": false,
+      "hex": "0x83"
+    },
+    "132": {
+      "name": "Bad Breath",
+      "slug": "bad_breath",
+      "loop": false,
+      "hex": "0x84"
+    },
+    "133": {
+      "name": "Crystal Pickup",
+      "slug": "crystal_pickup",
+      "loop": false,
+      "hex": "0x85"
+    },
+    "134": {
+      "name": "Feather Bomb",
+      "slug": "feather_bomb",
+      "loop": false,
+      "hex": "0x86"
+    },
+    "135": {
+      "name": "Scratch Up",
+      "slug": "scratch_up",
+      "loop": false,
+      "hex": "0x87"
+    },
+    "136": {
+      "name": "Unknown",
+      "slug": "unknown_88",
+      "loop": false,
+      "hex": "0x88"
+    },
+    "137": {
+      "name": "Altima I Knife Strike",
+      "slug": "altima_i_knife_strike",
+      "loop": false,
+      "hex": "0x89"
+    },
+    "138": {
+      "name": "Shield Block Heavy 2",
+      "slug": "shield_block_heavy_2",
+      "loop": false,
+      "hex": "0x8A"
+    },
+    "139": {
+      "name": "Unknown",
+      "slug": "unknown_8b",
+      "loop": false,
+      "hex": "0x8B"
+    },
+    "140": {
+      "name": "Lick",
+      "slug": "lick",
+      "loop": false,
+      "hex": "0x8C"
+    },
+    "141": {
+      "name": "Straight Dash",
+      "slug": "straight_dash",
+      "loop": false,
+      "hex": "0x8D"
+    },
+    "142": {
+      "name": "Unknown",
+      "slug": "unknown_8e",
+      "loop": false,
+      "hex": "0x8E"
+    },
+    "143": {
+      "name": "Unknown",
+      "slug": "unknown_8f",
+      "loop": false,
+      "hex": "0x8F"
+    },
+    "144": {
+      "name": "Dash",
+      "slug": "dash",
+      "loop": false,
+      "hex": "0x90"
+    },
+    "145": {
+      "name": "Shield Block Heavy 3",
+      "slug": "shield_block_heavy_3",
+      "loop": false,
+      "hex": "0x91"
+    },
+    "146": {
+      "name": "Monster Strike Heavy",
+      "slug": "monster_strike_heavy",
+      "loop": false,
+      "hex": "0x92"
+    },
+    "147": {
+      "name": "Equipped",
+      "slug": "equipped",
+      "loop": false,
+      "hex": "0x93"
+    },
+    "148": {
+      "name": "Choco Beak Hit",
+      "slug": "choco_beak_hit",
+      "loop": false,
+      "hex": "0x94"
+    },
+    "149": {
+      "name": "Unknown",
+      "slug": "unknown_95",
+      "loop": false,
+      "hex": "0x95"
+    },
+    "150": {
+      "name": "Unknown",
+      "slug": "unknown_96",
+      "loop": false,
+      "hex": "0x96"
+    },
+    "151": {
+      "name": "Gil-Related",
+      "slug": "gil_related",
+      "loop": false,
+      "hex": "0x97"
+    },
+    "152": {
+      "name": "Ability Learned",
+      "slug": "ability_learned",
+      "loop": false,
+      "hex": "0x98"
+    },
+    "153": {
+      "name": "Magic Hit",
+      "slug": "magic_hit",
+      "loop": false,
+      "hex": "0x99"
+    },
+    "154": {
+      "name": "Male Death",
+      "slug": "male_death_2",
+      "loop": false,
+      "hex": "0x9A"
+    },
+    "155": {
+      "name": "Bio Hit",
+      "slug": "bio_hit",
+      "loop": false,
+      "hex": "0x9B"
+    },
+    "156": {
+      "name": "Dictionary / Book Hit",
+      "slug": "dictionary_book_hit",
+      "loop": false,
+      "hex": "0x9C"
+    },
+    "157": {
+      "name": "Final Fantasy Theme Harps",
+      "slug": "final_fantasy_theme_harps",
+      "loop": false,
+      "hex": "0x9D"
+    },
+    "158": {
+      "name": "Laugh 1",
+      "slug": "laugh_1",
+      "loop": false,
+      "hex": "0x9E"
+    },
+    "159": {
+      "name": "Laugh 2",
+      "slug": "laugh_2",
+      "loop": false,
+      "hex": "0x9F"
+    },
+    "160": {
+      "name": "Laugh 3",
+      "slug": "laugh_3",
+      "loop": false,
+      "hex": "0xA0"
+    },
+    "161": {
+      "name": "Zodiac Stone Pulsing Sound",
+      "slug": "zodiac_stone_pulsing_sound",
+      "loop": false,
+      "hex": "0xA1"
+    },
+    "162": {
+      "name": "Church Bells",
+      "slug": "church_bells",
+      "loop": false,
+      "hex": "0xA2"
+    },
+    "163": {
+      "name": "Male Zodiac Death",
+      "slug": "male_zodiac_death",
+      "loop": false,
+      "hex": "0xA3"
+    },
+    "164": {
+      "name": "Impact 1",
+      "slug": "impact_1",
+      "loop": false,
+      "hex": "0xA4"
+    },
+    "165": {
+      "name": "Impact 2",
+      "slug": "impact_2",
+      "loop": false,
+      "hex": "0xA5"
+    },
+    "166": {
+      "name": "Impact 3",
+      "slug": "impact_3",
+      "loop": false,
+      "hex": "0xA6"
+    },
+    "167": {
+      "name": "Zodiac Stone Sparkle",
+      "slug": "zodiac_stone_sparkle",
+      "loop": false,
+      "hex": "0xA7"
+    }
+  },
+  "env": {
+    "1": {
+      "name": "Rain 1",
+      "slug": "rain_1",
+      "loop": true,
+      "hex": "0x01"
+    },
+    "2": {
+      "name": "Rain 2",
+      "slug": "rain_2",
+      "loop": true,
+      "hex": "0x02"
+    },
+    "3": {
+      "name": "Thunder 1",
+      "slug": "thunder_1",
+      "loop": true,
+      "hex": "0x03"
+    },
+    "4": {
+      "name": "Rain Storm 1",
+      "slug": "rain_storm_1",
+      "loop": true,
+      "hex": "0x04"
+    },
+    "5": {
+      "name": "Wind 1",
+      "slug": "wind_1",
+      "loop": true,
+      "hex": "0x05"
+    },
+    "6": {
+      "name": "Young Birds",
+      "slug": "young_birds",
+      "loop": true,
+      "hex": "0x06"
+    },
+    "7": {
+      "name": "Bird",
+      "slug": "bird",
+      "loop": true,
+      "hex": "0x07"
+    },
+    "8": {
+      "name": "Birds",
+      "slug": "birds",
+      "loop": true,
+      "hex": "0x08"
+    },
+    "9": {
+      "name": "Beast Howling",
+      "slug": "beast_howling",
+      "loop": false,
+      "hex": "0x09"
+    },
+    "10": {
+      "name": "Rain Storm 2",
+      "slug": "rain_storm_2",
+      "loop": true,
+      "hex": "0x0A"
+    },
+    "11": {
+      "name": "Wind 2",
+      "slug": "wind_2",
+      "loop": true,
+      "hex": "0x0B"
+    },
+    "12": {
+      "name": "Cadets Training",
+      "slug": "cadets_training",
+      "loop": true,
+      "hex": "0x0C"
+    },
+    "13": {
+      "name": "Night 1",
+      "slug": "night_1",
+      "loop": true,
+      "hex": "0x0D"
+    },
+    "14": {
+      "name": "Thunder 2",
+      "slug": "thunder_2",
+      "loop": true,
+      "hex": "0x0E"
+    },
+    "15": {
+      "name": "Night 2?",
+      "slug": "night_2",
+      "loop": true,
+      "hex": "0x0F"
+    },
+    "16": {
+      "name": "Thunder Bolt 1",
+      "slug": "thunder_bolt_1",
+      "loop": false,
+      "hex": "0x10"
+    },
+    "17": {
+      "name": "Thunder Bolt 2",
+      "slug": "thunder_bolt_2",
+      "loop": false,
+      "hex": "0x11"
+    },
+    "18": {
+      "name": "Thunder Bolt 3",
+      "slug": "thunder_bolt_3",
+      "loop": false,
+      "hex": "0x12"
+    },
+    "19": {
+      "name": "Thunder Bolt 4",
+      "slug": "thunder_bolt_4",
+      "loop": false,
+      "hex": "0x13"
+    },
+    "20": {
+      "name": "Thunder Bolt 5",
+      "slug": "thunder_bolt_5",
+      "loop": false,
+      "hex": "0x14"
+    },
+    "21": {
+      "name": "-Blank-",
+      "slug": "blank_15",
+      "loop": false,
+      "hex": "0x15"
+    },
+    "22": {
+      "name": "-Blank-",
+      "slug": "blank_16",
+      "loop": false,
+      "hex": "0x16"
+    },
+    "23": {
+      "name": "-Blank-",
+      "slug": "blank_17",
+      "loop": false,
+      "hex": "0x17"
+    },
+    "24": {
+      "name": "Windmill Part 1",
+      "slug": "windmill_part_1",
+      "loop": true,
+      "hex": "0x18"
+    },
+    "25": {
+      "name": "Windmill Part 2",
+      "slug": "windmill_part_2",
+      "loop": true,
+      "hex": "0x19"
+    },
+    "26": {
+      "name": "Exploding",
+      "slug": "exploding",
+      "loop": true,
+      "hex": "0x1A"
+    },
+    "27": {
+      "name": "Foreign Musical Duo?",
+      "slug": "foreign_musical_duo",
+      "loop": true,
+      "hex": "0x1B"
+    }
+  }
+}

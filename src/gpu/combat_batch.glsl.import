@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://blmoxarigsodw"
+path="res://.godot/imported/combat_batch.glsl-3b8fdf574232e110c05e73e8c302b47a.res"
+
+[deps]
+
+source_file="res://src/gpu/combat_batch.glsl"
+dest_files=["res://.godot/imported/combat_batch.glsl-3b8fdf574232e110c05e73e8c302b47a.res"]
+
+[params]
+

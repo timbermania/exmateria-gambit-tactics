@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://r6hcvwsop0ks"]
+
+[ext_resource type="Script" path="res://tests/TileCursorIntegrationTest.gd" id="1_test"]
+
+[node name="TileCursorIntegrationTest" type="Node"]
+script = ExtResource("1_test")

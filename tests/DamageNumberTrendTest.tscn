@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://damage_number_trend_test"]
+
+[ext_resource type="Script" path="res://tests/DamageNumberTrendTest.gd" id="1_test"]
+
+[node name="DamageNumberTrendTest" type="Node3D"]
+script = ExtResource("1_test")

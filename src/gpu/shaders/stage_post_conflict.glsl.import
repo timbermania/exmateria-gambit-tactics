@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://droh877hmin33"
+path="res://.godot/imported/stage_post_conflict.glsl-eea00092b1e12ed85a2add3913c68fbe.res"
+
+[deps]
+
+source_file="res://src/gpu/shaders/stage_post_conflict.glsl"
+dest_files=["res://.godot/imported/stage_post_conflict.glsl-eea00092b1e12ed85a2add3913c68fbe.res"]
+
+[params]
+

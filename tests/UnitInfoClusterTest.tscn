@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://unit_info_cluster_test"]
+
+[ext_resource type="Script" path="res://tests/UnitInfoClusterTest.gd" id="1_test"]
+
+[node name="UnitInfoClusterTest" type="Node3D"]
+script = ExtResource("1_test")

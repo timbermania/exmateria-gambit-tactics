@@ -1,0 +1,122 @@
+{
+  "0": {
+	"high": 122,
+	"mid": 124,
+	"low": 126,
+	"name": "Unarmed"
+  },
+  "1": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Knife"
+  },
+  "2": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "NinjaBlade"
+  },
+  "3": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Sword"
+  },
+  "4": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "KnightSword"
+  },
+  "5": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Katana"
+  },
+  "6": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Axe"
+  },
+  "7": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Rod"
+  },
+  "8": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Staff"
+  },
+  "9": {
+	"high": 128,
+	"mid": 130,
+	"low": 132,
+	"name": "Flail"
+  },
+  "10": {
+	"high": 160,
+	"mid": 162,
+	"low": 164,
+	"name": "Gun"
+  },
+  "11": {
+	"high": 166,
+	"mid": 168,
+	"low": 170,
+	"name": "Crossbow"
+  },
+  "12": {
+	"high": 166,
+	"mid": 168,
+	"low": 170,
+	"name": "Bow"
+  },
+  "13": {
+	"high": 174,
+	"mid": 174,
+	"low": 174,
+	"name": "Instrument"
+  },
+  "14": {
+	"high": 172,
+	"mid": 172,
+	"low": 172,
+	"name": "Book"
+  },
+  "15": {
+	"high": 154,
+	"mid": 156,
+	"low": 158,
+	"name": "Polearm"
+  },
+  "16": {
+	"high": 154,
+	"mid": 156,
+	"low": 158,
+	"name": "Pole"
+  },
+  "17": {
+	"high": 238,
+	"mid": 240,
+	"low": 242,
+	"name": "Bag"
+  },
+  "18": {
+	"high": 238,
+	"mid": 240,
+	"low": 242,
+	"name": "Cloth"
+  },
+  "19": {
+	"high": 0,
+	"mid": 0,
+	"low": 0,
+	"name": "Shield"
+  }
+}

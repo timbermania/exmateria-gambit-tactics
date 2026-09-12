@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/projectile_vertex_color.gdshader" id="1_proj_vc"]
+
+[resource]
+shader = ExtResource("1_proj_vc")

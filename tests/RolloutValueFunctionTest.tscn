@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://rollout_value_function_test"]
+
+[ext_resource type="Script" path="res://tests/RolloutValueFunctionTest.gd" id="1_test"]
+
+[node name="RolloutValueFunctionTest" type="Node"]
+script = ExtResource("1_test")

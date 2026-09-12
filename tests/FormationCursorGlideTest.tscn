@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_cursor_glide_test"]
+
+[ext_resource type="Script" path="res://tests/FormationCursorGlideTest.gd" id="1_test"]
+
+[node name="FormationCursorGlideTest" type="Node"]
+script = ExtResource("1_test")

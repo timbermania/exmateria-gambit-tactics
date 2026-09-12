@@ -1,0 +1,85 @@
+[gd_scene load_steps=11 format=3 uid="uid://captvccb3v043"]
+
+; The HOST's unit — ADR-0217 dec. 3, built by #744. A Godot INHERITED SCENE whose base is
+; `addons/exmateria_sprite_rig/UnitRig.tscn`, and the sprite rig's ONE declared mount in
+; `check_lattice_scene.py`.
+;
+; 🔴 WHY THIS FILE CHANGED SHAPE. Before #744 the rig lived in `src/animation/` and this
+; scene named four of its files directly by `ext_resource` — the shader plus
+; `SpriteLayerManager`, `AnimationStateController` and `CameraRelativeRenderer`. The move
+; turned all four into a host file naming an ADDON path, which criterion 4 arm 1 scores.
+; They are now ONE `PackedScene` line. 114 files reference this scene (5 production, 109
+; `tests/`) and not one of them changed: every node path off the root is byte-identical,
+; which is the whole reason this is inheritance rather than a wrapper node (ADR-0204
+; dec. 2's argument, applied a third time after the camera and the cursor).
+;
+; 🔴 CHILD ORDER IS PRESERVED WITH `index=`, NOT BY LUCK. Inheritance appends the base's
+; children first, so the seven host nodes below each carry the index they held before the
+; split. `UnitMesh` is index 0 in the base; `SpriteLayerManager`,
+; `AnimationStateController` and `CameraRelativeRenderer` come from the base and keep
+; positions 6, 7 and 8. Nothing addresses a unit child by index today, but three of these
+; scripts have a `_ready`, and `_ready` order IS child order.
+;
+; 🔴 THE UNIT MATERIAL IS NOT AUTHORED ANYWHERE IN THIS TREE ANY MORE, and it never
+; mattered: `Unit.gd::_initialize_materials()` replaces it with
+; `UnitAssets.base_material().duplicate()` — i.e. `assets/materials/unit.tres` — and calls
+; `surface_set_material(0, …)`. The base scene keeps a texture-free `ShaderMaterial` so the
+; editor preview is an untextured quad instead of a white one; the three
+; `res://assets/sprites/textures/*.tga` lines this file used to carry are gone rather than
+; moved, because moving them into the addon is exactly the P4 regression #741 and #744
+; just paid for.
+
+[ext_resource type="PackedScene" uid="uid://b6unitrig4444" path="res://addons/exmateria_sprite_rig/UnitRig.tscn" id="1_unit_rig"]
+[ext_resource type="Script" uid="uid://bk1gkxsemplx8" path="res://src/units/Unit.gd" id="2_e1oum"]
+[ext_resource type="Script" path="res://src/units/UnitStats.gd" id="3_unit_stats"]
+[ext_resource type="Script" uid="uid://bonrfwym22lgq" path="res://src/units/MovementComponent.gd" id="9_movement_component"]
+[ext_resource type="Shader" uid="uid://bv0q6fvjndqya" path="res://assets/shaders/shadow_blob.gdshader" id="10_shadow_shader"]
+[ext_resource type="Script" path="res://src/units/EquippedAbilities.gd" id="11_equipped_abilities"]
+[ext_resource type="Script" path="res://src/units/UnitStatusManager.gd" id="12_status_manager"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1tvhq"]
+render_priority = 0
+shader = ExtResource("10_shadow_shader")
+shader_parameter/intensity = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_w84nx"]
+material = SubResource("ShaderMaterial_1tvhq")
+size = Vector2(0.714286, 0.714286)
+orientation = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fv7wj"]
+
+[node name="Unit" instance=ExtResource("1_unit_rig")]
+script = ExtResource("2_e1oum")
+
+[node name="ShadowMesh" type="MeshInstance3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+visible = false
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_w84nx")
+
+[node name="ShadowRaycast" type="RayCast3D" parent="." index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+target_position = Vector3(0, -15, 0)
+collision_mask = 2
+
+[node name="SelectionArea" type="Area3D" parent="." index="3"]
+collision_layer = 4
+collision_mask = 0
+
+[node name="SelectionShape" type="CollisionShape3D" parent="SelectionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_fv7wj")
+
+[node name="MovementComponent" type="Node" parent="." index="4"]
+script = ExtResource("9_movement_component")
+
+[node name="UnitStats" type="Node" parent="." index="5"]
+script = ExtResource("3_unit_stats")
+
+[node name="EquippedAbilities" type="Node" parent="." index="9"]
+script = ExtResource("11_equipped_abilities")
+
+[node name="UnitStatusManager" type="Node" parent="." index="10"]
+script = ExtResource("12_status_manager")

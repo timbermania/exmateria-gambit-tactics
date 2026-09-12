@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://cgambitbattle01"]
+
+[ext_resource type="Script" path="res://src/scenes/GambitBattle.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://bcmbtcam4mnt77" path="res://assets/scenes/CombatCamera.tscn" id="2_camera"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="3_map"]
+[ext_resource type="PackedScene" uid="uid://btilecursormnt7" path="res://assets/scenes/CombatCursor.tscn" id="4_tile_cursor"]
+
+[sub_resource type="Environment" id="Environment_gambit"]
+background_mode = 1
+
+[node name="GambitBattle" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 0.9999982, -0.0018849544, 0, 0.0018849544, 0.9999982, 0, 0, 0)
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_gambit")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("3_map")]
+auto_build_on_ready = false
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_camera")]
+transform = Transform3D(-0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 10, 5, 10)
+procedural_map_path = NodePath("../ProceduralMap")
+
+[node name="TileCursor" parent="." instance=ExtResource("4_tile_cursor")]
+procedural_map_path = NodePath("../ProceduralMap")
+player_camera_path = NodePath("../PlayerCamera")
+
+[node name="Camera" parent="PlayerCamera/FocusPoint" index="0"]
+near = 0.1
+
+[editable path="PlayerCamera"]

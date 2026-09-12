@@ -1,0 +1,49 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://cdat25l7uddvk"]
+
+[ext_resource type="Shader" uid="uid://cw3b5wdcumh7v" path="res://addons/exmateria_sprite_rig/render/unit.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://coaet4wasli5v" path="res://assets/sprites/textures/01.tga" id="2_type1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/textures/WEP1.tga" id="3_wep1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/textures/EFF1.tga" id="4_eff1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/type1_tex = ExtResource("2_type1")
+shader_parameter/wep1_tex = ExtResource("3_wep1")
+shader_parameter/eff1_tex = ExtResource("4_eff1")
+shader_parameter/mesh_size = Vector2(1, 1)
+shader_parameter/type1_tex_size = Vector2(256, 488)
+shader_parameter/wep1_tex_size = Vector2(256, 488)
+shader_parameter/eff1_tex_size = Vector2(256, 488)
+shader_parameter/type1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/type1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rects = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rect_sizes = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_locs = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_loc_offsets = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_inversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_reversions = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rotations = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/eff1_rot_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wep_enable = false
+shader_parameter/wep_on_top = false
+shader_parameter/eff_enable = false
+shader_parameter/eff_on_top = false
+shader_parameter/shared_loc_offset = Vector2(28, 26)
+shader_parameter/priority = [0, 1, 2, 3]
+shader_parameter/global_reversion = false
+shader_parameter/ambient_brightness = 1.0

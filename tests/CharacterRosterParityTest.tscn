@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_character_roster_parity_test_01"]
+
+[ext_resource type="Script" path="res://tests/CharacterRosterParityTest.gd" id="1_test"]
+
+[node name="CharacterRosterParityTest" type="Node3D"]
+script = ExtResource("1_test")

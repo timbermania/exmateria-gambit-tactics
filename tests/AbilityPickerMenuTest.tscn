@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ability_picker_menu_test"]
+
+[ext_resource type="Script" path="res://tests/AbilityPickerMenuTest.gd" id="1_test"]
+
+[node name="AbilityPickerMenuTest" type="Node"]
+script = ExtResource("1_test")

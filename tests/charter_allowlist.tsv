@@ -1,0 +1,1329 @@
+# tests/charter_allowlist.tsv — the test-charter violations that ALREADY
+# existed when docs/TEST-CHARTER.md landed. SHRINK-ONLY.
+#
+# A row here is a debt with a name on it, not an exemption. Two rules:
+#   * A NEW violation not listed here fails the pre-flight. Fix the test.
+#   * A row whose violation is GONE also fails, and the fix is to delete
+#     the row. That is what stops the list rotting into a permanent
+#     carve-out, and it is why there is no --unseed.
+#
+# `.claude/skills/test-audit-loop` deletes rows as it audits. The row count
+# is the burn-down: `uv run python tools/check_test_charter.py --stats`.
+#
+# test	clause	what the clause says
+AbilityCandidatesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AbilityCandidatesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AbilityLoadoutProgressionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AbilityLoadoutProgressionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AbilityLoadoutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AbilityLoadoutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AbilityPickerMenuTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AbilityPickerMenuTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AbilityViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AbilityViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AlignmentPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AlignmentPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AllTemplatesSeederTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AllTemplatesSeederTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AmbientAudioPathTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AmbientAudioPathTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AnimationFrameCalculatorMemoTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AnimationFrameCalculatorMemoTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AttackSfxResolverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AttackSfxResolverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AudioBusLayoutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AudioBusLayoutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+AudioMasterVolumeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+AudioMasterVolumeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BattleConditionalSetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BattleConditionalSetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BattleDeploymentTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BattleDeploymentTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BattlefieldAddonAddressTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BattlefieldAddonAddressTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BattlefieldWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BattlefieldWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BlendTargetSolverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BlendTargetSolverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+BoxOpenAnimatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+BoxOpenAnimatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraConvertParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraConvertParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraFeelPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraFeelPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraFeelTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraFeelTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraHoldClosureCorpusSweepTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraHoldClosureCorpusSweepTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraLoweringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraLoweringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraMotionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraMotionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraTweenProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraTweenProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraUnitsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraUnitsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CameraValueSemanticsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CameraValueSemanticsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CampaignChainTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CampaignChainTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CampaignNodeScriptTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CampaignNodeScriptTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CampaignRevealPassTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CampaignRevealPassTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CampaignVariableStoreTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CampaignVariableStoreTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CatalogueReplayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CatalogueReplayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ChangeJobCommitCutsceneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ChangeJobCommitCutsceneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ChangeJobTitleElementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ChangeJobTitleElementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ChangeJobWheelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ChangeJobWheelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CharacterCatalogOwnedTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CharacterCatalogOwnedTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CharacterCatalogTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CharacterCatalogTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CharacterFormSetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CharacterFormSetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ChildSpawnSuppressionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ChildSpawnSuppressionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CinematicFacingResolverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CinematicFacingResolverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CinematicLowRangeSeqKeyTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CinematicLowRangeSeqKeyTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CinematicPoseLUTTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CinematicPoseLUTTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColorLoweringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColorLoweringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColorModeLabelsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColorModeLabelsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColorStackTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColorStackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColorTimelineModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColorTimelineModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColorTweenRowsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColorTweenRowsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourBoundaryCorpusSweepTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourBoundaryCorpusSweepTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourBoundaryFarEdgeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourBoundaryFarEdgeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourBoxPickerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourBoxPickerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourDragPristineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourDragPristineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourKeyframeFitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourKeyframeFitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourKeyframeSessionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourKeyframeSessionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourKeyframeTrackTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourKeyframeTrackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourLifeColumnTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourLifeColumnTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourMoveCorpusSweepTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourMoveCorpusSweepTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourMovePadShapeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourMovePadShapeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourMoveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourMoveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourMuxTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourMuxTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourRibbonResolveParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourRibbonResolveParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourRibbonRulerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourRibbonRulerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourRibbonTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourRibbonTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ColourStructureFreeDragTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ColourStructureFreeDragTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CombatBodyPaletteRowTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CombatBodyPaletteRowTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CombatCameraMountTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CombatCameraMountTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CombatFaithfulPoseTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CombatFaithfulPoseTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CombatVictoryPoseTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CombatVictoryPoseTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CombatVisualsSpawnFreezeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CombatVisualsSpawnFreezeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CrystalSpriteCompositorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CrystalSpriteCompositorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CursorConfirmEndToEndTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CursorConfirmEndToEndTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CursorPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CursorPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CursorTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CursorTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CurveGeneratorsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CurveGeneratorsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CurvePaintModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CurvePaintModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CurvePlayheadMarkerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CurvePlayheadMarkerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+CurveShapeSetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+CurveShapeSetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DamageNumberTrendTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DamageNumberTrendTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DebugDitherTunableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DebugDitherTunableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DebugLoggingFlagsTunableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DebugLoggingFlagsTunableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DebugPanelMasonryWidthTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DebugPanelMasonryWidthTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DebugSignalFlagsTunableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DebugSignalFlagsTunableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DeploymentAssignmentTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DeploymentAssignmentTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DeploymentPlanTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DeploymentPlanTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DepthCenterBboxTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DepthCenterBboxTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailAbilitySlotFocusTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailAbilitySlotFocusTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailColumnBandFoldEnrollTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailColumnBandFoldEnrollTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailEntrySlideTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailEntrySlideTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailEquipDeltaRenderTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailEquipDeltaRenderTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailFrameGroupTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailFrameGroupTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailFrameTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailFrameTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailLowerElementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailLowerElementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailRegistrationAuditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailRegistrationAuditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailScreenLayoutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailScreenLayoutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailStatsDeltaCoverageTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailStatsDeltaCoverageTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailStatsDeltaFrameRideTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailStatsDeltaFrameRideTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailStatsDeltaGlyphDupTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailStatsDeltaGlyphDupTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailStatsDeltaPanelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailStatsDeltaPanelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailStatsElementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailStatsElementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailTransitionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailTransitionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailUnauthoredDepthTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailUnauthoredDepthTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailUnitClusterElementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailUnitClusterElementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DetailVitalsBandElementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DetailVitalsBandElementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DialogueBoxPlacementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DialogueBoxPlacementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DialogueBoxTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DialogueBoxTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+DialogueOverlayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+DialogueOverlayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectAnimationDisplayLengthTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectAnimationDisplayLengthTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectAudibilityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectAudibilityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraCompiledLaneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraCompiledLaneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraDecoupleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraDecoupleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraEdgeDragAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraEdgeDragAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraInsertDeleteAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraInsertDeleteAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraInsertDeleteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraInsertDeleteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraMoveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraMoveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraOrdinalAddressTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraOrdinalAddressTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraRippleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraRippleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraSaveRoundTripTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraSaveRoundTripTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraSaverAdapterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraSaverAdapterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraSpacerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraSpacerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraStructuralUndoTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraStructuralUndoTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCameraUnitAuthoringSaveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCameraUnitAuthoringSaveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCaptureEngineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCaptureEngineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectColourMovePadAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectColourMovePadAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCurveOwnershipTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCurveOwnershipTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCurvePainterMarkerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCurvePainterMarkerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCurvePainterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCurvePainterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectCurveSparklineMarkerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectCurveSparklineMarkerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectDataSoundContainersTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectDataSoundContainersTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEditSessionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEditSessionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEditabilityManifestTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEditabilityManifestTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEmitterInspectorUxAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEmitterInspectorUxAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEmitterSaveAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEmitterSaveAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEmitterSaverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEmitterSaverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectEndModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectEndModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectFlagsChannelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectFlagsChannelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectFlagsSaverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectFlagsSaverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectFramesBarRegionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectFramesBarRegionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectFramesBarTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectFramesBarTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectInstanceReplaySoundTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectInstanceReplaySoundTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectKeyframeInspectorMarkerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectKeyframeInspectorMarkerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectKeyframeInspectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectKeyframeInspectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectLoopRegionViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectLoopRegionViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteByteCoverageAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteByteCoverageAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteEdgeDragAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteEdgeDragAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteInsertDeleteAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteInsertDeleteAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteInsertPositionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteInsertPositionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteSaveRoundTripTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteSaveRoundTripTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteSaverAdapterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteSaverAdapterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPaletteTintPickAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPaletteTintPickAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectParticleRendererColorCurveRefreshTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectParticleRendererColorCurveRefreshTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectParticleTimelineSaverAdapterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectParticleTimelineSaverAdapterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPhase2EndFloorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPhase2EndFloorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectPickerVerdictFreshnessTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectPickerVerdictFreshnessTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectRngDeterminismTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectRngDeterminismTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScoreModelChildLinkRelevanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScoreModelChildLinkRelevanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScoreModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScoreModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScoreTimelinePhaseBoundaryTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScoreTimelinePhaseBoundaryTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScoreTimelineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScoreTimelineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScoreWindowParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScoreWindowParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScreenEdgeDragAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScreenEdgeDragAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScreenInsertDeleteAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScreenInsertDeleteAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScreenInsertPositionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScreenInsertPositionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScreenSaverAdapterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScreenSaverAdapterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScriptPatternTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScriptPatternTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScriptReflowTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScriptReflowTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScriptSaverAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScriptSaverAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectScriptSwapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectScriptSwapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSettingsProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSettingsProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSettingsTargetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSettingsTargetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundCaptureTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundCaptureTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundEditReachesPlaybackTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundEditReachesPlaybackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundEventHandleBijectionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundEventHandleBijectionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundHandleDrawAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundHandleDrawAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundInsertDeleteAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundInsertDeleteAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundInsertDeleteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundInsertDeleteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSoundSaveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSoundSaveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSpacerEdgeGripTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSpacerEdgeGripTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSpacerEmptySpaceAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSpacerEmptySpaceAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSpacerProjectionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSpacerProjectionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSpacerRestyleAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSpacerRestyleAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSpacerVisibilityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSpacerVisibilityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioAnchorWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioAnchorWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioAsyncGhostLoadTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioAsyncGhostLoadTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioAsyncGhostLoadTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+EffectStudioAudibilityWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioAudibilityWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioCameraSplitSelectionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioCameraSplitSelectionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioChainInspectionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioChainInspectionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColorCurveLiveEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColorCurveLiveEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColorEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColorEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColourColumnTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColourColumnTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColourEnableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColourEnableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColourKeyframeAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColourKeyframeAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColourRibbonAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColourRibbonAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioColourRibbonWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioColourRibbonWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioContainerBrowserTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioContainerBrowserTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioCurveOwnershipAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioCurveOwnershipAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioCurvePlayheadMarkerAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioCurvePlayheadMarkerAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioCurvePreviewWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioCurvePreviewWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioDeselectScrollAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioDeselectScrollAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioDeselectScrollTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioDeselectScrollTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioDirectionalYAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioDirectionalYAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioDrillDownTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioDrillDownTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEdgeDragWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEdgeDragWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEditorKitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEditorKitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEffectFlagsAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEffectFlagsAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEmitterBrowserTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEmitterBrowserTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEmitterColumnTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEmitterColumnTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEmitterSequenceSubjectTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEmitterSequenceSubjectTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEnergyRenderChunkedTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioEnergyRenderChunkedTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioEnergyRenderChunkedTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+EffectStudioFireDragWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFireDragWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFrameQuadTransformTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFrameQuadTransformTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFramesetCanvasAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFramesetCanvasAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFramesetCanvasWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFramesetCanvasWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFramesetEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFramesetEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFramesetLayoutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFramesetLayoutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioFramesetRailTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioFramesetRailTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioGroupHandlesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioGroupHandlesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioHideInertAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioHideInertAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioHideInertToggleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioHideInertToggleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioInspectorFoldsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioInspectorFoldsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioKindSelectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioKindSelectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioLaneContextMenuTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioLaneContextMenuTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioLiveReprojectTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioLiveReprojectTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioNavStackTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioNavStackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioPaletteEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioPaletteEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioParticleDragPreviewAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioParticleDragPreviewAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioPathBarAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioPathBarAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioPathBarTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioPathBarTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioPhaseBoundaryAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioPhaseBoundaryAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioPlayheadDisplayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioPlayheadDisplayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioQuadTransformAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioQuadTransformAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioRegionLoopAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioRegionLoopAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioRegionScopeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioRegionScopeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSaveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSaveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioScriptPatternAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioScriptPatternAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSeekCoalesceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSeekCoalesceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceBrowserTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceBrowserTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceCanvasTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceCanvasTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceCellColourTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceCellColourTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceThumbnailTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceThumbnailTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceTimelineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceTimelineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSequenceViewportTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSequenceViewportTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSoundDefEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSoundDefEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSoundEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSoundEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSpeedFieldAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSpeedFieldAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSpeedFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSpeedFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioSpriteMuxAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioSpriteMuxAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioStaleSurfaceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioStaleSurfaceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureImportAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureImportAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTexturePlayheadTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTexturePlayheadTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureTabTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureTabTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureTgaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureTgaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTextureWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTextureWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTimeScaleAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTimeScaleAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTimelineHeaderAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTimelineHeaderAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioTransportTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioTransportTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioUndoShortcutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioUndoShortcutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioUndoTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioUndoTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioUnifiedAnimationAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioUnifiedAnimationAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioUnifiedAnimationAcceptanceTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+EffectStudioUnifiedAnimationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioUnifiedAnimationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectStudioUnitCellTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectStudioUnitCellTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectSubsystemMuteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectSubsystemMuteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectTimeScaleSaverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectTimeScaleSaverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectTimelineHeaderSaverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectTimelineHeaderSaverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectTimelineModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectTimelineModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EffectTimelineSoloMuteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EffectTimelineSoloMuteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterChannelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterChannelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterFieldRelevanceSimGuardTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterFieldRelevanceSimGuardTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterFieldRelevanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterFieldRelevanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterProjectorBareTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterProjectorBareTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterProvenanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterProvenanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterRelevanceAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterRelevanceAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterRelevanceViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterRelevanceViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterSpriteColorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterSpriteColorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EmitterViewClockDomainTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EmitterViewClockDomainTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EntdBattleComposeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EntdBattleComposeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipCandidatesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipCandidatesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipDeltaPaletteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipDeltaPaletteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipPickerFrameGroupTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipPickerFrameGroupTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipPickerInteriorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipPickerInteriorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipPickerLeftStripTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipPickerLeftStripTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipPickerRowMechanismTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipPickerRowMechanismTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipPickerTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipPickerTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EquipStatDeltaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EquipStatDeltaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+EventInstructionArgsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+EventInstructionArgsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FedsInstrumentMetaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FedsInstrumentMetaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FedsNoteAuditionEngineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FedsNoteAuditionEngineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FedsNoteAuditionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FedsNoteAuditionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FedsPairEditorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FedsPairEditorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FedsPrunePersistenceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FedsPrunePersistenceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FeedbackHudFoldRoutingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FeedbackHudFoldRoutingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FeedbackHudTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FeedbackHudTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FieldInspectControllerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FieldInspectControllerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FocusStackTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FocusStackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FoldQuantizePolicyTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FoldQuantizePolicyTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FoldSurfaceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FoldSurfaceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FoldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FoldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FontPaletteTunableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FontPaletteTunableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FontPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FontPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FormationDetailRefineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FormationDetailRefineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FormationInfoPanelViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FormationInfoPanelViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FormationStartMenuTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FormationStartMenuTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+FormationTransitionEngineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+FormationTransitionEngineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUAOETrackingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUAOETrackingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUArenaStressCastTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUArenaStressCastTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUArenaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUArenaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUArenaTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUBatchedTickParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBatchedTickParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBatchedTickParityTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUBattleSnapshotTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBattleSnapshotTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBattleSnapshotTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUBerserkTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBerserkTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBladeGraspTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBladeGraspTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBombFireAbsorbTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBombFireAbsorbTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBreakTrapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBreakTrapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUBridgeDescentTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUBridgeDescentTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUCinematicSingleSpawnTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUCinematicSingleSpawnTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUCombatInterpreterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUCombatInterpreterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUDashMovementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUDashMovementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUDashNoHitCloudTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUDashNoHitCloudTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUDistanceFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUDistanceFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUElementAbsorbTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUElementAbsorbTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUElementCancelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUElementCancelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUEvasionMixedTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUEvasionMixedTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUEvasionMixedTest	C4	never calls .quit() — the runner has no --quit-after, so this is a 360 s HUNG
+GPUFloatEarthAbsorbCompositionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFloatEarthAbsorbCompositionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFloatEarthCancelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFloatEarthCancelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula01Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula01Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula08Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula08Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula12Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula12Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula32Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula32Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula36Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula36Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula49Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula49Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula55Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula55Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUFormula78Test	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUFormula78Test	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUHasteSlowTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUHasteSlowTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUItemCombatTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUItemCombatTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUItemFallthroughTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUItemFallthroughTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUItemFallthroughTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUKnightBreakTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUKnightBreakTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUMeleeCombatTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUMeleeCombatTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUMeleeCombatTest	C4	never calls .quit() — the runner has no --quit-after, so this is a 360 s HUNG
+GPUMeleeHitCloudTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUMeleeHitCloudTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUMoveToUnitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUMoveToUnitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUMovementInterpreterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUMovementInterpreterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUOilFireAbsorbCompositionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUOilFireAbsorbCompositionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUOilFireDoubleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUOilFireDoubleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUOilFireHalfCompositionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUOilFireHalfCompositionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUPassthroughLegTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUPassthroughLegTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUPhysicalAbilityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUPhysicalAbilityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUPoisonTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUPoisonTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUProtectTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUProtectTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPURangedCombatTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPURangedCombatTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPURangedCombatTest	C4	never calls .quit() — the runner has no --quit-after, so this is a 360 s HUNG
+GPUReactDurationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUReactDurationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUReactionCounterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUReactionCounterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPURegenTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPURegenTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUReraiseTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUReraiseTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPURiseTimingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPURiseTimingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSEQMovementTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSEQMovementTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSeedReproTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSeedReproTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSeedReproTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUShellTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUShellTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSimultaneousCinematicTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSimultaneousCinematicTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSnapshotUnionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSnapshotUnionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSnapshotUnionTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUSpellCombatTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSpellCombatTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUSpellTrackingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUSpellTrackingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStatusCancelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStatusCancelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStatusEnforceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStatusEnforceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStatusHitRateTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStatusHitRateTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStatusInflictTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStatusInflictTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStatusNoDamageTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStatusNoDamageTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUStrengthenFireTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUStrengthenFireTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUTargetDiedMidWalkTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUTargetDiedMidWalkTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUTeleportTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUTeleportTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUTeleportTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUThrashTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUThrashTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUThrowItemTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUThrowItemTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUThrowStoneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUThrowStoneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUThrowStoneTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUTurnMeterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUTurnMeterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUUndeadInvertTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUUndeadInvertTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUVerticalToleranceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUVerticalToleranceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUVisualBridgeInterpolationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUVisualBridgeInterpolationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUVisualBridgeInterpolationTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+GPUWeaponElementNoStatusTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUWeaponElementNoStatusTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUWeaponFireAbsorbTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUWeaponFireAbsorbTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUWeaponFireHalfTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUWeaponFireHalfTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUWeaponFireWeakTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUWeaponFireWeakTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GPUWeaponNoElementUnaffectedTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GPUWeaponNoElementUnaffectedTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitBattleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GambitBattleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitEncodeSchemaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GambitEncodeSchemaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitEncoderTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GambitEncoderTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitSafetyNetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GambitSafetyNetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitScenarioRunnerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GambitScenarioRunnerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GambitScenarioRunnerTest	C4	never calls .quit() — the runner has no --quit-after, so this is a 360 s HUNG
+GameNavigatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GameNavigatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GameStateTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GameStateTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+GetPoseOctantTest	C1	no `# test-kind:` declaration (or an unknown kind)
+GetPoseOctantTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+InspectionTargetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+InspectionTargetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+InspectorLinkTest	C1	no `# test-kind:` declaration (or an unknown kind)
+InspectorLinkTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+InspectorProjectorRegistryTest	C1	no `# test-kind:` declaration (or an unknown kind)
+InspectorProjectorRegistryTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+JobCandidatesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+JobCandidatesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+JobCandidatesTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+JsonAssetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+JsonAssetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+LoggingPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+LoggingPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+LoopRegionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+LoopRegionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+LoopTransportTest	C1	no `# test-kind:` declaration (or an unknown kind)
+LoopTransportTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapDebugPanelMountTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapDebugPanelMountTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapDitherSnapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapDitherSnapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapFieldObjectPaletteWiringTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapFieldObjectPaletteWiringTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapPaletteFieldObjectTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapPaletteFieldObjectTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapStateExportTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapStateExportTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MapTextureAnimatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MapTextureAnimatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MusicTypewriterStressTest	C1	no `# test-kind:` declaration (or an unknown kind)
+MusicTypewriterStressTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+MusicTypewriterStressTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+NavigatorCombatRevealTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorCombatRevealTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorCommandModeProofTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorCommandModeProofTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorCommandModeProofTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorCommandModeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorCommandModeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorDeployedIdlePumpTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorDeployedIdlePumpTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorFormationViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorFormationViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorFormationViewTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorGarilandVictoryTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorGarilandVictoryTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorGarilandVictoryTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorMandaliaOpenerFocusTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorMandaliaOpenerFocusTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorMandaliaOpenerFocusTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorPanelOwnershipTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorPanelOwnershipTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorPanelOwnershipTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorPreBattleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorPreBattleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorRebootFadeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorRebootFadeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorRewindResumeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorRewindResumeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorRewindResumeTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorRunnerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorRunnerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorSeekPartyNodeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorSeekPartyNodeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapArrivalTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorWorldMapArrivalTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapArrivalTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorWorldMapChainTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorWorldMapChainTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapChainTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorWorldMapFormationRenderTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorWorldMapFormationRenderTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapFormationRenderTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorWorldMapFormationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorWorldMapFormationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapFormationTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NavigatorWorldMapPressPrecedenceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NavigatorWorldMapPressPrecedenceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NavigatorWorldMapPressPrecedenceTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+NumberFontTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NumberFontTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+NumberPopupTrendTest	C1	no `# test-kind:` declaration (or an unknown kind)
+NumberPopupTrendTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PSXDisplaySingleSourceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PSXDisplaySingleSourceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PaletteBoundaryEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PaletteBoundaryEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PaletteInsertDeleteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PaletteInsertDeleteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PaletteSubsystemTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PaletteSubsystemTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PaletteTintSolverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PaletteTintSolverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PaletteTweenProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PaletteTweenProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ParticleTimelineEnableRetargetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ParticleTimelineEnableRetargetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ParticleTimelineMoveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ParticleTimelineMoveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ParticleTimelineStructuralTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ParticleTimelineStructuralTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ParticleUnitsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ParticleUnitsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PickerContractTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PickerContractTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PilotStaticInitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PilotStaticInitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PortraitCallSiteRoutingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PortraitCallSiteRoutingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ProceduralMapMountTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ProceduralMapMountTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ProgressionTesterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ProgressionTesterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ProjectilePanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ProjectilePanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PsxColorCalibrationTuneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PsxColorCalibrationTuneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PsxMagnitudeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PsxMagnitudeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+PsxNumTest	C1	no `# test-kind:` declaration (or an unknown kind)
+PsxNumTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RangeTileAtlasTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RangeTileAtlasTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ReferenceRenderDirectionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ReferenceRenderDirectionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RenderCardinalConverterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RenderCardinalConverterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RosterBindingIntegrationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RosterBindingIntegrationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RosterDebugViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RosterDebugViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RosterTimelineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RosterTimelineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+RosterViewTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+RosterViewTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioActiveIdAutosaveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioActiveIdAutosaveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioActorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioActorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioApplyTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioApplyTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioBackgroundTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioBackgroundTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioBgSoundTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioBgSoundTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioBoxedDialogTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioBoxedDialogTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioBroadcastRotateHeldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioBroadcastRotateHeldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCallFunctionStubTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCallFunctionStubTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCameraEaseTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCameraEaseTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCameraFloorAimCalibTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCameraFloorAimCalibTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCameraRelativeMoveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCameraRelativeMoveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCameraSwoopMonotonicTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCameraSwoopMonotonicTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCameraVerticalDatumTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCameraVerticalDatumTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioChapelChainSplineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioChapelChainSplineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioChapelChainTraceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioChapelChainTraceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioChapelJerkProbeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioChapelJerkProbeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCinematicBandRoutingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCinematicBandRoutingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCinematicPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCinematicPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCinematicTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCinematicTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCinematicWalkerTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCinematicWalkerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioClockUnificationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioClockUnificationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioColorFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioColorFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioColorScreenTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioColorScreenTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioColorUnitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioColorUnitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCombatWeatherKeepsFallingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCombatWeatherKeepsFallingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioCommitPaletteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioCommitPaletteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDeadUnitFadeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDeadUnitFadeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDecodeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDecodeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDialogueBoxPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDialogueBoxPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDialogueBoxTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDialogueBoxTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDirectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDirectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioDoorwayRevealTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioDoorwayRevealTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioEndSoundTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioEndSoundTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioEntdSpriteMapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioEntdSpriteMapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioEventAnimTypeAwareTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioEventAnimTypeAwareTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioEventInstructionCoverageTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioEventInstructionCoverageTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioEventInstructionSetTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioEventInstructionSetTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioFaceUnitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioFaceUnitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioFacingAnimDecodeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioFacingAnimDecodeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioFieldObjectTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioFieldObjectTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioFocusTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioFocusTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioGroupFinishedTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioGroupFinishedTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioInflictStatusTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioInflictStatusTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioLatchStepBoundaryTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioLatchStepBoundaryTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioLateAddVisibilityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioLateAddVisibilityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioLumaTintTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioLumaTintTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioMapDarknessTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioMapDarknessTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioMapTitleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioMapTitleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioMirrorSpriteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioMirrorSpriteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioMotionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioMotionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioNameMacroTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioNameMacroTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPaletteResolutionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPaletteResolutionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPathMotionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPathMotionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPathTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPathTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPlacementDataTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPlacementDataTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPortraitRowTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPortraitRowTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioPrayerOverlayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioPrayerOverlayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioRemoveUnitTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioRemoveUnitTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioSettleScreenEffectsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioSettleScreenEffectsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioShowGraphicTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioShowGraphicTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioSpriteMoveTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioSpriteMoveTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioStartClearsPauseTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioStartClearsPauseTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioSteppingConsistencyTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioSteppingConsistencyTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWalkFacingAngleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWalkFacingAngleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWalkToAnimTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWalkToAnimTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWarpFacingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWarpFacingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWeatherPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWeatherPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWeatherTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWeatherTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScenarioWeatherTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScenarioWeatherTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScoreReprojectReuseParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScoreReprojectReuseParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenBoundaryEditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenBoundaryEditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenDataRoundTripTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenDataRoundTripTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenEnabledToggleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenEnabledToggleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenInsertDeleteTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenInsertDeleteTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenOverlayQuadTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenOverlayQuadTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenSubsystemTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenSubsystemTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScreenTweenProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScreenTweenProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ScrubFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ScrubFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SeekIntegrationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SeekIntegrationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SequenceLifeMapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SequenceLifeMapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxCatalogTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxCatalogTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxOneShotPoolTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxOneShotPoolTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxOneShotSessionDrainTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxOneShotSessionDrainTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxRouterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxRouterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxTraceProbeGateTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxTraceProbeGateTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SfxTraceProbeGateTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+SfxUnitRoutingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SfxUnitRoutingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ShaderCompileTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ShaderCompileTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SkirtConfigTuneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SkirtConfigTuneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SlugBindingTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SlugBindingTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundContainerChannelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundContainerChannelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundContainerModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundContainerModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundContainerProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundContainerProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundEnvelopeCaptureTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundEnvelopeCaptureTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundGapMathTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundGapMathTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundGhostProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundGhostProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundRenderQueueTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundRenderQueueTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SoundTriggerProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SoundTriggerProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpacerVerdictShortcutParityTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpacerVerdictShortcutParityTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpacerVerdictsPerfTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpacerVerdictsPerfTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpacerVerdictsPerfTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+SpacerVerdictsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpacerVerdictsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpanProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpanProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpriteRigContentPortTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpriteRigContentPortTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpriteSlideAnimatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpriteSlideAnimatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpuAudioPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpuAudioPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpuClippingMetricsTest	C1	no `# test-kind:` declaration (or an unknown kind)
+SpuClippingMetricsTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+SpuClippingMetricsTest	C14a	uses create_timer() — sleeps a real duration instead of awaiting a state
+StartMenuBackgroundedFrameSwapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StartMenuBackgroundedFrameSwapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StartMenuFrameGroupTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StartMenuFrameGroupTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StartMenuLocationSweepTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StartMenuLocationSweepTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StartMenuRehomeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StartMenuRehomeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StatusEncoderTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StatusEncoderTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StatusRegistryTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StatusRegistryTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+StoryMutationScriptTest	C1	no `# test-kind:` declaration (or an unknown kind)
+StoryMutationScriptTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TemplateFolderLoaderTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TemplateFolderLoaderTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TileCursorIntegrationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TileCursorIntegrationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TileCursorTakeoverTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TileCursorTakeoverTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TimeScaleChannelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TimeScaleChannelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TimelineAxisTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TimelineAxisTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TimelineHeaderChannelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TimelineHeaderChannelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TimelineHeaderReflowTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TimelineHeaderReflowTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TrapUnifiedPublishTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TrapUnifiedPublishTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TunablesRegistryModelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TunablesRegistryModelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TunablesRegistryViewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TunablesRegistryViewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TuneColorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TuneColorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TuneFieldSyncTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TuneFieldSyncTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TuneOwnerSelfRegistrationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TuneOwnerSelfRegistrationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TunePortTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TunePortTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TunePsxParTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TunePsxParTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TuneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TuneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TurnDirectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TurnDirectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TurnQueueTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TurnQueueTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+TweenTriggerProjectorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+TweenTriggerProjectorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3AutoBindTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3AutoBindTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ClipEngineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3ClipEngineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ElementRoleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3ElementRoleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ElementSpecTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3ElementSpecTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3KeyLocationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3KeyLocationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ManifestCacheTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3ManifestCacheTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ManifestCacheTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+UI3OwnerPickAcceptanceTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3OwnerPickAcceptanceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3OwnerPickTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3OwnerPickTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3OwnershipMapTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3OwnershipMapTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3RegistrationAuditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3RegistrationAuditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3RegistryPageIncrementalTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3RegistryPageIncrementalTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3RegistryPageIncrementalTest	C14b	reads a wall clock (Time/OS ticks) outside a declared `perf` test
+UI3RegistryPageTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3RegistryPageTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3ScreenAnchoredAuditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3ScreenAnchoredAuditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UI3TransitionEngineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UI3TransitionEngineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIComponentBootAuditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIComponentBootAuditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIComponentContractTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIComponentContractTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIFrameCenterRegionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIFrameCenterRegionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIFrameOutlineTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIFrameOutlineTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIInteractionTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIInteractionTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIMenuTextNumberSizeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIMenuTextNumberSizeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UIVitalsRosterRoleAuditTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UIVitalsRosterRoleAuditTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UiDisplayPanelTuneFieldTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UiDisplayPanelTuneFieldTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitCinematicIdleModeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitCinematicIdleModeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitCurrentAnimIdTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitCurrentAnimIdTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitDisplayReactionDefaultTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitDisplayReactionDefaultTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitEffectCleanupOnStateChangeTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitEffectCleanupOnStateChangeTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitEncodeSchemaTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitEncodeSchemaTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitForwardTunableTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitForwardTunableTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitInfoPresenterTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitInfoPresenterTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitMaterialVariantTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitMaterialVariantTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitOrientationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitOrientationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitScenarioRotateTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitScenarioRotateTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitScenarioSpawnCombatIdleTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitScenarioSpawnCombatIdleTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitTintOverlayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitTintOverlayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitVisualDefaultsTuneTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitVisualDefaultsTuneTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+UnitWeaponBindTest	C1	no `# test-kind:` declaration (or an unknown kind)
+UnitWeaponBindTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+VitalsDeltaPreviewTest	C1	no `# test-kind:` declaration (or an unknown kind)
+VitalsDeltaPreviewTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+VitalsLayoutTunablesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+VitalsLayoutTunablesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+VitalsPreviewFieldWidthTest	C1	no `# test-kind:` declaration (or an unknown kind)
+VitalsPreviewFieldWidthTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+VitalsSlideAnimatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+VitalsSlideAnimatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapBlendTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapBlendTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapCursorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapCursorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapDebugPanelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapDebugPanelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapMountTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapMountTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapNavigatorTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapNavigatorTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapPlaceListTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapPlaceListTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapPrimitivesTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapPrimitivesTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapProgressTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapProgressTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapRevealAnimationTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapRevealAnimationTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapScreenInTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapScreenInTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapScreenOutTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapScreenOutTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapSecondHopTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapSecondHopTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapStartMenuTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapStartMenuTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapTownTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapTownTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+WorldMapTravelTest	C1	no `# test-kind:` declaration (or an unknown kind)
+WorldMapTravelTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
+ZodiacFromBirthdayTest	C1	no `# test-kind:` declaration (or an unknown kind)
+ZodiacFromBirthdayTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail

@@ -1,0 +1,85 @@
+; Engine configuration file.
+;
+; A stranger's project, not this repo's. No autoloads, no bus layout, no assets,
+; no host scripts — the point is what the addon does in a project that did
+; nothing for it (ADR-0194, CONTEXT.md "Stranger project"). Shape copied from
+; `tests/stranger/exmateria_catalogue/project.godot`; this is that rig pointed at
+; the EIGHTH in-walk addon, not an eighth invention.
+;
+; THE HARNESS FILES KEEP THEIR REPO-RELATIVE PATHS in the staged project —
+; `res://tests/stranger/<addon>/…`, not `res://…` at the root — so every quoted
+; `res://` literal is true in BOTH projects and `tools/check_res_paths.py` stays
+; green on a clean checkout. See the schema rig's project.godot for the full note.
+;
+; `config/name` is not decoration: `tests/stranger/shared/stranger_install.gd`
+; reads it to learn which of the staged addons is the SUBJECT. This rig stages
+; SIX — the subject plus the five `plugin.cfg` declares as deps
+; (`exmateria_almanac`, `exmateria_battlefield`, `exmateria_platform`,
+; `exmateria_render`, `exmateria_schema`) — the largest dependency set in the
+; corpus, so "the only addon here" is not a reading that works.
+;
+; 🔴 THIS RIG OPENS WITH A BURN-DOWN, WHICH NO RIG IN THIS CORPUS HAS DONE SINCE
+; extraction #4, AND THAT IS THE POINT OF WRITING IT AT THE MOVE (ADR-0192 dec. 1).
+; `known_failures.tsv` names every file that does NOT compile here, measured on the
+; move commit rather than predicted: the `Debug.DebugConfig` autoload reads #1218
+; owns, `cast/EffectManager.gd`'s three `Unit` annotations #1219 owns, and
+; `cast/EffectInstance.gd`'s three preloads into `addons/exmateria_sound/` — a
+; package this rig does not stage, because it is EXTRACTED and ships its own two
+; rigs (ADR-0212 dec. 11). A rig authored after the debt was paid could not tell a
+; drain from a scanner that stopped looking.
+;
+; 🔴 THE ENGINE IS THE FORK, AND FOR THIS ADDON THAT IS A CHECKED CLAIM RATHER THAN
+; A COPIED LINE. `plugin.cfg` declares `engine="fork"` because
+; `render/EngineFoldCompositor.gd` extends `CompositorEffect` and ten shaders declare
+; `render_mode compositor_fold`; `rig.sh`'s dec. 7 absence arm boots STOCK and asserts
+; those primitives are missing there, which is what turns the declaration into a fact.
+; Under stock the compositor self-disables SILENTLY and every folded prim vanishes, so
+; this is the one dependency that produces no error when it is unmet.
+;
+; THE ADDON IS NOT ENABLED HERE, and for this addon that is a claim about the FOUR
+; AUTOLOADS rather than a formality. `plugin.gd` registers `EffectMultiMeshPool`,
+; `ScreenEffectOverlay` and `TintedSurfaces` (`MapTintOverlay` merged into the latter
+; at #1224), and enabling a plugin
+; is an EDITOR action — so a rig that ran with it enabled would be measuring the
+; editor, not the install. What is measured instead is what a consumer depends on:
+; every member PARSES with no autoload present. The addon's own singleton reaches are
+; by node path (`EffectParticleRenderer.gd`, `EngineFoldCompositor.gd`), which is the
+; route that survives their absence; the reaches that do NOT survive are the HOST's
+; `DebugConfig`, and they are the burn-down.
+;
+; 🔴 NO CONTENT TREE IS STAGED, DELIBERATELY. Eight `res://assets/` literals in this
+; addon address the ROM-derived content pack ADR-0142 rules un-shippable — the four
+; TRAP tables, the per-effect `E###` directory, the per-callback payload and the TRAP
+; texture pair. They are declared in `check_addon_install.py`'s register as Class B and
+; in `check_addon_portability.py`'s ARM6_BURN_DOWN, and they are LOAD-time rather than
+; PARSE-time reaches, so a project with no `assets/` at all still compiles every file
+; here. That distinction is the whole reason both registers exist: this rig cannot see
+; a runtime `FileAccess.open` and says so rather than reading its silence as a pass.
+;
+; 🔴 PROVED RED BEFORE BEING TRUSTED GREEN (ADR-0194 dec. 12 arm 3), three ways, two of
+; them by accident and the third on purpose:
+;   1. ON ITS FIRST RUN it read 28 failures and found a defect NO STATIC GUARD SEES —
+;      the move's alias sweep had added `const EffectData` to ten `EffectCallback`
+;      subclasses, where the parent already declares it (*the member "EffectData" already
+;      exists in parent class*). Fixed in the move commit; the rig is why it was found.
+;   2. IT THEN CALLED A CORRECT SEAM BROKEN. `render/effect_particle_fold.gdshaderinc`
+;      cannot compile standalone by design — it reads `EFFECT_STP_ALPHA`, which every
+;      including stub `#define`s, deliberately without a default. That was the PROBE's
+;      defect, not the addon's, and `shared/stranger_install.gd` now falls back to
+;      compiling a staged shader that includes the seam.
+;   3. DELIBERATELY, the way the schema rig was: a member given
+;      `preload("res://src/effects/CompositorAutopilot.gd")` takes the rig to
+;      `95 passed, 1 failed`, rc=1, naming that file; removing the line restores
+;      `96 passed, 0 failed`, rc=0. So the green is a measurement and not a silence.
+
+config_version=5
+
+[application]
+
+config/name="stranger_exmateria_effects"
+run/main_scene="res://tests/stranger/shared/stranger_install.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+driver/driver="Dummy"

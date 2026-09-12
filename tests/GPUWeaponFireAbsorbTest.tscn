@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://gpu_weapon_fire_absorb_test"]
+
+[ext_resource type="Script" path="res://tests/GPUWeaponFireAbsorbTest.gd" id="1_test"]
+[ext_resource type="PackedScene" uid="uid://bcmbtcam4mnt77" path="res://assets/scenes/CombatCamera.tscn" id="2_camera"]
+[ext_resource type="PackedScene" path="res://assets/scenes/ProceduralMap.tscn" id="3_map"]
+
+[node name="GPUWeaponFireAbsorbTest" type="Node3D"]
+script = ExtResource("1_test")
+
+[node name="ProceduralMap" parent="." instance=ExtResource("3_map")]
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_camera")]
+transform = Transform3D(-0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, 0.5, -0.5, 5, 5, 5)
+procedural_map_path = NodePath("../ProceduralMap")
+
+[node name="Camera" parent="PlayerCamera/FocusPoint" index="0"]
+size = 12.6
+
+[editable path="PlayerCamera"]

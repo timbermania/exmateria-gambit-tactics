@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://formation_changejob_exit_reversal_test"]
+
+[ext_resource type="Script" path="res://tests/FormationChangeJobExitReversalTest.gd" id="1_test"]
+
+[node name="FormationChangeJobExitReversalTest" type="Node3D"]
+script = ExtResource("1_test")

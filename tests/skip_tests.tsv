@@ -1,0 +1,52 @@
+# tests/skip_tests.tsv — the NAMED exclusions from tests/run_all_tests.sh.
+#
+# #417, map #450. `bash tests/run_all_tests.sh` named 412 of the 744 scenes under
+# `tests/` on trunk `6a25e54f7`. 300 of the other 332 emitted PASS/FAIL markers and
+# were reachable by no runner at all. Some of them SHOULD be excluded. The defect
+# was never the exclusion — it was that an unlisted test and a deliberately-skipped
+# test are indistinguishable, so a test that silently stopped being run looks
+# exactly like a test that was never meant to run. Both are "absent from an array".
+#
+# This file is where that difference gets a name on it, and
+# `tools/check_test_list_coverage.py` is what makes writing it unavoidable: every
+# scene under `tests/` must be listed in the array, declare `[NOT_A_TEST] <why>` on
+# `tests/lib/verdict.sh`'s own channel, or have a row here.
+#
+# FORMAT: stem <TAB> class <TAB> reason. Three fields, tab-separated, no more.
+# The class vocabulary is CLOSED and lives in the guard, with a paragraph on each:
+#   red · environmental · broken · rig · slow · superseded · stranger
+# A new KIND of exclusion is a decision and should cost a code change, not a word
+# typed into a data file by whoever is in a hurry.
+#
+# THE REASON IS PROSE A HUMAN WROTE, and it has a job: six weeks from now it is the
+# only thing standing between "we decided this" and "nobody noticed". A `red` row
+# names the ticket holding the finding. A `slow` row carries the measured seconds.
+# A `superseded` row names the successor. A `stranger` row names the rig that runs
+# it, and that rig is what has to be green.
+# stem	class	reason
+ColourKeyframeSaverTest	red	FAIL — 8-bit colour round-trip loses ~20/255 on R and G (18 passed, 2 failed). Re-run with project-assets present; not a setup artifact. #544
+EffectPickerResponsivenessTest	red	FAIL — first run at 6a25e54f7, re-run with project-assets present and still red. #544
+EffectStudioEmitterRelevanceReprojectTest	red	FAIL — the inspector does not re-derive (2 passed, 2 failed); #417's own comment predicted these assertions by name. #544
+EffectStudioHideInertToggleWiringTest	red	FAIL — the inspector does not re-render on toggle (8 passed, 3 failed); shares the re-derivation cause with the listed EffectStudioFireDragWiringTest. #544
+EmitterLifeWindowTest	red	THREW — 21 green assertions over 17x `Nonexistent function 'get' in base 'float'`, so an unknown number of them never ran. #541
+FedsPairEditorAcceptanceTest	red	FAIL — unwinding does not fill the reserved span (53 passed, 1 failed); already prose in freeze_test_baseline.RED_REASONS from the #401 binder run. #544
+GPUDeferredHealTest	red	THREW — nil `grid_x`, 3 of 3 runs. Already filed and reproduced here. #513
+GPUEvasionMeleeBlockTest	red	FAIL — shield_block rate 90% against a 50+/-25% band. One of six evasion reds all leaning the same way. #539
+GPUEvasionMeleeEvadeTest	red	FAIL — evade rate 95% against a 50+/-25% band. #539
+GPUEvasionMeleeHitTest	red	FAIL — expected 100% taking_damage, got 1 of 20; the other 19 evaded. #539
+GPUEvasionMeleeParryTest	red	FAIL — parry rate outside its band, same direction as its five siblings. #539
+GPUEvasionRangedBlockTest	red	FAIL — ranged block rate outside its band. #539
+GPUEvasionRangedEvadeTest	red	FAIL — ranged evade rate outside its band. #539
+GPUEvasionRangedHitTest	red	NO_VERDICT — prints no scoreable marker; both #514's silent-scene pair and the eighth member of the evasion family. #539 #514
+GPUPerfBenchmark	red	NO_VERDICT — prints no marker the reader can score; one of #514's two named silent scenes. #514
+GPUReactionDefenderTest	red	FAIL — AutoPotion heals nothing (hp=50, expected 70); 2 of 3 defender reactions correct. #542
+GPUTransparentTest	red	FAIL — AOE reveal never clears the transparent bit. #542
+PsxChiralityTest	red	FAIL — THE TEST is wrong: it demands (-pi, pi] from a function returning [0, 2pi), and its own assertion name says `-360deg == 0deg`. #543
+ParticleTimelineResizeTest	red	THREW — `Invalid access of index '3' on a base object of type: Array[Keyframe]`. #541
+ScenarioCameraFusionTest	red	FAIL — the fusion queue is empty where three assertions want 2 left. #543
+ScenarioChapelChoreographyTest	red	THREW — `queue_free` on a RefCounted FakeUnit: #466's duck-type class, in a population #466 never swept. #541
+stranger_fork_absent	stranger	ADR-0194 dec. 7's engine arm. Boots STOCK Godot and asserts the fork's compositor primitives are ABSENT, so a `fork` declaration in plugin.cfg is a checked fact and not a note. Shared by every fork-declared rig; run by tests/stranger/<addon>/run.sh.
+stranger_install	stranger	ADR-0194's baseline arm — the staged addon stands up in a project that did nothing for it. One implementation for every rig; the subject comes from the staged project's own name. Cannot run here: it asserts what happens WITHOUT this project. Run by tests/stranger/<addon>/run.sh.
+stranger_burn_down	stranger	ADR-0194 — the other half of the burn-down arm: loads the files a rig DECLARES not to compile in a stranger project and asserts each still fails, so a paid-off row cannot sit there describing a fixed file. Cannot run here: in the host they all compile. Run by tests/stranger/<addon>/run.sh when that rig has a known_failures.tsv.
+stranger_sequence_viewer	stranger	ADR-0229's viewer arm — `SequenceViewer` comes up in a project with no sprite content and REFUSES in the words `exmateria_sprite_rig/content_root` names, without throwing. Cannot run here: `godot-learning/project.godot` always declares that setting, so the empty-content branch this scene exists to take is unreachable in the host and the arm's own precondition check would fail it. The first rig-owned scene in this family. Run by tests/stranger/exmateria_sprite_rig/run.sh.
+global_uniform_unvalidated	stranger	ADR-0238's engine-fact arm — a `global uniform` a project has not declared in `[shader_globals]` is validated ONLY under `Engine::is_editor_hint()`, so outside the editor it compiles silently and reads its type's zero. Cannot run here: `godot-learning/project.godot` declares all seven names, so the arm's own anti-vacuity check would fail it in the host — which is the check working. Goes RED ON GOOD NEWS: if a future engine validates outside the editor, `check_addon_portability.py` arm 4 becomes enforceable. Run by tests/stranger/exmateria_platform/run.sh.
