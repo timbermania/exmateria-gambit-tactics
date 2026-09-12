@@ -170,37 +170,67 @@ x86_64 build, so a clone needs no compiler. In the monorepo you can instead buil
 with `scons` from `exmateria-sound/`. Every other platform is a real gap — see
 *Platform support* below before assuming this runs anywhere else.
 
-#### Platform support — Linux x86_64 only, and the reason is the SPU
+#### Platform support — Linux x86_64, plus an unverified Windows build
 
 `addons/exmateria_spu/exmateria_spu.gdextension` declares **twelve** library
-slots. **One of them has a binary**, and this repository ships it committed:
+slots. **Three of them have binaries**, and this repository ships them committed:
 
 | slot | ships? |
 |---|---|
-| `linux.debug.x86_64` | ✅ committed (1.4 MB), what the editor loads |
-| `linux.release.x86_64` | ❌ absent — an **exported release build fails even on Linux** |
+| `linux.debug.x86_64` | ✅ committed (1.4 MB), exercised — what the maintainers run |
+| `windows.debug.x86_64` | ⚠️ committed (563 KB), **unverified** — see below |
+| `windows.release.x86_64` | ⚠️ committed (510 KB), **unverified** |
+| `linux.release.x86_64` | ❌ absent — an **exported release build fails on Linux** |
 | `linux.{debug,release}.arm64` | ❌ absent |
-| `windows.{debug,release}.{x86_64,arm64}` | ❌ absent |
+| `windows.{debug,release}.arm64` | ❌ absent |
 | `macos.{debug,release}[.arm64]` | ❌ absent |
 
-**This is not a soft degrade.** The SPU's twenty-four voices are mixed by a
-native C++ core; the addon's own README says a tree without the compiled library
-means "nothing will load". There is no GDScript mixer to fall back to, so on any
-platform above without a binary the project does not open — it is a
-parse-error cascade, not silent muting.
+**On a slot with no binary this is not a soft degrade.** The SPU's twenty-four
+voices are mixed by a native C++ core; the addon's own README says a tree without
+the compiled library means "nothing will load". There is no GDScript mixer to fall
+back to, so the project does not open at all — a parse-error cascade, not silent
+muting.
 
-**And you cannot build one from this repository.** `addons/exmateria_spu/` ships
-the GDScript runtime, the `.gdextension` and the prebuilt library — **no C++
-source and no `SConstruct`**. Those live in the `exmateria-sound` project, which
-is a separate repository. To run on Windows, macOS or arm64 you need to build
-`libexmateria_spu` from *that* repository for your platform and drop the result
-into `addons/exmateria_spu/bin/` under the exact filename the table above names.
+**What "unverified" means for the Windows DLLs.** They are built by the monorepo's
+`SPU Windows build` workflow on `windows-latest` with MSVC. They export
+`exmateria_spu_library_init` (the `entry_symbol` the `.gdextension` names) and
+import only `KERNEL32.dll`, so the CRT is static and there is no Visual C++
+redistributable to install. Nothing further has been established: no maintainer
+owns a Windows machine, and no one has watched the game boot on one.
 
-Why the missing three were not simply cross-compiled and committed: measured on
-the maintainer's box, no toolchain for any of them is present (`mingw-w64`,
-`osxcross`, `aarch64-linux-gnu-g++` all absent), and macOS additionally needs
-Apple's SDK, whose licence expects Apple hardware. Cross-building them is a real
-task in the `exmateria-sound` repository, not a packaging oversight here.
+**Running on Windows, in practice.** Asset generation is CPU-bound Python and the
+game needs real Vulkan, so the two halves want different homes:
+
+- **Bootstrap under WSL**, with the clone on the Windows filesystem. WSL has
+  `rsync`, native symlinks and `python3`. Do not pass the extract directory as an
+  argument — `ln -s` across `/mnt/c` produces links native Godot may not follow;
+  populate `project-assets/fft-extract/` directly instead.
+- **Run native `Godot.exe`** against those same files. WSLg reaches the GPU only
+  through a D3D12 translation layer, which is the wrong substrate for a Forward+
+  compute-shader renderer.
+
+Git Bash also works for bootstrap now that `sync_exmateria_sound.sh` falls back to
+`cp -RL` when `rsync` is missing, and `bootstrap_assets.sh` accepts `$GODOT` and
+`$PYTHON` overrides for the two commands Windows names differently. That path is
+less travelled than WSL.
+
+**You cannot build the absent slots from this repository.** `addons/exmateria_spu/`
+ships the GDScript runtime, the `.gdextension` and the prebuilt libraries — **no
+C++ source and no `SConstruct`**. Those live in the `exmateria-sound` project, a
+separate repository. Build `libexmateria_spu` from *that* repository for your
+platform and drop the result into `addons/exmateria_spu/bin/` under the exact
+filename the table above names.
+
+Why the remaining slots are still empty. Windows is no longer among them:
+the monorepo's `SPU Windows build` workflow compiles it with MSVC on a
+`windows-latest` runner, which is why those DLLs are marked unverified rather
+than absent. macOS and arm64 stay unbuilt because nobody has set the equivalent
+job up — GitHub offers macOS runners on real Apple hardware, so the old licence
+objection does not apply to CI, and what is left is effort rather than a
+toolchain wall. Cross-building locally is still a real task in the
+`exmateria-sound` repository (`mingw-w64`, `osxcross` and
+`aarch64-linux-gnu-g++` are all absent on the maintainer's box), not a
+packaging oversight here.
 
 ---
 
