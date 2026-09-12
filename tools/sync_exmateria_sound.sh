@@ -48,21 +48,43 @@ if [[ ! -d "$SOUND_SRC" ]]; then
     exit 1
 fi
 
-echo "[sync] addon  $ADDON_SRC -> $ADDON_DST"
-mkdir -p "$ADDON_DST"
 # -L dereferences symlinks into real files. exmateria-sound's source tree
 # symlinks bin/lib*.so to its top-level bin/ (resolves there, not here),
 # and per this script's whole point the destination must be real on-disk
 # copies anyway.
-rsync -aL --delete "$ADDON_SRC/" "$ADDON_DST/"
+#
+# rsync is NOT in Git for Windows, and it is the only thing in this script that
+# is not, so a Windows clone died here rather than anywhere interesting. The one
+# thing we ask of it is "make DST an exact copy of SRC, symlinks resolved",
+# which wipe-then-`cp -RL` does everywhere. rsync stays the fast path.
+mirror_dir() {  # <src-dir> <dst-dir>
+    if command -v rsync >/dev/null 2>&1; then
+        rsync -aL --delete "$1/" "$2/"
+    else
+        rm -rf "${2:?mirror_dir needs a destination}"
+        mkdir -p "$2"
+        cp -RL "$1/." "$2/"
+    fi
+}
+
+echo "[sync] addon  $ADDON_SRC -> $ADDON_DST"
+mkdir -p "$ADDON_DST"
+mirror_dir "$ADDON_SRC" "$ADDON_DST"
 
 echo "[sync] spu    $SPU_SRC -> $SPU_DST"
 mkdir -p "$SPU_DST"
-rsync -aL --delete "$SPU_SRC/" "$SPU_DST/"
+mirror_dir "$SPU_SRC" "$SPU_DST"
 
-if ! ls "$SPU_DST"/bin/libexmateria_spu.linux.*.so >/dev/null 2>&1; then
-    echo "[sync] WARNING: no Linux libexmateria_spu in addons/exmateria_spu/bin/ —" >&2
-    echo "       build it first:  cd exmateria-sound && scons platform=linux target=template_debug" >&2
+# Any platform's library counts. Globbing `linux.*.so` told every Windows user
+# with a perfectly good .dll that their audio was broken, and named a build
+# command that would not have helped them.
+if ! ls "$SPU_DST"/bin/libexmateria_spu.*.so  >/dev/null 2>&1 \
+&& ! ls "$SPU_DST"/bin/libexmateria_spu.*.dll >/dev/null 2>&1; then
+    echo "[sync] WARNING: no libexmateria_spu in addons/exmateria_spu/bin/ for any" >&2
+    echo "       platform — build it first, from the exmateria-sound project:" >&2
+    echo "         scons platform=linux target=template_debug" >&2
+    echo "       (Windows x86_64 DLLs are prebuilt and committed; see the README's" >&2
+    echo "        platform-support section.)" >&2
 fi
 
 echo "[sync] music  $SOUND_SRC -> $MUSIC_DST"
