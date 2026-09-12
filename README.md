@@ -155,9 +155,13 @@ does not open at all.
 run. They export the right entry symbol and import only `KERNEL32.dll`, so there is no
 Visual C++ redistributable to install — but no maintainer owns a Windows machine, and
 nothing beyond "it compiled and linked" has been established. If you try it, please
-report what happens. Two other things Windows users should expect: `tools/bootstrap_assets.sh`
-and the rest of `tools/*.sh` are bash, so you need Git Bash or WSL to produce the assets,
-and the rest of the project is exercised only on Linux.
+report what happens. Windows users should also know how the two halves want to be run:
+**bootstrap under WSL** (the `tools/*.sh` are bash, and WSL has `rsync`, symlinks and
+`python3`), then **run native `Godot.exe`** against those same files — WSLg reaches the
+GPU only through a D3D12 translation layer, which is the wrong substrate for this
+renderer. Git Bash works for bootstrap too, since the sync script now falls back to
+`cp -RL` when `rsync` is missing and `$GODOT`/`$PYTHON` cover the differently-named
+commands, but it is the less travelled path.
 
 The C++ source is not in this repository — it lives in the separate `exmateria-sound`
 project — so you cannot build the missing slots from here.
