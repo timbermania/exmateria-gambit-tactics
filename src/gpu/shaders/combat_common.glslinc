@@ -1313,10 +1313,23 @@ void kill_unit(int battle_id, int unit_id) {
 // only once this set is empty -- see `CombatLoop.settling_units`, which reports
 // the same population back to a human by name.
 //
-// WALKING / WALKING_TO_CAST / APPROACHING is `TurnDirector._is_movement_state`'s
-// trio -- the states whose logical position is a DESTINATION rather than where
-// the sprite is. ACTING is the swing or cast animation, whose effect has ALREADY
-// fired; what is left is the picture.
+// WALKING / WALKING_TO_CAST / APPROACHING / RETREATING are the states whose
+// logical position is a DESTINATION rather than where the sprite is -- the
+// taxonomy's `routing: visualizer` rows, which the host reads as the derived
+// `GPUConstants.LOGICAL_ACTIVITY_MOVEMENT_STATES`. The kernel still writes them
+// out by hand HERE and at the two brakes, and the reason is COMPILE TIME rather
+// than anything about the code: expressing them as a shared GLSL function was
+// tried and reverted because it made the pipeline cache miss, and
+// `warm_pipelines_async()` then outlived a short test's `quit()` and read a freed
+// autoload (ADR-0299's race). MEASURED, interleaved 3 rounds on
+// NavigatorWorldMapFormationTest -- `All 8 stages ready in`: 30/31/30 ms with
+// these bytes, 3504/3528/3361 ms with the shared function, and the test's
+// freed-autoload errors went 4-of-9 runs to 9-of-9. A MACRO WOULD NOT HELP: the
+// cost is not the call, it is that the SPIR-V changed at all.
+// ⚠️ SO THESE FOUR ARE A COPY, AND ADDING A FIFTH MOVE STATE MEANS EDITING ALL
+// THREE KERNEL SITES BY HAND -- the host's half is generated, this half is not.
+// ACTING is the swing or cast animation, whose effect has ALREADY fired; what is
+// left is the picture.
 //
 // SPELL_CHARGING and AWAITING_IMPACT are deliberately NOT here: a charge is a CT
 // clock with nothing playing, and AWAITING_IMPACT is a wait on a projectile whose

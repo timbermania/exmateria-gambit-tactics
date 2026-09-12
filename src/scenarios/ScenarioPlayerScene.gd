@@ -741,6 +741,10 @@ func _setup_dialogue_box() -> void:
 		box.position = Vector3(0, 0, -10)
 		box.visible = false
 		cam.add_child(box)
+		# #1273 — the box states `page_turned` / `glyph_revealed`; the CUE is named
+		# here, host-side. All three pooled boxes are wired, because the VM opens a
+		# Display Message into whichever slot is free.
+		UIWiring.wire_dialogue_box(box)
 		boxes.append(box)
 	_vm.box_pool.dialogue_box = boxes[0]
 	_vm.box_pool.extra_dialogue_boxes = boxes.slice(1)

@@ -414,7 +414,24 @@ cat <<EOF
   Known cosmetic warnings on first launch (not blockers):
     - File not found: …/*_names.json
       (these are hand-authored; no parser regenerates them)
-    - Parse Error: Identifier "WavesetParser"/"Spu"/"SMDPlayer" (audio)
-      (autoload chain fails if libexmateria_spu.so isn't built; game still runs,
-       just silent. Build it with `cd exmateria-sound && scons` then re-run sync.)
+EOF
+
+# ⚠️ SEPARATE, QUOTED heredoc. The block above interpolates \$GODOT_DIR, so it cannot
+# be quoted; this block contains BACKTICKS, so it must be. Mixing the two cost a real
+# bug: the audio note below used to sit in the unquoted block reading
+#     Build it with `cd exmateria-sound && scons` then re-run sync.
+# and bash COMMAND-SUBSTITUTED that prose. Every bootstrap run, in both checkouts,
+# actually executed `cd exmateria-sound` from `$GODOT_DIR/tools` (where no such
+# directory exists in EITHER shape), printed
+#     bootstrap_assets.sh: line 409: cd: exmateria-sound: No such file or directory
+# to stderr, and substituted the empty output back in, so the reader was told to
+# "Build it with  then re-run sync." The script still exited 0, which is why it went
+# unnoticed. Found by register step 13's clone-and-launch.
+cat <<'EOF'
+  About audio: the native SPU library SHIPS prebuilt for Linux x86_64, so a clone
+  needs no compiler and music/SFX work out of the box. If you see
+  `Parse Error: Identifier "WavesetParser"/"Spu"/"SMDPlayer"`, the addon folders did
+  not sync -- re-run tools/sync_exmateria_sound.sh. On any platform OTHER than
+  Linux x86_64 the project will not open at all; see SETUP_FROM_SCRATCH.md section
+  1.3, "Platform support".
 EOF

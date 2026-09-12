@@ -12,7 +12,7 @@ A new cluster is a new file in `docs/context/`; the index picks it up.
 | cluster | terms | lines |
 |---|---:|---:|
 | [Asset extraction](docs/context/01-asset-extraction.md) | 11 | 187 |
-| [Combat buffer layout](docs/context/02-combat-buffer-layout.md) | 71 | 1266 |
+| [Combat buffer layout](docs/context/02-combat-buffer-layout.md) | 73 | 1328 |
 | [Unit roster](docs/context/03-unit-roster.md) | 5 | 75 |
 | [Character catalog](docs/context/04-character-catalog.md) | 27 | 453 |
 | [Ability data](docs/context/05-ability-data.md) | 7 | 144 |
@@ -42,7 +42,7 @@ A new cluster is a new file in `docs/context/`; the index picks it up.
 | [Battlefield camera](docs/context/29-battlefield-camera.md) | 6 | 302 |
 | [UI3 components](docs/context/30-ui3-components.md) | 19 | 279 |
 | [Combat UI windows](docs/context/31-combat-ui-windows.md) | 6 | 123 |
-| [Formation screen hosting](docs/context/32-formation-screen-hosting.md) | 20 | 287 |
+| [Formation screen hosting](docs/context/32-formation-screen-hosting.md) | 21 | 300 |
 | [Battle feedback HUD](docs/context/33-battle-feedback-hud.md) | 1 | 44 |
 | [Debug tuning](docs/context/34-debug-tuning.md) | 20 | 189 |
 | [Port-vs-oracle diffing](docs/context/35-port-vs-oracle-diffing.md) | 5 | 38 |
@@ -54,7 +54,7 @@ A new cluster is a new file in `docs/context/`; the index picks it up.
 | [Battle mode and handback](docs/context/41-battle-mode-and-handback.md) | 6 | 69 |
 | [Balance levers](docs/context/42-balance-levers.md) | 17 | 183 |
 | [Gambit lab](docs/context/43-gambit-lab.md) | 11 | 109 |
-| **43 clusters** | **629** | **11500** |
+| **43 clusters** | **632** | **11575** |
 
 ## Terms
 
@@ -64,7 +64,7 @@ A new cluster is a new file in `docs/context/`; the index picks it up.
 
 **Combat buffer layout** — [`02-combat-buffer-layout.md`](docs/context/02-combat-buffer-layout.md)
 
-  Ability cooldown · Battle snapshot · Battle-state authority · Beat cap · Beat plan · Between-turn stretch · CRN base seed · Charge VFX · Clock tick · Combat buffer layout · Combat loop · Combat-step interpreter · Combat-visual · Commandable unit · Common-random-number seeds · Corpus · Cost model · Degradation ladder · Dwell · Field behaviour · Fork age · Gambit encode schema · Gambit scenario suite · Gambit→GPU projection · H-sweep · Held decision · Hollow (of a status bit) · Inflict mode · KO · KO-inclusive pool · Knee · Log-loss · Move (the movement command) · Movement-step interpreter · Perspective · Playback rate · Posture · Projectile · Provisional objective · Raise-the-fallen posture · Reconfigure (of a live unit) · Refused beat · Result record · Revive · Revive bucket · Rollout candidate · Rollout fleet · Rollout fleet · Rollout horizon · Safety-net gambit · Search objective · Separate roll · Static legality prefilter · Status countdown · Status duration (default CT) · Stop policy · Stratification · Taker · Thinking beat · Thinking beat · Tile distance · Turn director · Turn gate · Turn meter · Turn queue · Turn queue strip · Unfilled slot · Unit encode schema · Unreachable (of a status bit or condition) · Unread (of a status bit or unit field) · Value function (`f`)
+  Ability cooldown · Battle snapshot · Battle-state authority · Beat cap · Beat plan · Between-turn stretch · CRN base seed · Charge VFX · Clock tick · Combat buffer layout · Combat loop · Combat-step interpreter · Combat-visual · Commandable unit · Common-random-number seeds · Corpus · Cost model · Degradation ladder · Dwell · Field behaviour · Fork age · Gambit encode schema · Gambit scenario suite · Gambit→GPU projection · H-sweep · Held decision · Hollow (of a status bit) · Inflict mode · KO · KO-inclusive pool · Knee · Log-loss · Move (the movement command) · Movement Logical activity · Movement-step interpreter · Perspective · Playback rate · Posture · Projectile · Provisional objective · Raise-the-fallen posture · Reconfigure (of a live unit) · Refused beat · Result record · Revive · Revive bucket · Rollout candidate · Rollout fleet · Rollout fleet · Rollout horizon · Safety-net gambit · Search objective · Separate roll · Static legality prefilter · Status countdown · Status duration (default CT) · Stop policy · Stratification · Taker · Thinking beat · Thinking beat · Tile distance · Turn director · Turn gate · Turn meter · Turn queue · Turn queue strip · Unfilled slot · Unit encode schema · Unreachable (of a status bit or condition) · Unread (of a status bit or unit field) · Value function (`f`) · Withdraw posture
 
 **Unit roster** — [`03-unit-roster.md`](docs/context/03-unit-roster.md)
 
@@ -184,7 +184,7 @@ A new cluster is a new file in `docs/context/`; the index picks it up.
 
 **Formation screen hosting** — [`32-formation-screen-hosting.md`](docs/context/32-formation-screen-hosting.md)
 
-  Adjustment row set · Adjustment turn · Aim depth · Back grammar · Breakout mark · Charge · Claims · Clip basis · Condition subject · Gambit slot · Gambit surface · Hand-back · Imperative · Lead entry · Map host · Roster host · Screen stack · Sentence part · Steerable · Watchdog
+  Adjustment row set · Adjustment turn · Aim depth · Back grammar · Breakout mark · Charge · Claims · Clip basis · Condition subject · Gambit slot · Gambit surface · Hand-back · Imperative · Lead entry · Map host · Parked condition · Roster host · Screen stack · Sentence part · Steerable · Watchdog
 
 **Battle feedback HUD** — [`33-battle-feedback-hud.md`](docs/context/33-battle-feedback-hud.md)
 

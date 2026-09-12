@@ -4,8 +4,9 @@
 `If` column to be **two levels deep** — subject, then test — reusing ADR-0268
 dec. 9's `drill` for "zero row budget". The player then specified a different
 shape in conversation, and it is the shape this ADR builds: **four columns**,
-`Action · Target · Subject · Condition`, with the subject a **two-way switch**
-rather than a pool selector.
+`Action · Target · Subject · Condition`, with the subject a **switch** rather than
+a pool selector. It carries three rows — `My`, `Their` and `Always`, the last of
+which takes the fourth column back off the row (dec. 2, dec. 8).
 
 Their three worked examples, verbatim, are the acceptance set:
 
@@ -21,9 +22,10 @@ dec. 2** (the fold) and its "four columns / two lines per gambit" rejected
 options; narrows dec. 13 (the slot number survives, in a shared lane); reads
 dec. 1 for the row, dec. 3 for the `+N`, dec. 8 for the encoder gate and
 [ADR-0244](0244-a-turn-queue-entry-is-a-turn-and-not-a-unit.md) for why the
-gap width was photographed instead of computed. Re-derives the readout
+gap width was photographed instead of computed. Lands on the readout
 [ADR-0270](0270-the-safety-net-is-the-last-row-on-the-gambit-surface-dim-and-inert.md)
-**dec. 1** states. (The handoff that opened this work cited that string as "ADR-0273 dec. 4";
+**dec. 1** states — `Attack / Nearest Foe / Always` — reached from the general
+rule rather than restated (dec. 7). (The handoff that opened this work cited that string as "ADR-0273 dec. 4";
 0273 is about the rules tier and carries no such decision. Checked before anything was
 edited.)
 
@@ -76,14 +78,19 @@ itself load-bearing.
 
 ## Decision
 
-1. **The row is `Slot · Do · To · Subject · If`, and `Subject` is a two-way
-   switch — `My` / `Their`.**
+1. **The row is `Slot · Do · To · Subject · If`, and `Subject` is a three-way
+   switch — `My` / `Their` / `Always`.**
 
-   Two rows and deliberately not six. The ally/foe and nearest/weakest axes are
+   Three rows and deliberately not six. The ally/foe and nearest/weakest axes are
    **already on the screen**, one column to the left: `To` offers `Nearest Ally`
    / `Weakest Ally` / `Nearest Foe` / `Weakest Foe`, so "test the weakest ally"
    is `To = Weakest Ally` with `Subject = Their`. A full selector here would be
-   two spellings of one axis, and it is the spelling dec. 2 correctly priced out.
+   two spellings of one axis, and it is the spelling ADR-0268 dec. 2 priced out.
+
+   The third row is `Always`, and it is not a pool — it is the answer *"there is
+   no test"*, which is dec. 2's. It holds the **same** mirrored selector `Their`
+   does, because with no condition the subject is the row's only gate (dec. 3),
+   and differs in the one write dec. 2 describes.
 
    Expressiveness was checked before the pixels: the **13** folded
    `(subject, test)` rows collapse to **5 predicates + blank** — `HP<25%`,
@@ -106,24 +113,56 @@ itself load-bearing.
    row can show. A `To` edit re-aims a **mirrored** subject and leaves `My`
    alone, because `My` names the actor and not the aim.
 
-2. **`Always` leaves the screen's vocabulary. Blank is the ABSENCE of a
-   condition, not a sixth one.**
+2. **`Always` is a SUBJECT, not a condition — and choosing it removes the `If`
+   column rather than filling it.**
 
-   `check_gambit_conditions` loops `for c in 0..cond_count` and returns `true` at
-   zero, so a zero-length `conditions` array already fires every time. A named
-   `Always` row was a second spelling of that, and it was the spelling the column
-   had to print in a slot whose entire job is to say what the rule **tests**.
+   The word belongs to the question *"is there a test?"*, which is the Subject
+   column's, and not to *"what does it test?"*, which is the `If` column's. That
+   distinction is the whole of this decision, and it is why the same word was
+   right to remove from one column and right to offer in the other.
 
-   So `Gambit._init` writes `conditions = []`, the `If` list's head row writes
-   the same, and `GambitCondition.Type.ALWAYS` **stays on the enum** — #895's
-   mutation operators write it and every save from before this ADR carries it.
-   `GambitOptions.condition_label` reads either spelling back as `—`.
+   `If` still never OFFERS it. A list whose entire job is to name the predicate
+   has nothing to say about a row that has none, so `GambitOptions.conditions()`
+   offers five bare predicates and no `Always` row. What the `If` COLUMN shows on
+   an `Always` row is the predicate the subject parked, dim and unreachable
+   (dec. 8) — a real value, not a placeholder.
 
-   **`—` and not the empty string.** An empty column is a column the focus
-   chevron points at nothing beside, and on an unconditional row that is two
-   thirds of the sentence rendered as a gap the player cannot tell from a draw
-   failure. It stays distinct from `---`, which is the **whole row** being empty:
-   two marks, because they are two states.
+   🔴 **THE TWO SPELLINGS OF "NO CONDITION" READ DIFFERENTLY, AND THE KERNEL'S
+   INABILITY TO TELL THEM APART IS WHY THEY MUST.** `check_gambit_conditions`
+   returns `true` at zero conditions **and** at one `ALWAYS`, so it is tempting to
+   give one behaviour one reading. That build is unshippable, and dec. 3's own
+   bug is the counter-example: a row **mid-authoring** has a zero-length array —
+   the player has pressed `Do` and `To` and is reaching for `Subject` — so
+   reading zero as `Always` makes that press show no change on screen. That is
+   *"I can't select 'my' or 'their' until AFTER I have selected a condition"*
+   re-opened by the fix that was supposed to finish it.
+
+   So the array is two **row states**, and the screen names them apart:
+
+   | `conditions` | the row | Subject | `If` |
+   |---|---|---|---|
+   | `[]` | no test **chosen yet** | `My` / `Their` | `—`, live |
+   | `[ALWAYS]` | no test, **declared** | `Always` | the parked predicate, DIM |
+
+   This is the same two-marks-for-two-states rule the row already runs for `---`
+   (the **whole row** is empty) against `—` (this **column** is unset on a row
+   that holds something), and for the same reason: one glyph for two states makes
+   an unfinished row and a finished one indistinguishable.
+
+   **A pre-ADR-0283 save lands in the second line, which is what it meant.**
+   `GambitCondition.Type.ALWAYS` never left the enum — #895's mutation operators
+   write it and every save from before this ADR carries it — and what it carried
+   was ADR-0270 dec. 1's `Always`. It now reads back as that.
+
+   **No field is added to `Gambit`** (ADR-0255 dec. 3): the domain already
+   carried both spellings, and this decision is a reading of them rather than a
+   new bit beside them. `Type.ALWAYS` maps to `GPUConstants.COND_ALWAYS` and is
+   not in `UNSUPPORTED_CONDITION_TYPES`, so the row is E1-clean (ADR-0268
+   dec. 8) — asserted by `GambitEncoderTest`, not assumed.
+
+   **`—` and not the empty string**, on the rows that still have an `If` cell. An
+   empty column is a column the focus chevron points at nothing beside, and that
+   is a gap the player cannot tell from a draw failure.
 
 3. **A blank condition leaves `condition_target` MIRRORING the aim — and the
    Subject column PRINTS it. The two columns do not blank together.**
@@ -160,17 +199,25 @@ itself load-bearing.
    column was never unselectable, it was **mute**, and from the player's seat
    those are one symptom.
 
-   ⚠️ **This changes worked example 3 in the acceptance set above**, which the
-   player sketched as `Attack | nearest enemy | — | —`. It now reads `Attack |
-   Nearest Foe | Their | —`. The sketch is kept as written because it is the
-   player's, and it is overruled by the same player's later report: the sketch
-   was made before the column existed to be pressed, and `Their` on that row is
-   true — it names the pool the row is gated on, which is the one thing the
-   sketch could not say.
+   ⚠️ **Worked example 3 in the acceptance set above is reachable again, and in
+   the player's own shape.** They sketched it `Attack | nearest enemy | — | —`:
+   three columns and nothing in the fourth. With the subject printing over a
+   conditionless row it read `Attack | Nearest Foe | Their | —`, which is true —
+   `Their` names the pool the row is gated on — and is also a subject dangling
+   off a question nobody asked. Choosing `Always` (dec. 2) is the press that
+   makes the row read `Attack | Nearest Foe | Always | (—)`: one word where the
+   sketch had two blanks, and a fourth column greyed out rather than gone.
 
-   Landing a test on a row that had none therefore has to name a subject too: the
-   surface seeds `Their` when the aim names somebody other than the actor and
-   `My` when it does not, and one ○ on the column overrides it.
+   The sketch is kept as written because it is the player's. What overrules its
+   **dashes** is their later report — the column was mute, not unselectable — and
+   what answers its **shape** is dec. 2.
+
+   `My` and `Their` therefore DROP an `ALWAYS` that is already there, and that is
+   not tidying: pressing `My` on a row reading `Always` has to change the row, or
+   this column is mute again in a new state. The declaration goes, the `If`
+   column wakes up — holding whatever `Always` parked (dec. 8), or `—` when there
+   was nothing to park — and wanting a test is the only reason to name a subject
+   at all.
 
 4. **The chevron gap is 13 px, because 11 was photographed and reads as a
    connector rather than a cursor.**
@@ -229,22 +276,94 @@ itself load-bearing.
    a type other than `ALWAYS`, so both spellings of blank read as blank.
 
    ⚠️ **A condition is what saves a non-WAIT row, not what makes a row real.**
-   `Attack / Nearest Foe / Their / —` is example 3 above, and a predicate rewritten
+   `Attack / Nearest Foe / Always` is example 3 above, and a predicate rewritten
    as "blank conditions means blank slot" **deletes it**, silently, while the row
    keeps reading it back. It survives on `action_kind`, checked first and alone.
    That arm and its opposite (`Wait / Self / My / HP<50%` is **not** empty — it
    deliberately blocks the slots beneath it) are both asserted; a one-arm guard
    passes a predicate that answers `true` for everything.
 
-7. **The safety net's row reads `Attack / Nearest Foe / Their / —`.** This
-   corrects the string ADR-0270 dec. 1 states. It is not a literal either way:
-   the row is read off `GambitEncoder.safety_net_gambit()`, whose one `ALWAYS`
-   condition reads back as blank through the same label function every other row
-   uses. Its `Their` and its `Foe` are the SAME field — both cells read
+7. **The safety net's row reads `Attack / Nearest Foe / Always`, which is the
+   string ADR-0270 dec. 1 states — with a dim, empty `If` cell beside it.** It is not a literal: the row is read off
+   `GambitEncoder.safety_net_gambit()`, whose one **explicit** `ALWAYS` condition
+   is exactly the state dec. 2 names — so the net arrives at ADR-0270's original
+   string through the general rule rather than through a special case, and a net
+   that stopped carrying `ALWAYS` reds rather than quietly rendering a subject.
+
+   It read `Attack / Nearest Foe / Their / —` in between, while `Always` was out
+   of the screen's vocabulary. `Their` was honest about the gate — the net is
+   gated on a foe existing, which is what makes it a net — but it dangled off a
+   question nobody had asked, and the em dash beside it was the whole of the
+   player's complaint.
+
+   Its `If` cell reads `—` and not a parked predicate, because nobody authored
+   the net — which is the general rule landing on this row rather than a case cut
+   for it (dec. 8).
+
+   Its `Always` and its `Foe` are still the SAME field: both cells read
    `condition_target`, because the net's `action_target` is `triggering()` and
-   names no pool — so the two can never drift into disagreeing about one
-   selector. On this row above all, naming the gate is the point: being gated on
-   a foe existing is what makes the net a net.
+   names no pool, so the two can never drift into disagreeing about one selector.
+
+8. **An `Always` row's `If` column is DISABLED — drawn, dim, and unreachable —
+   and the predicate it held is PARKED rather than destroyed.**
+
+   The column was removed outright at first, the subject cell spanning its lane.
+   That was the wrong answer to *"it's not applicable"*: the eye loses the place
+   it reads the fourth word from, and a row with one fewer column than the row
+   above it reads as a different **kind** of row rather than as the same row with
+   a part switched off. Disabled is the state, so disabled is what it renders —
+   and `N/A` is not needed either, because the cell has something true to say.
+
+   🔴 **WHAT IT SAYS IS THE PARKED PREDICATE.** *"if they flip it i don't want
+   them to have to repick it."* Choosing `Always` moves `conditions[0]` into
+   `Gambit.parked_condition` before writing the `ALWAYS`, the dim cell prints it,
+   and choosing `My`/`Their` puts it back. The flip is reversible and the row
+   shows what is waiting.
+
+   **The park is not a condition and never reaches the kernel.**
+   `check_gambit_conditions` ANDs every entry in `conditions`, so parking the
+   predicate *there* — as `[ALWAYS, HP<50%]` — would leave the row reading
+   `Always` while firing only below half HP. It is a field of its own, the
+   encoder never reads it, and `GambitEncoderTest` grades the encoded
+   `cond_count` rather than the field. It IS serialized: a park that evaporated
+   on reload would restore a predicate today and a blank tomorrow from one
+   visible row state.
+
+   **Only an `Always` row carries a park**, and three writes keep that true: the
+   restore CONSUMES it, `_clear_condition` drops it, and landing a real predicate
+   retires it. A stale park would print a predicate the player had already
+   deleted and then resurrect it two presses later — an edit they never made.
+
+   **The 13 px that pays for the word is the CHEVRON'S GAP.** `Always` measures
+   **26 px** (`6+2+6+4+4+4`, through `UIMenuText.measure`) against the 20 px
+   `Their` set the switch at, and nothing in this row has slack to lend — it is
+   already 10 px over and pays for that by sharing a lane (dec. 5). The gap in
+   front of `If` exists solely so the focus chevron has somewhere to stand, and
+   a **disabled** column is one the chevron can never land in, so SUBJECT runs
+   155→188 = 33 px here. `Always` ends at 181 with 7 px of blank before the dim
+   cell — narrower than dec. 4's 13 px, but that number is arrow-to-value
+   clearance and this is value-to-value, and 7 px is nearly two word spaces.
+   Photographed, because dec. 4's whole lesson is that this is a reading and not
+   a threshold.
+
+   🔴 **`_move_part` clamps to the FOCUSED ROW, not to `PART_COUNT - 1`** — which
+   is what makes the borrowed 13 px honest, as well as keeping ○ from opening a
+   condition list under a column the row has just greyed out. ↑/↓ re-clamp too,
+   because `_part` persists across rows on purpose: walking down a column and
+   staying in it is what the layout asks for, so the one thing to re-check is
+   whether the row the glove landed on is narrower.
+
+   ⚠️ **On an UNFOCUSED row the disable is invisible.** `inks` is the row's band
+   and the ROM's shade shift (`bVar1 += shade * 4`) gives this window two shades,
+   not three, so a dim row's disabled cell and its live cells paint identically.
+   The SUBJECT column carries the reading there — `Always` is the word that says
+   the fourth column does not apply, and it sits immediately to its left. A third
+   band exists in the CLUT at indices 9/10/11, but it is a hue shift rather than
+   a darker grey, so calling it "disabled" is a claim only a capture can settle.
+
+   `row_text` brackets a disabled cell — `Always / (HP<50%)` — because that is
+   what guards and `visible_row_names()` score, and the dim PALETTE is the one
+   thing a string cannot carry.
 
 ## Considered alternatives
 
@@ -400,14 +519,30 @@ once the one before it was fixed: four aborts in sequence, not one.
 
 ## Verification
 
-* `GambitSurfaceTest` — **260 passed, 0 failed**. Carries the four-part walk, the
+* `GambitSurfaceTest` — **287 passed, 0 failed**. Carries the four-part walk, the
   `PART_SUBJ` mirror equality, the four choice lists each under its own column,
-  the safety net's `— / —`, and dec. 6's both-arms `is_empty` block including the
-  `authored_gambits` filter agreeing with the predicate — plus the two-press SEQUENCE
-  above, driven by calling each part's own `apply` rather than by re-implementing it.
-  Its order is the assertion: a build that asked `_subject_mirrors_aim` AFTER the
-  write cannot tell a mirrored subject from an unmirrored one, because by then the old
-  aim is gone.
+  the safety net's `Always` with **no `iff` key at all**, and dec. 6's both-arms
+  `is_empty` block including the `authored_gambits` filter agreeing with the
+  predicate — plus the two-press SEQUENCE above, driven by calling each part's own
+  `apply` rather than by re-implementing it. Its order is the assertion: a build
+  that asked `_subject_mirrors_aim` AFTER the write cannot tell a mirrored subject
+  from an unmirrored one, because by then the old aim is gone.
+
+  ⚠️ **Its reading-order block is dec. 2's control.** It reads `subj` BETWEEN the
+  `Subject` press and the `If` press, on a row with a zero-length `conditions` —
+  so a build that read zero as `Always` reds there and nowhere else. That arm is
+  the reason the two spellings are not collapsed, and it must keep passing.
+
+  The cursor clamp is direction-tested: → on an `Always` row is CONSUMED and lands
+  nowhere, and → on the same row after `Their` reaches `If` again — the clamp is
+  read off the row rather than latched.
+
+  Dec. 8's park is graded in four directions: the predicate lands in
+  `parked_condition` and NOT in `conditions`; the flip back restores it; the park
+  is CONSUMED by that restore; and a second `Always` press is idempotent rather
+  than parking the `ALWAYS` over the player's own predicate. The way-back arm is
+  driven on a row with **nothing** parked, so a build that woke the column only
+  when it had a value to restore reds there.
 * `GambitEncoderTest` — **PASS**, with two new arms. One asserts dec. 1's whole point:
   `To = Nearest Ally` + `Subject = Their` encodes a cond target in the kernel's
   retryable set, and `cond_target_type == action_target_type`. Its **negative
@@ -422,6 +557,13 @@ once the one before it was fixed: four aborts in sequence, not one.
   `UIMenuText.measure` used to price them reproduces five independently recorded
   widths (60, 68, 48, 48, 58 px) before it was trusted for a new one.
 
+  Dec. 8 is photographed too, and had to be twice over: `Always` does not fit the
+  cap it renders under on every other row, and the dim band is a claim no string
+  assertion can reach. `--author='Attack|Nearest Foe|Their|HP<50%'
+  --then=Subject:Always` shows the LIT row reading `Always` un-elided with
+  `HP<50%` visibly greyed beside it, 7 px clear between them, and the safety net
+  below reading `Always` with a dim `—`.
+
 ## Soft spots
 
 * **`+N` is still flush against a max-width condition.** `MP<50%` ends at 228 and
@@ -433,6 +575,16 @@ once the one before it was fixed: four aborts in sequence, not one.
   and is harmless. Left offered rather than gated, because a subject list that
   changed length with the aim is a list whose row indices move under the cursor —
   and unlike the `Them` pair above, this one resolves.
+* **The disable is invisible on unfocused rows** — two shade bands, three states.
+  Dec. 8 records it; closing it needs a third band grounded on a capture.
+* **Two presses reach one row state by different routes.** The `If` list's `—`
+  head clears to `[]` and the Subject column's `Always` writes `[ALWAYS]`, and
+  the rows they leave read differently (`Their / —` against `Always`) while
+  behaving identically. That is dec. 2's split working as specified, but it does
+  mean a player who removes a test from the `If` column does not land on
+  `Always` and has to press one column left to say it. Left as it is because the
+  alternative — `—` writing `[ALWAYS]` — makes the `If` list's head row a second
+  spelling of a Subject row, which is the fold dec. 2 undid.
 * **The 4-blank-px requirement is a reading of two captures, not a threshold.**
   2 px was judged wrong and 4 right; 3 was never photographed, because 13 px fit
   and there was nothing to buy with the third.

@@ -98,6 +98,23 @@ const DisplayPort = preload("res://addons/exmateria_platform/display_port/Displa
 ## Host use: `tests/TunePortTest.gd` drives both the bound and the absent path.
 const EventPort = preload("res://addons/exmateria_platform/event_port/EventPort.gd")
 
+## The battle effect-SFX port signature — four verbs (`begin_effect`, `play_pair`,
+## `end_effect`, `orphan_effect`), soft-bound to the host's `ExMateriaEffectSfx`
+## autoload by node path like its three siblings above (ADR-0175 dec. 2). Added
+## because `addons/exmateria_effects/cast/EffectInstance.gd` reached that identifier on
+## eleven lines and could not use the node-path remedy its OWN three autoloads use: the
+## autoload points into `addons/exmateria_sound/`, a package `Effects` does not ship, so
+## arm 2b rules the node path closed to it and names a port as the answer.
+## 🔴 THE ABSENT COLUMN IS THE ENGINE'S OWN NOT-READY BEHAVIOUR (`0` / `false` / two
+## no-ops), not a degradation this port invented — read the file's header.
+## Host use: `tests/TunePortTest.gd` drives both the bound and the absent path. Its only
+## production namer is a **sibling namer** (ADR-0212 dec. 7) —
+## `addons/exmateria_effects/cast/EffectInstance.gd`, eleven lines — which is a valid
+## host use of the port and an ADDON consumer, and the two are staged differently. That
+## is not incidental here: this port exists BECAUSE its consumer is an addon, so unlike
+## its three siblings it has no host namer at all and is not expected to grow one.
+const SfxPort = preload("res://addons/exmateria_platform/sfx_port/SfxPort.gd")
+
 ## The dialled-in camera mapping: raw PSX zoom (4096 = 1.0×) ↔ Godot orthographic
 ## size, carrying `GODOT_CAMERA_SIZE = 12.6` — the value that makes PSX FFT tile
 ## coverage come out right at 4:3. It is HERE and not beside the fixed-point pair

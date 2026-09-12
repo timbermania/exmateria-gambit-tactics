@@ -7,9 +7,9 @@ extends Node
 ## gdshader flagged `compositor_layer`, made a member via render_layer + stamped render_layer_order =
 ## its fold-order key. The engine draws them (in render_layer_order order, not depth) into the
 ## engine-owned held-out target for that layer, which:
-##   Pass A (FoldSurface, POST_OPAQUE)      seeds  = opaque scene color → display, coverage α=0
+##   Pass A (FoldSurface, POST_OPAQUE)      seeds  = opaque scene color → display
 ##   Pass B (ENGINE)                        folds  = the flagged prims, hardware add/sub/mix
-##   Pass C (FoldSurface, PRE_TRANSPARENT)  resolves = display → linear + RGB555 + coverage discard
+##   Pass C (FoldSurface, PRE_TRANSPARENT)  resolves = display → linear + RGB555, EVERY pixel
 ##
 ## Passes A/C (the scratch lifecycle) are owned by FoldSurface — a separate module, since the scratch
 ## plumbing and the per-frame carrier rebuild change for different reasons (ADR-0074). This file owns

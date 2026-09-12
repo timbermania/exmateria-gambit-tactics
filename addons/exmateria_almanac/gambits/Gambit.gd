@@ -34,6 +34,23 @@ var condition_target: TargetSelector = null
 ## WHAT must be true - all conditions must pass (AND logic)
 var conditions: Array[GambitCondition] = []
 
+## The predicate the `Always` subject SET ASIDE — kept so flipping back off `Always` restores it
+## instead of making the player re-pick it.
+##
+## 🔴 IT IS NOT A CONDITION AND NEVER REACHES THE KERNEL. `check_gambit_conditions` ANDs every
+## entry in `conditions`, so parking the predicate THERE (as `[ALWAYS, HP<50%]`) would leave the
+## row reading `Always` while firing only below half HP — the readout-that-lies shape the whole
+## gambit surface is built against. `GambitEncoder` never reads this field; it is screen state
+## that happens to be worth saving.
+##
+## Serialized, because the flip the player wants undone survives a save. A park that evaporated
+## on reload would restore a predicate on Tuesday and a blank on Wednesday, from one visible
+## row state.
+##
+## AT MOST ONE, matching the one condition the surface edits (ADR-0268 dec. 3 — index 0). A
+## parked ARRAY would be a second, invisible copy of the `+N` problem.
+var parked_condition: GambitCondition = null
+
 ## The action to perform when triggered, as a tagged sum type (ADR-0023): a
 ## control verb (ATTACK/WAIT/MOVE) or an ABILITY carrying a stable ability_id.
 ## Abilities are referenced by id, never by display name — names are fragile
@@ -109,14 +126,21 @@ func _init() -> void:
 	right action target for a gambit whose condition has a real subject; that is a property of a
 	CONFIGURED gambit, and the surface writes it when the player gives the slot a subject.
 
-	`conditions` IS EMPTY, not `[always()]` (ADR-0283 dec. 2). The two are the same rule --
-	`check_gambit_conditions` loops `for c in 0..cond_count` and returns true at zero, and an
-	`ALWAYS` condition returns true at one -- and the gambit surface stopped offering `Always` as
-	a named choice when the condition column became a bare predicate. Keeping the constructor on
-	the named spelling would leave TWO encodings of "no condition" in the domain, one of which no
-	screen can author and every readout has to special-case. `ALWAYS` stays on the enum for
-	#895's mutation operators and for saves written before this change; [method is_empty] and
-	`GambitOptions.condition_label` both read either spelling.
+	`conditions` IS EMPTY, not `[always()]` (ADR-0283 dec. 2). The two are the same rule TO THE
+	KERNEL -- `check_gambit_conditions` loops `for c in 0..cond_count` and returns true at zero,
+	and an `ALWAYS` condition returns true at one -- so a fresh gambit gets the spelling that
+	claims the least: a row nobody has authored has not DECLARED that it will never test
+	anything, it simply has no test yet.
+
+	🔴 THE SCREEN TELLS THEM APART, and that is why the constructor's choice matters. The gambit
+	surface reads an explicit `ALWAYS` as the `Always` SUBJECT -- a row that has declared it has
+	no test, and greys its `If` column out -- while a zero-length array reads `My`/`Their` with
+	an `If` column reading `--`. Seeding `[always()]` here would make every untouched slot claim
+	a declaration the player never made, and make their first `Subject` press look like it did
+	nothing. `ALWAYS` stays on the enum for #895's mutation operators and for saves written
+	before ADR-0283, which meant the declaration and now read back as it; [method is_empty] and
+	`GambitOptions.condition_label` read either spelling, and
+	`GambitOptions.is_unconditional` is the one that splits them.
 	"""
 	var default_cond: Array[GambitCondition] = []
 	conditions = default_cond
@@ -284,7 +308,7 @@ func to_dict() -> Dictionary:
 	var action_target_data = null
 	if action_target:
 		action_target_data = action_target.to_dict()
-	return {
+	var out := {
 		"enabled": enabled,
 		"condition_target": condition_target_data,
 		"conditions": conditions_data,
@@ -292,6 +316,13 @@ func to_dict() -> Dictionary:
 		"ability_id": ability_id,
 		"action_target": action_target_data,
 	}
+	# OMITTED when there is nothing parked, rather than written as `null`. Every save in the wild
+	# predates this field, so absent must already mean "nothing parked" — and writing the key
+	# anyway would make a round-tripped old save differ from the original on a field neither the
+	# kernel nor the row can see.
+	if parked_condition != null:
+		out["parked_condition"] = parked_condition.to_dict()
+	return out
 
 
 static func from_dict(data: Dictionary) -> _Self:
@@ -305,6 +336,9 @@ static func from_dict(data: Dictionary) -> _Self:
 	g.conditions.clear()
 	for cond_dict in conds_data:
 		g.conditions.append(GambitCondition.from_dict(cond_dict))
+	var parked_data = data.get("parked_condition")
+	if parked_data:
+		g.parked_condition = GambitCondition.from_dict(parked_data)
 	if data.has("action_kind"):
 		# Guard against a stored int from the pre-ADR-0062 enum numbering (which
 		# had MOVE=2, RETREAT=3, APPROACH=4, ABILITY=5). An out-of-range value

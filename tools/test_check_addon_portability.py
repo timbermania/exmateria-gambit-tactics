@@ -119,7 +119,15 @@ PROJECT_DIR = TOOLS_DIR.parent
 ## to authorise it — 2 probe hits in the unit test as a positive control, 0 across eight
 ## battle scenes — because ADR-0208 dec. 5 had refused the counter argument alone. The
 ## free side is untouched: debt LEFT, it was not re-spelt as permitted.
-PERMITTED = 517
+## 🟢 AND IT ROSE 517 -> 529 WHEN `ExMateriaPlatform.SfxPort` LANDED (2026-09-12),
+## which is the direction this number is SUPPOSED to move when a port replaces an
+## autoload identifier. `addons/exmateria_effects/cast/EffectInstance.gd` named the host's
+## `ExMateriaEffectSfx` autoload on eleven lines — arm 2 standalone-parse debt, ADR-0308
+## dec. 1 — and those eleven plus the alias are now a PERMITTED platform-port reach. So
+## arm 2 went 26 -> 0 and this census went up by 12: one dependency, re-spelt from the
+## arm that cannot enforce it to the arm that counts it. Read a rise here together with
+## arm 2's fall; a rise on its own is the regression.
+PERMITTED = 529
 
 ## The guard prints the census in exactly one shape; the arms read it back rather than
 ## re-asserting a literal, so "did it move by 32" is a subtraction and not two constants.
@@ -2643,6 +2651,187 @@ class Arm7HostClassNameTests(unittest.TestCase):
             self.assertNotIn("HOST class_name", r.stdout)
             self.assertEqual(r.returncode, 0, r.stdout)
 
+class ArmTwoIsEnforcingEverywhere(unittest.TestCase):
+    """Arm 2 had TWO verdicts for one question, and #1225 removed the second.
+
+    An addon with its own `project.godot` was RED (`STANDALONE PARSE`); an IN-WALK
+    addon was a printed `standalone-parse DEBT` block headed *"Not enforced (there is
+    no standalone project to parse against yet)"*. ADR-0238 had already struck that
+    exact sentence out of arm 4 — *"There ARE standalone projects now -- six stranger
+    rigs"* — and there are now EIGHT, one per in-walk addon, each declaring an empty
+    `[autoload]` block on purpose (ADR-0308 §1). So the branch was reporting the
+    absence of a thing that had arrived, and the cost was real: all 26 debt lines were
+    `addons/exmateria_effects`, three of them were three of that addon's five
+    `known_failures.tsv` rows, and the rig was failing by name what this arm was
+    printing as a number.
+
+    Four directions, because a ratchet has more than one way to rot (ADR-0308 dec. 5):
+    an unlisted reach, a listed reach that is excused, a listed reach that no longer
+    happens, and an EMPTY SUBJECT.
+    """
+
+    def _run(self, addon, system="Render"):
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "check_addon_portability.py"),
+             "--root", str(addon), "--system", system],
+            capture_output=True, text=True)
+
+    @staticmethod
+    def _in_walk_addon(root: Path) -> Path:
+        """An addon shaped like an IN-WALK one: NO `project.godot` above it anywhere.
+
+        That is the whole switch this class is about. `_pkg` writes a `project.godot`
+        beside the addon, so `package_project` returns non-None and the addon takes the
+        arm-2 branch that was ALREADY red; a temp dir with no project at all returns
+        None and takes the branch that used to be an unenforced print.
+        """
+        addon = root / "addons" / "seedaddon"
+        addon.mkdir(parents=True)
+        return addon
+
+    def test_an_IN_WALK_addon_naming_a_host_autoload_is_RED(self):
+        """THE FLIP, and the arm that would have gone green before #1225.
+
+        `Tune` is a real host `[autoload]`, and this subject has no `project.godot` of
+        its own — the exact shape every in-walk addon has. Before the flip this printed
+        `standalone-parse DEBT` and exited 0.
+        """
+        with tempfile.TemporaryDirectory() as d:
+            addon = self._in_walk_addon(Path(d))
+            (addon / "seed.gd").write_text(
+                "extends Node\n"
+                "func f() -> void:\n"
+                "\tprint(Tune.get_num(\"x\"))\n", encoding="utf-8")
+            r = self._run(addon)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assertIn("STANDALONE PARSE", r.stdout)
+            self.assertIn("Tune", r.stdout)
+            self.assertEqual(r.returncode, 1, r.stdout)
+            # And the old heading is GONE rather than printed beside the new one. Two
+            # verdicts for one question is the defect; leaving the string behind would
+            # keep the report saying both.
+            self.assertNotIn("standalone-parse DEBT", r.stdout)
+
+    def test_the_report_names_the_STRANGER_RIG_and_not_None(self):
+        """`own` is None on that branch and the row interpolates it.
+
+        The first draft of the flip printed `NOT by None`, which is a report a reader
+        cannot act on — and it is the branch with no `project.godot`, i.e. the one the
+        flip newly reaches, so nothing else would have caught it. The rig is where a
+        reader reproduces the row, so the rig is what the row names.
+        """
+        with tempfile.TemporaryDirectory() as d:
+            addon = self._in_walk_addon(Path(d))
+            (addon / "seed.gd").write_text(
+                "extends Node\n"
+                "func f() -> void:\n"
+                "\tprint(Tune.get_num(\"x\"))\n", encoding="utf-8")
+            r = self._run(addon)
+            self.assertNotIn("NOT by None", r.stdout)
+            self.assertIn("tests/stranger", r.stdout)
+            self.assertIn("empty [autoload] on purpose", r.stdout)
+
+    def test_a_LISTED_reach_is_EXCUSED_and_prints_its_owner(self):
+        """The burn-down's first direction: a named row is goal #5 unmet ON RECORD.
+
+        Seeded in-process against the REAL tree, `Arm6BurnDownTests`' rule: a scratch
+        package proves the code path, not that the shipped rows describe this repo. The
+        row is keyed on a reach the tree does NOT have, so this also pins that a listed
+        row is only excused when it is real — the stale arm below is the other half.
+        """
+        import contextlib, io
+        # A real member, and a real host autoload it does not name.
+        rel = "addons/exmateria_effects/cast/EffectInstance.gd"
+        w = _clean_walk()
+        seeded_walk = dict(w)
+        seeded_walk["parse_raw"] = list(w["parse_raw"]) + [
+            ("addons/exmateria_effects", None, rel, "DebugConfig", [1, 2, 3])]
+        original = cap.ARM2_BURN_DOWN
+        cap.ARM2_BURN_DOWN = {(rel, "DebugConfig"): ("#0", "a seeded, owned reach")}
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = cap.report_walk(seeded_walk)
+        finally:
+            cap.ARM2_BURN_DOWN = original
+            os.chdir(PROJECT_DIR)
+        out = buf.getvalue()
+        self.assertIn("STANDALONE-PARSE BURN-DOWN", out)
+        self.assertIn("a seeded, owned reach", out)
+        self.assertNotIn("STANDALONE PARSE:", out,
+                         "a listed reach must not ALSO be reported as unlisted")
+        self.assertEqual(rc, 0, out)
+        # The green sentence must say what it does NOT claim, arm 1's and arm 6's rule.
+        self.assertIn("are on ARM2_BURN_DOWN above and are NOT part of that", out)
+
+    def test_an_entry_naming_no_autoload_reach_is_STALE_and_red(self):
+        """The burn-down's SECOND direction, and the one ADR-0308 dec. 5 singles out.
+
+        *"A baseline that outlives its debt re-admits the reach silently."*
+        `assertNotIn("STALE ARM2_BURN_DOWN")` on a green tree passes whether the branch
+        works or is unreachable, so the stale path needs its own seed.
+        """
+        import contextlib, io
+        original = cap.ARM2_BURN_DOWN
+        cap.ARM2_BURN_DOWN = dict(original)
+        cap.ARM2_BURN_DOWN[("addons/exmateria_effects/cast/EffectInstance.gd",
+                            "NoSuchAutoload")] = ("#0", "a row that names no reach")
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = cap.report_walk(_clean_walk())
+        finally:
+            cap.ARM2_BURN_DOWN = original
+            os.chdir(PROJECT_DIR)
+        out = buf.getvalue()
+        self.assertIn("STALE ARM2_BURN_DOWN", out)
+        self.assertIn("NoSuchAutoload", out)
+        self.assertEqual(rc, 1, out)
+
+    def test_an_EMPTY_SUBJECT_is_red_rather_than_vacuously_green(self):
+        """The third rot direction, and it is every arm's rather than arm 2's.
+
+        Every arm in this file is a "nothing found" over `scanned`, so a subject that
+        went empty — roots moved, `WALK_ROOTS` lost an entry, an extraction finished
+        and nobody deleted the guard — prints a clean bill over nothing. This is the
+        ADR-0148 stale-root defect the module docstring describes, and until #1225 it
+        was described rather than checked.
+        """
+        import contextlib, io
+        w = dict(_clean_walk())
+        w["scanned"] = []
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = cap.report_walk(w)
+        os.chdir(PROJECT_DIR)
+        out = buf.getvalue()
+        self.assertIn("the SUBJECT IS EMPTY", out)
+        self.assertEqual(rc, 1, out)
+        self.assertNotIn("addon portability OK", out)
+
+    def test_the_corpus_carries_ZERO_arm_2_reaches_and_the_list_is_empty(self):
+        """What made the flip free, stated as a measurement rather than a belief.
+
+        All 26 arm-2 lines were `addons/exmateria_effects` and #1225 paid every one, so
+        enforcement changes no verdict today. DISCRIMINATED, not hardcoded — arm 6's
+        test records why: its twin asserted a heading unconditionally and went red the
+        day the register emptied, i.e. on the arm reaching its target.
+        """
+        rc, out = _clean_report()
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("STANDALONE PARSE:", out)
+        self.assertNotIn("STALE ARM2_BURN_DOWN", out)
+        if cap.ARM2_BURN_DOWN:
+            self.assertIn("STANDALONE-PARSE BURN-DOWN", out)
+        else:
+            self.assertNotIn("STANDALONE-PARSE BURN-DOWN", out)
+        # The green sentence already carried this arm before the flip — "name no foreign
+        # autoload — as a bare identifier OR as a node-path string" — which is worth
+        # pinning HERE, because for the in-walk addons that sentence was not true until
+        # the flip: they were printed as debt and counted as green.
+        self.assertIn("name no foreign autoload", out)
+
+
     def test_a_host_autoload_is_arm_2s_row_and_not_this_arms(self):
         """One defect, one report — `_ARM6_REFERRERS`' rule, which subtracts the four
         shader suffixes because arm 3 owns them. `Tune` is a HOST autoload and arm 2
@@ -3021,24 +3210,34 @@ class Arm8DeclaredDepsTests(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
     def test_the_declared_deps_and_the_measured_reach_are_EXACT_on_every_subject(self):
-        """The baseline the ratchet is installed at, stated as a number rather than left
-        implicit: exact over every `deps=` key in the corpus, which is why
-        `ARM8_DEPS_NOT_BY_CLASS_NAME` ships EMPTY. A ratchet installed anywhere else
-        carries a burn-down from its first day.
+        """Declared == measured on every subject, ONCE the deps arm 5 structurally cannot
+        see are subtracted — and that subtraction is the register, not a fudge.
 
-        🔴 SIX SINCE #1225, AND THE SIXTH IS THE ONE THAT TESTED THE ARM. Extraction #7's
-        addon declares five deps and reached a SIXTH package — `exmateria_sound` — by its
-        global `class_name`. Arm 8 caught it on the merge, unconditionally and correctly,
-        and the fix was not to declare it: `deps=` is what the rig STAGES, and
-        `_walk_roots.declared_engine` RAISES on that package because it declares no
-        `engine=`. The reach is a PATH to the same façade now, so the pair is exact again
-        and the empty register stays honest."""
+        🔴 SIX SINCE #1225, AND THE SIXTH IS THE ONE THAT TESTED THE ARM, TWICE.
+        Extraction #7's addon declares six deps. It first reached the sixth package,
+        `exmateria_sound`, by its global `class_name`, and arm 8 caught the undeclared
+        reach on the merge — unconditionally and correctly. The fix then was NOT to
+        declare it, because `deps=` is what the rig STAGES and that package declared no
+        `engine=`, so `rig.sh` exited 2 on it. The reach became a PATH to the same façade
+        and the pair went exact again over an EMPTY register.
+
+        🟢 #1286 CLOSED THE OTHER HALF AND COST THIS TEST ITS EXACTNESS, ON PURPOSE. The
+        two missing `plugin.cfg` keys were measured and added (`engine="stock"` on both
+        sound addons, `deps="exmateria_spu"`), so the dep is declared, the rig stages a
+        seven-addon closure, and `exmateria_effects`' `known_failures.tsv` drained to
+        ZERO. The dep is still four `preload`s and no `class_name`, which is precisely
+        what `ARM8_DEPS_NOT_BY_CLASS_NAME` is for — so it is subtracted here BY NAME
+        rather than by widening the comparison. A row in that register is a claim with an
+        owner; a looser assertion here would be an exemption with neither."""
         carry = [r for r in _clean_walk()["dep_rows"] if r[3]]
         self.assertEqual(len(carry), 6, "the population of addons carrying a `deps=` key "
-                                        "moved; re-screen before trusting the empty list")
+                                        "moved; re-screen before trusting the register")
         for rel, _se, _ce, deps, _closure, meas in carry:
             with self.subTest(rel):
-                self.assertEqual(sorted("addons/" + d for d in deps),
+                # Subtract only what the REGISTER names for THIS subject — never a
+                # blanket "ignore unmeasured deps", which is the pattern #424 forbids.
+                named = {d for (a, d) in cap.ARM8_DEPS_NOT_BY_CLASS_NAME if a == rel}
+                self.assertEqual(sorted("addons/" + d for d in deps if d not in named),
                                  sorted(h for h, n in meas.items() if n))
 
     # --- arm 8, completeness, both directions -----------------------------
@@ -3074,9 +3273,15 @@ class Arm8DeclaredDepsTests(unittest.TestCase):
             "addons/exmateria_catalogue",
             deps=["exmateria_almanac", "exmateria_platform", "exmateria_schema",
                   "exmateria_sprite_rig"])
-        rc, out = self._main(w, deps_list={
-            ("addons/exmateria_catalogue", "exmateria_sprite_rig"):
-                ("#0", "a seeded row standing in for a res:// or scene dependency")})
+        # Seeded ON TOP of the shipped register rather than instead of it. Replacing it
+        # wholesale also unregisters `exmateria_effects -> exmateria_sound` (#1286), so
+        # the real row reds and the assertion below fails for a reason that has nothing
+        # to do with what this arm tests — which is exactly what happened when that row
+        # first landed.
+        seeded = dict(cap.ARM8_DEPS_NOT_BY_CLASS_NAME)
+        seeded[("addons/exmateria_catalogue", "exmateria_sprite_rig")] = (
+            "#0", "a seeded row standing in for a res:// or scene dependency")
+        rc, out = self._main(w, deps_list=seeded)
         self.assertIn("declared dependencies ARM 5 CANNOT SEE", out)
         self.assertNotIn("DECLARED DEPENDENCY NOTHING REACHES", out)
         self.assertEqual(rc, 0, out)

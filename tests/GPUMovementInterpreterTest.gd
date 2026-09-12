@@ -38,13 +38,16 @@ func _ready() -> void:
 	_test_stale_timer_is_no_move()
 	_test_no_displacement_is_no_move()
 	_test_bad_origin_is_no_move()
-	_test_moving_to_cast_counts()
+	_test_the_movement_set_is_populated()
+	_test_every_movement_state_counts()
+	_test_no_other_state_counts()
 	_test_forget_reopens_step()
 
 	if _failed:
 		print("[FAIL] GPUMovementInterpreter test")
 	else:
-		print("[PASS] GPUMovementInterpreter: new/continuing/no-move, staleness guard, forget OK")
+		print("[PASS] GPUMovementInterpreter: new/continuing/no-move, every movement state "
+			+ "and no other, staleness guard, forget OK")
 	get_tree().quit()
 
 
@@ -99,10 +102,52 @@ func _test_bad_origin_is_no_move() -> void:
 	_check(it.classify(0, s).kind == InterpClass.Kind.NO_MOVE, "prev_move_pos < 0 ⇒ NO_MOVE")
 
 
-func _test_moving_to_cast_counts() -> void:
-	var it = InterpClass.new()
-	var s := _state(GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST, Vector2i(0, 0), Vector2i(0, 1), 7, 10, 1)
-	_check(it.classify(0, s).kind == InterpClass.Kind.NEW_STEP, "LOGICAL_ACTIVITY_WALKING_TO_CAST is a moving state")
+## The positive control for the two arms below. Both loop over a generated list,
+## and a generator that emitted an EMPTY one would leave them asserting nothing
+## while printing PASS — so the list is checked for the states it must contain
+## before anything is asserted with it.
+func _test_the_movement_set_is_populated() -> void:
+	var moves: Array = GPUConstants.LOGICAL_ACTIVITY_MOVEMENT_STATES
+	_check(moves.size() >= 4, "the generated movement set has %d members, wanted >= 4" % moves.size())
+	for required in [GPUConstants.LOGICAL_ACTIVITY_WALKING,
+			GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST,
+			GPUConstants.LOGICAL_ACTIVITY_APPROACHING,
+			GPUConstants.LOGICAL_ACTIVITY_RETREATING]:
+		_check(moves.has(required),
+			"%s writes movement steps, so it belongs to the movement set"
+				% GPUConstants.LOGICAL_ACTIVITY_NAMES[required])
+
+
+## 🔴 EVERY MOVE STATE, ASKED OF THE TAXONOMY — NOT ONE HAND-PICKED ONE.
+##
+## This arm used to name `WALKING_TO_CAST` alone, so `APPROACHING` and
+## `RETREATING` were never asserted here at all. That is why ADR-0301 could add a
+## fourth move state to the kernel, leave `classify` hand-listing three, and pass
+## its whole suite: retreat's own test is a GPU test and never asked the host
+## anything, and the host's test only ever asked about two of the four states.
+## Looping the GENERATED list is what makes a fifth move state covered by being a
+## YAML row rather than by somebody remembering this file.
+func _test_every_movement_state_counts() -> void:
+	for gpu_state in GPUConstants.LOGICAL_ACTIVITY_MOVEMENT_STATES:
+		var it = InterpClass.new()
+		var s := _state(gpu_state, Vector2i(0, 0), Vector2i(0, 1), 7, 10, 1)
+		_check(it.classify(0, s).kind == InterpClass.Kind.NEW_STEP,
+			"%s is a movement state — a live step in it must classify NEW_STEP"
+				% GPUConstants.LOGICAL_ACTIVITY_NAMES[gpu_state])
+
+
+## The other direction, which is what keeps the arm above from being satisfied by
+## a predicate that says yes to everything: a state the taxonomy does NOT route
+## to the visualizer must classify NO_MOVE however live its movement fields look.
+func _test_no_other_state_counts() -> void:
+	for gpu_state in range(GPUConstants.LOGICAL_ACTIVITY_NAMES.size()):
+		if GPUConstants.LOGICAL_ACTIVITY_MOVEMENT_STATES.has(gpu_state):
+			continue
+		var it = InterpClass.new()
+		var s := _state(gpu_state, Vector2i(0, 0), Vector2i(0, 1), 7, 10, 1)
+		_check(it.classify(0, s).kind == InterpClass.Kind.NO_MOVE,
+			"%s is not a movement state — it must classify NO_MOVE"
+				% GPUConstants.LOGICAL_ACTIVITY_NAMES[gpu_state])
 
 
 func _test_forget_reopens_step() -> void:

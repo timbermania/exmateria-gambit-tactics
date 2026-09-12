@@ -53,6 +53,21 @@ const MAX_ABILITY_POSTURES := 3
 ## spell would be the near-identical flood `MAX_ABILITY_POSTURES` exists to stop.
 const MAX_REVIVE_GAMBITS := 2
 
+## How near an enemy has to be for the withdraw posture's opening slot to fire —
+## MANHATTAN tiles, and `COND_DISTANCE_LESS` is strict, so 3 means "adjacent or one
+## step from it".
+##
+## 🔴 THIS NUMBER IS PINNED TO `RolloutCandidates.CONDITION_MENU`'S OWN DISTANCE
+## FIGURE, NOT CHOSEN. The `condition` family re-conditions any enabled slot from
+## that menu, and the menu's two distance entries both read 3. Authoring the same
+## number puts this posture's slot ON the mutation lattice rather than one step off
+## it: the search can walk the threshold, and the walk starts from a value it
+## already offers. Pinning is asserted, not hoped for —
+## `RolloutCandidatesTest._test_withdraw_posture` holds the two equal, because a
+## silent drift would leave the posture a neighbour of nothing.
+const WITHDRAW_TILES := 3
+
+
 ## The HP thresholds the authored postures switch on. Named because two postures
 ## share them and a silent disagreement between "hurt enough to finish" and
 ## "hurt enough to heal" reads as a playbook bug that is really a typo.
@@ -91,6 +106,21 @@ const MEND_HP_PERCENT := 60.0
 ##     small to hold the family the tail that drops should be theirs, which is
 ##     what putting this first means. It costs nothing to the units that cannot
 ##     revive — for them it returns no posture at all.
+##
+## 🔴 THE WITHDRAW POSTURE IS SECOND, AND THE ORDER OF THE HEAD IS THE WHOLE
+## CROWDING ANSWER (#1104). `_withdraw` is the file's OTHER unreachable-verb
+## posture — `_action_menu` holds no `ACTION_RETREAT_STEP`, so like the revive it
+## is playbook-only — and it is offered to every role too, for a different reason
+## it states itself. It sits BEHIND the revive rather than in front because the
+## revive is the scarcer plant: it needs an unreachable condition AND an
+## unreachable pool AND an ability the action menu omits, while a withdraw slot,
+## once planted, is one `_family_condition` edit from every distance and self-HP
+## threshold the menu offers. So the head of this list is the two verbs no edit
+## can introduce, revive first, and the TAIL — `_press`, `_finish`, the third
+## ability opener — is what `K` truncates, which is right because each of those is
+## one edit from the incumbent. For a role with three offensive abilities, what
+## this posture displaces is that third opener; nothing else moves.
+##
 ## `revive_ids` carries NO DEFAULT on purpose: a defaulted bucket is a posture
 ## family a caller can omit by accident, and the omission would read as "this unit
 ## cannot revive" rather than as a missing argument.
@@ -98,6 +128,7 @@ static func postures_for(role: int, offensive_ids: Array, healing_ids: Array,
 		revive_ids: Array) -> Array:
 	var out: Array = []
 	out.append_array(_raise_the_fallen(revive_ids, healing_ids))
+	out.append(_withdraw())
 	match role:
 		UnitRole.Role.MELEE, UnitRole.Role.RANGED:
 			out.append(_press())
@@ -213,6 +244,61 @@ static func _raise_the_fallen(revive_ids: Array, healing_ids: Array) -> Array:
 		TargetSelector.enemies(), [GambitCondition.always()],
 		Gambit.ActionKind.ATTACK, -1, TargetSelector.triggering()))
 	return [posture]
+
+
+## Back off when a foe has closed, else press — ONE posture (#1104), the retreat
+## half of the two verbs this ticket exists to make reachable. ADR-0301 is the rule
+## it authors against: a retreat is ONE tile directly away from the unit it is aimed
+## at, and then a fresh decision.
+##
+## 🔴 OFFERED TO EVERY ROLE, AND THE REASON IS NOT THE ONE THAT MADE THE REVIVE
+## POSTURE UNIVERSAL. `_raise_the_fallen` skips the role gate because the ABILITY
+## DATA answers the same question better (`revive_ids`, ADR-0293's argument applied
+## to authoring). Retreat has no such data: a step needs no ability, so nothing in
+## `RolloutCandidates.make_context` can say which units want to disengage, and the
+## role genuinely IS the widest key available here. It is still not used as a gate,
+## for a different reason:
+##
+##   - **Planting the verb once puts the whole retreat family on the mutation
+##     lattice.** `RolloutCandidates._action_menu` holds ATTACK, WAIT and the unit's
+##     spells and NOTHING else — `ACTION_RETREAT_STEP` is in no menu, so no one-step
+##     edit can introduce a retreat into a list that has none. But once a slot
+##     CARRIES the verb, `_family_condition` can re-condition it from
+##     `CONDITION_MENU` x `CONDITION_TARGET_MENU`, which between them hold
+##     `SELF / HP_BELOW(50)` and `(25)`. So the low-HP break-off — the retreat a
+##     MELEE unit actually wants — is ONE condition edit from this posture, and
+##     withholding the posture from MELEE would have withheld the VERB from the
+##     role entirely, for every beat of every rollout. ADR-0301's own closing note
+##     is that every balance number so far was tuned against an AI that could not
+##     disengage; a role gate here would have left the largest role exactly there.
+##   - **So the HP-keyed variant is deliberately NOT authored.** Two postures one
+##     condition edit apart is the near-identical flood `MAX_ABILITY_POSTURES`
+##     exists to stop, and the search picks the threshold better than a balance
+##     number invented in this file would.
+##
+## ⚠️ THE AIM IS `triggering()` AND IT MUST NOT BE `self_()`. A retreat's
+## `action_target` is the unit to move AWAY from (`GambitEncoder` ->
+## ACTION_RETREAT_STEP). Aimed at the caster, `retreat_step_cell` refuses
+## `flee_from == unit_id` outright and the slot is a guaranteed VERDICT_NO_RETREAT —
+## a row that can never fire, which `GambitOptions.aim_verdict` grades
+## AIM_FORBIDDEN for the same reason. `triggering()` forwards to the condition
+## subject, the nearest enemy, which is step 1 of the user's own definition of
+## retreat ("find the nearest enemy").
+##
+## The ATTACK fall-through is not decoration. A retreat that cannot open distance
+## FALLS THROUGH (ADR-0301: the cell is picked in the DECIDE stage precisely so it
+## can), and without a slot beneath it a cornered unit would reach the safety net
+## instead — which walks it back toward the thing it was fleeing. `_press`'s shape,
+## for `_press`'s reason.
+static func _withdraw() -> Array:
+	return [
+		Gambit.create(
+			TargetSelector.enemies(), [GambitCondition.target_within(WITHDRAW_TILES)],
+			Gambit.ActionKind.RETREAT, -1, TargetSelector.triggering()),
+		Gambit.create(
+			TargetSelector.enemies(), [GambitCondition.always()],
+			Gambit.ActionKind.ATTACK, -1, TargetSelector.triggering()),
+	]
 
 
 ## One posture per healing ability: mend the worst-off ally, else attack.

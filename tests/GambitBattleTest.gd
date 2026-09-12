@@ -851,7 +851,7 @@ func _arm_4e_the_turn_opens_on_a_settled_taker() -> void:
 		if director.state() != TurnDirector.State.TURN_OPEN:
 			# Between turns: the world is live and this is where walking is visible.
 			for i in range(units.size()):
-				if TurnDirector._is_movement_state(_gpu_state_of(i)):
+				if GPUConstants.is_movement_state(_gpu_state_of(i)):
 					walked[i] = true
 			continue
 		var taker: int = director.taker()
@@ -895,7 +895,7 @@ func _arm_4e_the_turn_opens_on_a_settled_taker() -> void:
 		if float(s["drift"]) > worst:
 			worst = float(s["drift"])
 			worst_taker = int(s["taker"])
-		if TurnDirector._is_movement_state(int(s["state"])):
+		if GPUConstants.is_movement_state(int(s["state"])):
 			mid_step.append(int(s["taker"]))
 	_true(mid_step.is_empty(),
 		"units %s held a turn while still mid-step — the kernel did not brake" % [mid_step])

@@ -81,6 +81,11 @@ const LOGICAL_ACTIVITY_AWAITING_IMPACT = 9
 const LOGICAL_ACTIVITY_RETREATING = 10
 
 const LOGICAL_ACTIVITY_NAMES = ["IDLE", "WALKING", "ACTING", "PREEMPTIVE_COUNTER", "SPELL_CHARGING", "WALKING_TO_CAST", "DYING", "CELEBRATING", "APPROACHING", "AWAITING_IMPACT", "RETREATING"]
+
+# The states in which a unit is BETWEEN TILES -- its logical position is the
+# DESTINATION of a step rather than where the sprite is. Derived from the rows
+# whose routing is `visualizer`. Read it through `is_movement_state()` below.
+const LOGICAL_ACTIVITY_MOVEMENT_STATES = [LOGICAL_ACTIVITY_WALKING, LOGICAL_ACTIVITY_WALKING_TO_CAST, LOGICAL_ACTIVITY_APPROACHING, LOGICAL_ACTIVITY_RETREATING]
 # === END GENERATED ===
 
 # --- Weapon types ---
@@ -125,3 +130,26 @@ const REASON_NAMES = [
 	"ATTACK_ENDED", "WAITING_TARGET", "GAMBIT_FAILED", "SPELL_FAILED", "NO_GAMBIT",
 	"THRASH_ABORT", "TARGET_DEAD", "TURN_PENDING"
 ]
+
+
+## True when the unit is BETWEEN TILES — when its logical position is the
+## DESTINATION of a step rather than where the sprite is.
+##
+## 🔴 THIS IS THE HOST'S ONLY DEFINITION OF "MOVING", AND IT USED TO BE THREE.
+## [GPUMovementInterpreter], [TurnDirector]'s turn gate and [GPUVisualBridge]'s
+## diagnostics each hand-listed the same states; each said so in its docstring,
+## and they DID agree — which is exactly what hid the fourth. ADR-0301 added
+## `LOGICAL_ACTIVITY_RETREATING` to the kernel's three lists and to none of
+## these, so the interpreter classified every retreat `NO_MOVE`, the bridge
+## dropped the visualizer and snapped to the GPU tile, and a retreating unit
+## teleported while still facing what it was fleeing, in whatever pose it held.
+## One omission, three symptoms, and no test in a position to see any of them.
+##
+## The members are GENERATED from the taxonomy rows whose `routing` is
+## `visualizer` — the YAML's own declaration that the move visualizer authors
+## that row's body activity, which is true of a row precisely when the unit is
+## mid-step. So a fifth move state joins every consumer by being a row, and
+## `is_movement_state` in `combat_common.glslinc` is the kernel's half of the
+## same derivation.
+static func is_movement_state(state: int) -> bool:
+	return state in LOGICAL_ACTIVITY_MOVEMENT_STATES

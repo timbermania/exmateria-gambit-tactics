@@ -24,6 +24,14 @@ extends "res://addons/exmateria_effects/subsystem/ColorSubsystem.gd"
 
 
 const ColorStackClass = ExMateriaSchema.ColorStack
+
+## The tint registry reached through its PORT rather than through the bare
+## `TintedSurfaces` autoload identifier — a member may name no autoload at all
+## (ADR-0308 dec. 1). `SURFACE_MAP` comes off the port too, and it has to: a GDScript
+## `const` is not a property, so `node.SURFACE_MAP` on a resolved autoload fails at
+## RUNTIME rather than at parse, which is the one respelling of this reach that would
+## have gone green in the rig and red in the game.
+const TintedSurfacesPort = preload("res://addons/exmateria_effects/install/TintedSurfacesPort.gd")
 # 🟢 THE ILLUMINATION MACHINERY IS GONE (#1192, 2026-09-12). `build_illumination`,
 # `_push_illum_phase_ops` and the `MapIlluminationDDA` alias are deleted. They were the
 # producer half of Holy/E015's 8-bit additive map flood, unwired at rev 5 because the
@@ -188,7 +196,7 @@ func _deliver_output() -> void:
 	# model, so no channel pops back to base at a phase boundary (color-parity fix,
 	# Raise/E005). The PSX color engine has no phase concept; map/caster/target are just
 	# different CLUT banks driven by the same continuous DDA.
-	TintedSurfaces.update_stack(TintedSurfaces.SURFACE_MAP, owner_id, build_stream(AFFECTED_UNITS, _phase_first_frame), _frame)
+	TintedSurfacesPort.update_stack(TintedSurfacesPort.SURFACE_MAP, owner_id, build_stream(AFFECTED_UNITS, _phase_first_frame), _frame)
 	# The map ILLUMINATION (8-bit additive applier, FUN_80090dec) is INTENTIONALLY NOT
 	# delivered (Holy/E015 rev 5): statically it only ever tints the PSX's UNTEXTURED
 	# flat-colour terrain primitive class (d2b4/d568), which Godot doesn't render — all
@@ -205,8 +213,8 @@ func _deliver_output() -> void:
 	if _caster_unit:
 		var caster = _caster_unit.get_ref()
 		if caster:
-			TintedSurfaces.update_stack(caster.get_instance_id(), owner_id, build_stream(CASTER, _phase_first_frame), _frame)
+			TintedSurfacesPort.update_stack(caster.get_instance_id(), owner_id, build_stream(CASTER, _phase_first_frame), _frame)
 	if _target_unit:
 		var target = _target_unit.get_ref()
 		if target:
-			TintedSurfaces.update_stack(target.get_instance_id(), owner_id, build_stream(TARGET, _phase_first_frame), _frame)
+			TintedSurfacesPort.update_stack(target.get_instance_id(), owner_id, build_stream(TARGET, _phase_first_frame), _frame)

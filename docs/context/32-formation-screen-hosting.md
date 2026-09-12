@@ -178,13 +178,26 @@ values ("Nearest Foe", "HP<50%"), so the set a player can author is the set they
 read back off the row.
 _Avoid_: "field" (the parts are not the struct's fields, deliberately); "dropdown" —
 that names the retired mouse editor's widget, not the concept; **"When"** for the
-fourth part — that word named a full pool selector, and the part is a two-way switch
-(see **Condition subject**).
+fourth part — that word named a full pool selector, and the part is a three-way
+switch (see **Condition subject**).
 
 **Condition subject**:
 Who a gambit's condition is a question **about** — `Gambit.condition_target`,
-rendered as the row's third column and offered as a two-way switch, **`My`** (the
-actor) or **`Their`** (whoever the **To** column named).
+rendered as the row's third column and offered as a three-way switch: **`My`** (the
+actor), **`Their`** (whoever the **To** column named), or **`Always`** — which
+answers *whether* there is a test rather than who it is about, and DISABLES the **If**
+column — drawn, dim and unreachable (ADR-0283 dec. 2 and dec. 8). `Always` holds the
+same mirrored selector `Their` does; what distinguishes it is an explicit `ALWAYS` in
+`conditions[0]`, which is the row saying it has no test as against not having chosen
+one yet.
+
+**Parked condition**:
+The predicate the **`Always`** subject set aside — `Gambit.parked_condition`, shown
+dim in the disabled **If** column and restored when the subject flips back to `My` or
+`Their`, so the player does not re-pick it. NOT a condition: it is absent from
+`conditions`, the encoder never reads it, and the kernel ANDs everything in
+`conditions` — so a park stored there would make the row read `Always` and fire only
+when the set-aside test passed. Only an `Always` row carries one.
 ⚠️ **Two words, not one, because the bare word is TAKEN**: `Subject` already names
 the unit + equipment shown on a screen, in
 [port-vs-oracle diffing](35-port-vs-oracle-diffing.md), and that domain neutralizes

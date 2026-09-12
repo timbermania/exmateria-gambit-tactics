@@ -155,6 +155,23 @@ const COL_DO_CAP := 50.0
 const COL_TO_CAP := 48.0
 const COL_SUBJ_CAP := 20.0
 const COL_IF_CAP := 40.0
+## What SUBJECT may spend on a row whose `If` column is DISABLED — 155 runs all the way to 188
+## instead of stopping at 175, because the 13 px it stops short of are the CHEVRON'S GAP and a
+## disabled column is one the chevron can never land in.
+##
+## 🔴 `Always` DOES NOT FIT [constant COL_SUBJ_CAP]. Measured through `UIMenuText.measure`
+## against `font_meta.json`, `Always` is **26 px** (6+2+6+4+4+4) against the 20 px `Their` set
+## the switch at, and every glyph inks its full advance — nothing in this row has slack to lend
+## (see the budget above; the row is already 10 px over and pays for it by sharing a lane).
+##
+## The 13 px is where the 6 px comes from, and it is free ONLY because the column is disabled
+## rather than merely empty: `_move_part` cannot rest on `PART_IF` here
+## (`GambitSurface._last_part`), so no arrow is ever mounted at `COL_IF_X - CHEVRON_W`. That
+## leaves `Always` ending at 181 with 7 px of blank before the dim cell at 188 — narrower than
+## dec. 4's 13 px chevron clearance, but this is VALUE-to-VALUE spacing and not arrow-to-value,
+## and 7 px is nearly two word spaces (`DialogueBox.SPACE_WIDTH_PX` is 4). Photographed, because
+## dec. 4's whole lesson is that this clearance is a reading and not a threshold.
+const COL_SUBJ_DISABLED_CAP := 33.0
 ## The chevron's own advance — it is mounted at `column_x - CHEVRON_W`, so its ink lands in the
 ## gap in front of the column it names. NOT the same number as the GAP between columns (13),
 ## and conflating the two costs the clearance: mounted at `x - gap` the arrow sits 1 px from the
@@ -554,11 +571,17 @@ func _build_gambit_rows() -> void:
 		# dec. 13), so column position and part index stopped agreeing the moment ENABLE stopped
 		# being a part — a loop index here would aim the chevron one column left of the part it
 		# names, on every row, and still render perfectly.
+		# `if_disabled` — the row declared `Always`, so its `If` column is still DRAWN and still
+		# in its own lane, but dim and unreachable. The cell shows the predicate `Always` parked
+		# (`GambitSurface._write_if_cell`), so what goes dim is a real value the player can get
+		# back, not a placeholder.
+		var if_disabled := bool(r.get("if_disabled", false))
 		var cols := [
 			[COL_ENABLE_X, String(r.get("enable", "")), 0.0, NOT_A_PART],
 			[COL_DO_X, String(r.get("do", "")), COL_DO_CAP, PART_DO],
 			[COL_TO_X, String(r.get("to", "")), COL_TO_CAP, PART_TO],
-			[COL_SUBJ_X, String(r.get("subj", "")), COL_SUBJ_CAP, PART_SUBJ],
+			[COL_SUBJ_X, String(r.get("subj", "")),
+				COL_SUBJ_DISABLED_CAP if if_disabled else COL_SUBJ_CAP, PART_SUBJ],
 			[COL_IF_X, String(r.get("iff", "")), COL_IF_CAP, PART_IF],
 		]
 		# THE SLOT NUMBER AND `Do`'S CHEVRON SHARE ONE LANE, and that sharing is what pays for
@@ -578,7 +601,19 @@ func _build_gambit_rows() -> void:
 			# edge immediately to its left.
 			if focused and not inert and part != NOT_A_PART and part == focused_part:
 				_mount_part(s, PART_CHEVRON, x - CHEVRON_W, y, inks, 0.0)
-			_mount_part(s, String(col[1]), x, y, inks, float(col[2]))
+			# THE DISABLED CELL PAINTS IN THE DIM BAND WHATEVER THE ROW IS DOING. `inks` is the
+			# ROW's band, so on the focused row every cell is LIT — and an `Always` row's `If`
+			# cell must not be, because it holds a predicate that is set aside rather than
+			# applied. `_inks_for(false, ...)` and not the `DIM_INKS` literal, so the
+			# backgrounded twin (§15.21) comes along for free.
+			#
+			# ⚠️ On an UNFOCUSED row this distinction is invisible — the whole row is already
+			# dim, and the ROM's shade band gives this window two shades, not three. The
+			# SUBJECT column carries the reading there: `Always` is the word that says the
+			# fourth column does not apply, and it is the leftmost of the two.
+			var cell_inks := _inks_for(false, inert) if (if_disabled and part == PART_IF) \
+				else inks
+			_mount_part(s, String(col[1]), x, y, cell_inks, float(col[2]))
 		var extra := int(r.get("extra", 0))
 		if extra > 0:
 			var mark := "+%d" % extra
@@ -687,8 +722,16 @@ func row_text(i: int) -> String:
 	var r: Dictionary = row_entries[i]
 	if r.has("text"):
 		return String(r["text"])
+	# FIVE fields always — the `If` column is drawn on every row, disabled or not. A DISABLED
+	# cell is bracketed, because `row_text` is what guards and `visible_row_names()` score and
+	# the dim PALETTE is the one thing a string cannot carry: without the brackets an `Always`
+	# row and a live one read identically here, and a guard asserting the disable would have
+	# nothing to assert against.
+	var iff := String(r.get("iff", ""))
+	if bool(r.get("if_disabled", false)):
+		iff = "(%s)" % iff
 	var out := "%s %s / %s / %s / %s" % [r.get("enable", ""), r.get("do", ""),
-		r.get("to", ""), r.get("subj", ""), r.get("iff", "")]
+		r.get("to", ""), r.get("subj", ""), iff]
 	var extra := int(r.get("extra", 0))
 	return out + (" +%d" % extra if extra > 0 else "")
 

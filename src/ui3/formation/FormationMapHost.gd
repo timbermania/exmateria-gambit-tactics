@@ -891,8 +891,30 @@ func _push_pair_views(character, unit) -> void:
 ## Live damage lands on the unit's [UnitStats] (`CombatLoop._apply_hp_change` writes
 ## `unit_stats.current_hp` off the GPU readback), so that is the one place to read it from. What is
 ## overlaid is only what the fight can MOVE: the numerators, and the status list. Name, job, level,
-## exp, portrait and the DENOMINATORS stay the identity's — a Change-Job commit is what moves those,
-## and the identity is where that lands.
+## exp and the DENOMINATORS stay the identity's — a Change-Job commit is what moves those, and the
+## identity is where that lands.
+##
+## THE PORTRAIT IS SPLIT DOWN THE MIDDLE, and `display_from_template(template_folder,
+## fallback_sprite_id)` already spells the split in its own signature — the two arguments have two
+## different owners:
+##
+## - `fallback_sprite_id` is JOB-ROUTED. A Change-Job moves it, so it stays the IDENTITY's, like
+##   the job name beside it.
+## - `template_folder` IS the materialized Form. ADR-0079 forbids the identity from holding a
+##   durable `special_name`, so on a battlefield the UNIT is the only object that holds one —
+##   [method UnitSpawn.build] resolves the folder at spawn through the one template resolver, and
+##   the scenario spawn seam reads it straight off the ENTD slot
+##   (`ScenarioPlayerScene._resolve_template_folder`).
+##   So it is OVERLAID, both ways: a unit that job-routes shows the job route even under a stamped
+##   identity, and a unit standing as a unique shows the unique even under an unstamped one.
+##
+## That second leg is not hypothetical — it is the defect this overlay exists for. Orbonne (root 3,
+## ENTD 387) is a PREDETERMINED battle, so neither deploy seam runs, `NavigatorMain._make_combat_ready`
+## binds the CATALOGUE Ramza with `special_name = 0`, and the panel drew the generic Squire face
+## while the turn-queue card one row away drew `templates/ramza_2/`. Both readers now read the
+## unit's field, so they agree BY CONSTRUCTION rather than by both being stamped in time.
+## [FieldInspectController.view_from_unit] and [TurnQueueHud._template_folder_of] are the other two
+## readers, and they already source it this way.
 ##
 ## CT is deliberately left as the identity's dash row. There is no CPU-side turn gauge to read
 ## (nothing in `GPUCombatPacker.UnitField` mirrors one back), and a confident `0/100` under the
@@ -916,6 +938,12 @@ static func vitals_view_for(character, unit) -> Dictionary:
 		for s in status.get_all_statuses():
 			names.append(String(s).capitalize())
 		view["statuses"] = names
+	# The portrait's FOLDER half (see above): the unit holds the materialized Form, so it answers
+	# for it whenever there IS a unit — including with "", which is a generic's real answer and not
+	# a missing one. `sprite_id` is untouched; it is job-routed and stays the identity's.
+	var folder = unit.get("template_folder")
+	if folder != null:
+		view["template_folder"] = String(folder)
 	return view
 
 

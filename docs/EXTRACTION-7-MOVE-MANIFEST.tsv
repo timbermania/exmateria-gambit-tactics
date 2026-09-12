@@ -22,7 +22,7 @@ src/effects/EffectCurve.gd	addons/exmateria_effects/file_model/EffectCurve.gd	sc
 src/effects/EffectData.gd	addons/exmateria_effects/file_model/EffectData.gd	script	membership_arms	move	404	Effect File Format;Effect Frame Pacing;Effect Texture Upload;Embedded MIPS Effect Code
 src/effects/EffectEmitter.gd	addons/exmateria_effects/file_model/EffectEmitter.gd	script	membership_arms	move	256	E001.BIN Memory Mapping;Emitter Anchor Modes;Particle Emitter Format
 src/effects/EffectEndModel.gd	addons/exmateria_effects/cast/EffectEndModel.gd	script	membership_arms	move	83	
-src/effects/EffectInstance.gd	addons/exmateria_effects/cast/EffectInstance.gd	script	membership_arms	move	931	Effect Camera System;Effect Execution Model;Effect Frame Pacing;Embedded MIPS Effect Code;Transformed Pose System
+src/effects/EffectInstance.gd	addons/exmateria_effects/cast/EffectInstance.gd	script	membership_arms	move	961	Effect Camera System;Effect Execution Model;Effect Frame Pacing;Embedded MIPS Effect Code;Transformed Pose System
 src/effects/EffectManager.gd	addons/exmateria_effects/cast/EffectManager.gd	script	membership_arms	move	487	Elemental Puff Particle System;Emitter Anchor Modes;Hit Reaction Particle Burst;Knight Break Impact Particle System;Spell Charge Effect System;Spell Charge Lines System;Summon Charge Lines System;Summon Orb Orbital System;TRAP Charge Particle System;TRAP Hit Effect Particle System;TRAP Sprite Effect System;Transformed Pose System
 src/effects/EffectMultiMeshPool.gd	addons/exmateria_effects/render/EffectMultiMeshPool.gd	script	membership_arms	move	355	Display Space Blend Fold;Effect MultiMesh Pool
 src/effects/EffectParticleRenderer.gd	addons/exmateria_effects/render/EffectParticleRenderer.gd	script	membership_arms	move	420	Display Space Blend Fold;Effect MultiMesh Pool;Effect Texture Upload;Frameset Header Flags;PSX Texture Page Register;Particle Coloring System;Sprite Offset vs Vertex Position
@@ -33,7 +33,7 @@ src/effects/MapTintOverlay.gd	addons/exmateria_effects/overlay/MapTintOverlay.gd
 src/effects/OTDepthPrimOrder.gd	addons/exmateria_effects/render/OTDepthPrimOrder.gd	script	membership_arms	move	279	Display Space Blend Fold
 src/effects/PSXCameraConvert.gd	addons/exmateria_platform/fixed_point/PsxChirality.gd	script	membership_arms	move	81	Embedded MIPS Effect Code;Scenario Camera Framing
 src/effects/PaletteData.gd	addons/exmateria_effects/file_model/PaletteData.gd	script	membership_arms	move	108	
-src/effects/PaletteSubsystem.gd	addons/exmateria_effects/subsystem/PaletteSubsystem.gd	script	membership_arms	move	212	Combat Color Appliers;Map Tint
+src/effects/PaletteSubsystem.gd	addons/exmateria_effects/subsystem/PaletteSubsystem.gd	script	membership_arms	move	220	Combat Color Appliers;Map Tint
 src/effects/Particle.gd	addons/exmateria_effects/particles/Particle.gd	script	membership_arms	move	97	E001.BIN Memory Mapping;Particle Runtime State
 src/effects/ParticleAnimator.gd	addons/exmateria_effects/particles/ParticleAnimator.gd	script	membership_arms	move	156	Effect Animation Sequences;Effect Frame Pacing;Particle Depth Mode;Sprite Offset vs Vertex Position
 src/effects/ParticlePhysics.gd	addons/exmateria_effects/particles/ParticlePhysics.gd	script	membership_arms	move	247	Effect File Format;Homing System;Particle Curve Indices;Sprite Offset vs Vertex Position
@@ -43,7 +43,7 @@ src/effects/PhaseBlock.gd	addons/exmateria_effects/subsystem/PhaseBlock.gd	scrip
 src/effects/PsxUnits.gd	addons/exmateria_platform/fixed_point/PsxMagnitude.gd	script	membership_arms	move	138	Isometric Coordinate System
 src/effects/ScreenData.gd	addons/exmateria_effects/file_model/ScreenData.gd	script	membership_arms	move	178	
 src/effects/ScreenEffectOverlay.gd	addons/exmateria_effects/overlay/ScreenEffectOverlay.gd	script	membership_arms	move	252	Color Screen Opcode;Screen Effect Gradient System
-src/effects/ScreenSubsystem.gd	addons/exmateria_effects/subsystem/ScreenSubsystem.gd	script	membership_arms	move	193	Color Screen Opcode;Display Space Blend Fold;Screen Effect Gradient System
+src/effects/ScreenSubsystem.gd	addons/exmateria_effects/subsystem/ScreenSubsystem.gd	script	membership_arms	move	200	Color Screen Opcode;Display Space Blend Fold;Screen Effect Gradient System
 src/effects/SoundSubsystem.gd	addons/exmateria_effects/subsystem/SoundSubsystem.gd	script	membership_arms	move	39	Effect Sound Timing
 src/effects/Subsystem.gd	addons/exmateria_effects/subsystem/Subsystem.gd	script	membership_arms	move	53	
 src/effects/TimelineData.gd	addons/exmateria_effects/file_model/TimelineData.gd	script	membership_arms	move	91	Effect Execution Model
@@ -51,7 +51,7 @@ src/effects/TrapChargeLineEffect.gd	addons/exmateria_effects/trap/TrapChargeLine
 src/effects/TrapConstants.gd	addons/exmateria_effects/trap/TrapConstants.gd	script	membership_arms	move	9	Embedded MIPS Effect Code;Summon Orb Orbital System;Unit Sprite Render Pipeline
 src/effects/TrapEffect.gd	addons/exmateria_effects/trap/TrapEffect.gd	script	membership_arms	move	1037	Display Space Blend Fold;Elemental Puff Particle System;Embedded MIPS Effect Code;Footstep Dust Particle System;Footstep Hard Surface Particle System;Hit Reaction Particle Burst;Knight Break Impact Particle System;Spell Charge Effect System;Summon Orb Orbital System;TRAP Charge Particle System;TRAP Hit Effect Particle System;TRAP Sprite Effect System;Unit Sprite Height Table
 src/effects/TrapOrbitalEffect.gd	addons/exmateria_effects/trap/TrapOrbitalEffect.gd	script	membership_arms	move	231	Summon Orb Orbital System
-src/effects/TrapPaletteController.gd	addons/exmateria_effects/trap/TrapPaletteController.gd	script	membership_arms	move	162	TRAP Hit Effect Particle System;Unit White Flash Reaction Handler
+src/effects/TrapPaletteController.gd	addons/exmateria_effects/trap/TrapPaletteController.gd	script	membership_arms	move	172	TRAP Hit Effect Particle System;Unit White Flash Reaction Handler
 src/effects/UnifiedPrimStager.gd	addons/exmateria_effects/render/UnifiedPrimStager.gd	script	membership_arms	move	116	Display Space Blend Fold
 src/effects/UnitTintOverlay.gd	addons/exmateria_effects/overlay/TintedSurfaces.gd	script	membership_arms	move	273	Map Tint
 src/effects/callbacks/CallbackManager.gd	addons/exmateria_effects/callbacks/CallbackManager.gd	script	membership_arms	move	113	Effect Execution Model;Embedded MIPS Effect Code
@@ -67,4 +67,6 @@ src/effects/callbacks/TubeMeshCallback.gd	addons/exmateria_effects/callbacks/Tub
 src/effects/callbacks/WarpedGridCallback.gd	addons/exmateria_effects/callbacks/WarpedGridCallback.gd	script	membership_arms	move	267	Effect Callback Mesh;Embedded MIPS Effect Code
 src/effects/callbacks/WorldTubeCallback.gd	addons/exmateria_effects/callbacks/WorldTubeCallback.gd	script	membership_arms	move	337	Effect Callback Mesh
 	addons/exmateria_effects/install/EffectsDebug.gd	script	membership_arms	new	154	
-	addons/exmateria_effects/install/EffectsContent.gd	script	membership_arms	new	130	
+	addons/exmateria_effects/install/EffectsContent.gd	script	membership_arms	new	130
+	addons/exmateria_effects/install/TintedSurfacesPort.gd	script	membership_arms	new	151	
+	addons/exmateria_effects/install/ScreenOverlayPort.gd	script	membership_arms	new	143	

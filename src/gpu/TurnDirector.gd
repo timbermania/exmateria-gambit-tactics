@@ -292,22 +292,12 @@ func _turn_gate(meters: PackedInt32Array, flags: PackedInt32Array,
 		# this would block every announcement the walk ever makes — the turns would
 		# not be late, they would never happen. A host that does not freeze has
 		# nothing to land well.
-		if stops_the_world and _is_movement_state(states[i]):
+		if stops_the_world and GPUConstants.is_movement_state(states[i]):
 			return false
 		anyone_ready = true
 	if not anyone_ready:
 		return false
 	return _open_turn()
-
-
-## The three states in which a unit is between tiles — the ones whose logical
-## position is a DESTINATION rather than where the sprite is. `GPUVisualBridge`
-## and `GPUMovementInterpreter` test the same three; this is that predicate, not a
-## fourth idea of what moving means.
-static func _is_movement_state(state: int) -> bool:
-	return state == GPUConstants.LOGICAL_ACTIVITY_WALKING \
-		or state == GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST \
-		or state == GPUConstants.LOGICAL_ACTIVITY_APPROACHING
 
 
 ## The turn queue as the player reads it: one full round-robin deep, every living

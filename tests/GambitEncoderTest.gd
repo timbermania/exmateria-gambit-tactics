@@ -417,6 +417,13 @@ func _test_every_offered_choice_round_trips() -> void:
 	# for both rows and distinguish neither.
 	for cond_entry in conditions:
 		for subj_entry in subjects:
+			# `Always` IS NOT IN THIS GRID, and skipping it is the assertion rather than a hole:
+			# it is the one subject row that also writes the CONDITION, so pairing it with an
+			# `If` entry builds a cell the screen cannot produce and grades a reading no player
+			# can reach. Its own readback is directly below, driven from the same catalogue flag
+			# the surface consults — so a build that dropped the flag reds there.
+			if bool(subj_entry.get(GambitOptions.UNCONDITIONAL, false)):
+				continue
 			var aim = GambitOptions.foe_pool()
 			var g2 := Gambit.create(subj_entry["make"].call(aim), [cond_entry["make"].call()],
 				Gambit.ActionKind.ATTACK, -1, aim)
@@ -426,6 +433,68 @@ func _test_every_offered_choice_round_trips() -> void:
 			_expect(GambitOptions.subject_label(g2) == String(subj_entry["name"]),
 				"Subject '%s' must read back as itself, got '%s'"
 				% [subj_entry["name"], GambitOptions.subject_label(g2)])
+
+	# `Always` READS BACK AS ITSELF, off the row the CATALOGUE marks rather than off a literal —
+	# and the row is built the way the surface builds it, mirrored selector plus the explicit
+	# `ALWAYS` condition (`GambitSurface._write_unconditional`).
+	var uncond: Dictionary = {}
+	for subj_entry in subjects:
+		if bool(subj_entry.get(GambitOptions.UNCONDITIONAL, false)):
+			uncond = subj_entry
+	_expect(not uncond.is_empty(),
+		"the subject catalogue must carry exactly one row flagged `%s` — it is the row that"
+			% GambitOptions.UNCONDITIONAL
+		+ " answers 'no test', and without the FLAG the surface writes an ordinary subject and"
+		+ " the row keeps its `If` column while claiming not to have one")
+	if not uncond.is_empty():
+		var aim3 = GambitOptions.foe_pool()
+		var g3 := Gambit.create(uncond["make"].call(aim3), [GambitCondition.always()],
+			Gambit.ActionKind.ATTACK, -1, aim3)
+		_expect(_enc(g3) != null,
+			"an `Always` row must ENCODE — `Type.ALWAYS` maps to `COND_ALWAYS` and is not in"
+			+ " UNSUPPORTED_CONDITION_TYPES, and a row the screen offers that E1-skips is"
+			+ " ADR-0268 dec. 8's whole subject")
+		_expect(GambitOptions.subject_label(g3) == GambitOptions.SUBJECT_ALWAYS,
+			"…and read back as `%s` in the SUBJECT column, got '%s'"
+			% [GambitOptions.SUBJECT_ALWAYS, GambitOptions.subject_label(g3)])
+		# THE PARK NEVER REACHES THE GPU, and this is the arm that says so. `parked_condition` is
+		# screen state on a domain object, so the one way it can do damage is by being encoded —
+		# and `check_gambit_conditions` ANDs every entry it is given, so a park that leaked into
+		# the buffer would make an `Always` row fire only when the predicate the player SET ASIDE
+		# passed. Graded on the encoded cond_count, not on the field.
+		var parked_g := Gambit.create(uncond["make"].call(aim3), [GambitCondition.always()],
+			Gambit.ActionKind.ATTACK, -1, aim3)
+		parked_g.parked_condition = GambitCondition.target_hp_below(50.0)
+		var c_parked = _enc(parked_g)
+		_expect(c_parked != null and c_parked["conditions"].size() == 1
+				and c_parked["conditions"][0]["type"] == GPUConstants.COND_ALWAYS,
+			"an `Always` row with a PARKED predicate encodes ONE condition — the `ALWAYS` — and"
+			+ " the park is not among them, or the row reads `Always` and fires below half HP")
+
+		# AND IT SURVIVES A SAVE, because the flip the player wants undone outlives a reload. A
+		# park that evaporated would restore a predicate today and a blank tomorrow from one
+		# visible row state.
+		var round_tripped = Gambit.from_dict(parked_g.to_dict())
+		_expect(round_tripped.parked_condition != null
+				and round_tripped.parked_condition.type == GambitCondition.Type.TARGET_HP
+				and is_equal_approx(round_tripped.parked_condition.threshold, 50.0),
+			"…and `parked_condition` round-trips through to_dict/from_dict")
+
+		# AN OLD SAVE HAS NO SUCH KEY, and absent must already mean "nothing parked" — every
+		# gambit ever written predates the field.
+		var legacy := Gambit.create(TargetSelector.enemies(), [GambitCondition.always()],
+			Gambit.ActionKind.ATTACK, -1, TargetSelector.triggering())
+		var legacy_dict := legacy.to_dict()
+		_expect(not legacy_dict.has("parked_condition"),
+			"a gambit with nothing parked OMITS the key rather than writing null — or every old"
+			+ " save round-trips into a file that differs on a field nothing can see")
+		_expect(Gambit.from_dict(legacy_dict).parked_condition == null,
+			"…and a dict without the key loads as nothing parked")
+
+		_expect(GambitOptions.is_unconditional(g3),
+			"…and be the state the widget spans the `If` column on — the label and the predicate"
+			+ " are two readings of one row and a build where they disagreed would draw a"
+			+ " subject cell at the narrow cap with `Always` elided into it")
 
 	# A BLANK CONDITION BLANKS THE `If` COLUMN AND ONLY THAT COLUMN, off the encoding the surface
 	# actually writes — a zero-length `conditions` with the subject mirroring the aim. The
@@ -444,23 +513,54 @@ func _test_every_offered_choice_round_trips() -> void:
 	# BOTH SUBJECTS ARE DRIVEN, not just the mirrored one — a build that hard-coded `Their`
 	# would satisfy a `Their`-only arm, and `Their` is what the mirror invariant already puts
 	# there.
-	for conds in [[], [GambitCondition.always()]]:
-		var aim2 = GambitOptions.foe_pool()
-		var blank := Gambit.create(TargetSelector.from_dict(aim2.to_dict()), conds,
-			Gambit.ActionKind.ATTACK, -1, aim2)
-		_expect(GambitOptions.condition_label(blank) == GambitOptions.BLANK,
-			"a %d-condition row reads BLANK in the If column, got '%s'"
-			% [conds.size(), GambitOptions.condition_label(blank)])
-		_expect(GambitOptions.subject_label(blank) == GambitOptions.SUBJECT_THEIRS,
-			"…and the Subject column still names the pool the %d-condition row is GATED on,"
-			% conds.size()
-			+ " got '%s'" % GambitOptions.subject_label(blank))
-		var blank_self := Gambit.create(TargetSelector.self_(), conds,
-			Gambit.ActionKind.ATTACK, -1, aim2)
-		_expect(GambitOptions.subject_label(blank_self) == GambitOptions.SUBJECT_MINE,
-			"…and the SAME row with the subject moved to the actor reads `My` — the column"
-			+ " DISCRIMINATES on a conditionless row rather than printing the mirror's default,"
-			+ " got '%s'" % GambitOptions.subject_label(blank_self))
+	var aim2 = GambitOptions.foe_pool()
+	var blank := Gambit.create(TargetSelector.from_dict(aim2.to_dict()), [],
+		Gambit.ActionKind.ATTACK, -1, aim2)
+	_expect(GambitOptions.condition_label(blank) == GambitOptions.BLANK,
+		"a zero-condition row reads BLANK in the If column, got '%s'"
+		% GambitOptions.condition_label(blank))
+	_expect(GambitOptions.subject_label(blank) == GambitOptions.SUBJECT_THEIRS,
+		"…and the Subject column still names the pool that row is GATED on, got '%s'"
+		% GambitOptions.subject_label(blank))
+	var blank_self := Gambit.create(TargetSelector.self_(), [],
+		Gambit.ActionKind.ATTACK, -1, aim2)
+	_expect(GambitOptions.subject_label(blank_self) == GambitOptions.SUBJECT_MINE,
+		"…and the SAME row with the subject moved to the actor reads `My` — the column"
+		+ " DISCRIMINATES on a conditionless row rather than printing the mirror's default,"
+		+ " got '%s'" % GambitOptions.subject_label(blank_self))
+
+	# =========================================================================================
+	# 🔴 AND THE TWO SPELLINGS OF "NO CONDITION" READ DIFFERENTLY, WHICH THIS ARM USED TO FORBID.
+	#
+	# It looped `[[], [GambitCondition.always()]]` and required `Their` from both, on the
+	# grounds that the kernel cannot tell them apart — `check_gambit_conditions` returns true at
+	# zero conditions AND at one `ALWAYS`, so one behaviour ought to have one reading.
+	#
+	# That is true of the KERNEL and false of the SCREEN, and the counter-example is
+	# `GambitSurfaceTest`'s reading-order arm. A row mid-authoring has a zero-length
+	# `conditions`: the player has pressed `Do` and `To` and is about to press `Subject`. Read
+	# zero as `Always` and that press changes nothing on screen — which is #1255's reported bug
+	# (*"I can't select 'my' or 'their' until AFTER I have selected a condition"*) re-opened by
+	# the fix that was supposed to finish it. So the two arrays are two ROW STATES:
+	#
+	#   []          no test CHOSEN YET     `My` / `Their`, and an `If` column reading `—`
+	#   [ALWAYS]    no test, DECLARED      `Always`, and NO `If` column at all
+	#
+	# A pre-ADR-0283 save carrying a lone `ALWAYS` lands in the second line, which is what it
+	# meant when it was written (ADR-0270 dec. 1) — so nothing a player authored reads wrong.
+	var declared := Gambit.create(TargetSelector.from_dict(aim2.to_dict()),
+		[GambitCondition.always()], Gambit.ActionKind.ATTACK, -1, aim2)
+	_expect(GambitOptions.subject_label(declared) == GambitOptions.SUBJECT_ALWAYS,
+		"an EXPLICIT `ALWAYS` condition reads `%s` in the Subject column, got '%s'"
+		% [GambitOptions.SUBJECT_ALWAYS, GambitOptions.subject_label(declared)])
+	_expect(GambitOptions.subject_label(blank) != GambitOptions.subject_label(declared),
+		"…and the two spellings DIFFER — pinning either alone passes on a build that collapsed"
+		+ " them, and collapsing them is what makes a `Subject` press invisible while the"
+		+ " player is authoring left to right")
+	_expect(GambitOptions.is_unconditional(declared)
+			and not GambitOptions.is_unconditional(blank),
+		"…and the predicate the widget spans on splits them the same way the label does, or the"
+		+ " row would print `Always` into the 20-px cap the `If` column was still occupying")
 
 	# The ability rows are not in the catalogue (they are the unit's job's, not the screen's),
 	# so the one way THEY can fail the gate is asserted directly: a real id encodes, and the

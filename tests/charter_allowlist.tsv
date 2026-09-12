@@ -612,8 +612,6 @@ FieldInspectControllerTest	C1	no `# test-kind:` declaration (or an unknown kind)
 FieldInspectControllerTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
 FocusStackTest	C1	no `# test-kind:` declaration (or an unknown kind)
 FocusStackTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
-FoldQuantizePolicyTest	C1	no `# test-kind:` declaration (or an unknown kind)
-FoldQuantizePolicyTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
 FoldSurfaceTest	C1	no `# test-kind:` declaration (or an unknown kind)
 FoldSurfaceTest	C10	no `# seeded-break:` line — nothing records that this test CAN fail
 FoldTest	C1	no `# test-kind:` declaration (or an unknown kind)

@@ -13,8 +13,11 @@
 // display-space contributions straight onto the scratch with fixed-function blend
 // (UNORM saturation == the exact per-prim clamp, proto_ordered_fold Q3), so the
 // scratch must hold sRGB/display values. This pass therefore converts the linear
-// color layer to display space on the way in, and seeds the coverage channel
-// (alpha = 0 = "no effect here") so pass C can leave untouched background pristine.
+// color layer to display space on the way in.
+//
+// It seeds NO coverage channel. Alpha used to carry a 0.5 "nothing drew here" baseline
+// for Pass C's coverage gate; that gate is deleted (ADR-0309), and alpha here is now
+// just the opaque alpha of a display-space image.
 void main() {
 	vec2 v = vec2(float((gl_VertexIndex << 1) & 2), float(gl_VertexIndex & 2));
 	gl_Position = vec4(v * 2.0 - 1.0, 0.0, 1.0);
@@ -40,11 +43,9 @@ vec3 lin_to_srgb(vec3 c) {
 void main() {
 	vec2 uv = gl_FragCoord.xy / max(params.raster_size, vec2(1.0));
 	vec3 bg_lin = texture(src_tex, uv).rgb;
-	// scratch = display-space background, coverage = 0 (untouched).
-	// Coverage baseline = 0.5 (NOT 0). Godot's blend_sub uses alpha_blend_op=REVERSE_SUBTRACT, so a
-	// subtractive carrier DRIVES the coverage-alpha DOWN (0.5 → 0), whereas add/mix drive it UP
-	// (→ 1.0 / 0.75). Seeding a mid baseline lets Pass C detect "touched" as ANY deviation from 0.5,
-	// so subtractive fold coverage survives without the engine forcing coverage-alpha (which the clean
-	// compositor_layer primitive drops — coverage stays 100% userland). See foldsurface_resolve.glsl.
-	frag_color = vec4(lin_to_srgb(bg_lin), 0.5);
+	// scratch = the display-space background, opaque. None of the three hardware blends a
+	// carrier can wear (add / sub / mix) reads the DESTINATION alpha to compute a COLOUR, so
+	// this value is not an input to the fold — it was only ever an input to a coverage test
+	// that no longer exists. See foldsurface_resolve.glsl.
+	frag_color = vec4(lin_to_srgb(bg_lin), 1.0);
 }

@@ -740,6 +740,38 @@ adding gambit scenarios as new entries to `run_all_tests.sh` (the runner
 aggregates them under one entry — shard only when the suite outgrows the
 360s timeout).
 
+**Movement Logical activity**:
+A Logical activity in which the unit is **between tiles** — one whose logical
+position (`U_POS_X`/`U_POS_Z`) is the **destination** of a step rather than
+where the sprite is. Four of them: `WALKING`, `WALKING_TO_CAST`, `APPROACHING`,
+`RETREATING`. They are exactly the `tools/activity_taxonomy.yaml` rows whose
+`routing:` is `visualizer`, and that is a definition rather than a coincidence:
+that routing says *the move visualizer authors this row's body activity*, which
+is true of a row precisely when the unit is mid-step. So the set is **derived,
+never listed on the host** — the generator emits
+`GPUConstants.LOGICAL_ACTIVITY_MOVEMENT_STATES`, read through
+`GPUConstants.is_movement_state`, and all three host consumers ask it: the
+**Movement-step interpreter**, the **Turn gate**'s mid-step term, and
+`GPUVisualBridge`'s diagnostics. ⚠️ The kernel's three sites — the turn brake,
+the settle brake and `settle_awaited_state` — still write the four states out by
+hand, so a fifth move state means editing them too. A shared GLSL function was
+tried and reverted: it changes the SPIR-V, which makes the pipeline cache miss
+(30 ms -> 3.5 s, measured), and the async warm-up then outlives a short test's
+`quit()` into ADR-0299's freed-autoload race. A macro would not help — the cost
+is the changed SPIR-V, not the call. Every move state writes the same movement fields
+through one `write_movement_step`, which is why one predicate can serve all of
+them. It is **not** "a state that can act" (`ACTING` is settle-awaited and not
+a move) and **not** a Display concept (all four display as `WALKING`; `JUMPING`
+/ `LANDING` are visualizer-chosen phases *inside* a move state).
+_Avoid_: hand-listing the states at a new consumer — six sites did, each
+docstring promised it matched the others, and they did match, so when ADR-0301
+added `RETREATING` to the kernel's three lists and none of the host's, nothing
+disagreed and nothing failed; the host classified every retreat as no-move and
+a retreating unit teleported, facing what it was fleeing, in an unauthored
+pose. Also avoid: reading `routing: visualizer` as a rendering detail (it is
+the membership test); adding a move state anywhere but a YAML row; asserting
+one hand-picked move state in a test where the generated list can be looped.
+
 **Movement-step interpreter**:
 The pure module (`GPUMovementInterpreter`) that reads a unit's per-frame
 [combat-buffer](02-combat-buffer-layout.md) snapshot and classifies its movement
@@ -929,7 +961,8 @@ with no visible symptom.
 
 **Posture**:
 A whole authored gambit plan a **rollout candidate** may jump to in one step —
-"press", "finish", one per usable ability, "mend", "raise the fallen". The MIX
+"press", "finish", one per usable ability, "mend", "raise the fallen",
+"withdraw". The MIX
 is keyed by `UnitRole` rather than by job id, because role is the widest key
 `JobDatabase` already answers for every job (HYBRID covers monsters and
 specials) and a per-job table would be invention; whether a posture in that mix
@@ -948,15 +981,44 @@ dead is in the ability data and not in the job (ADR-0293's argument, applied to
 authoring): `JOB_ROLES` files Priest — which learns Raise and Raise2 — as MAGE,
 and HEALER is Chemist alone. Its first gambits are the **revive bucket**'s ids
 in id order (cheapest first) aimed at `friendlies_or_ko()` under `IS_KO`, then a
-mend, then attack-nearest. It is the only posture no one-step mutation can
-reach, since `RolloutCandidates`' menus hold neither `COND_IS_DEAD` nor
-`TARGET_NEAREST_ALLY_OR_KO` — so it is authored first, and it is the tail that
-must NOT be dropped when `K` truncates the playbook family. Built by #1104.
+mend, then attack-nearest. It is one of two postures no one-step mutation can
+reach (the **withdraw posture** is the other), since `RolloutCandidates`' menus
+hold neither `COND_IS_DEAD` nor `TARGET_NEAREST_ALLY_OR_KO` — and it is the
+SCARCER plant of the two, needing an unreachable condition and an unreachable
+pool and an ability the action menu omits, so it is authored first and it is the
+tail that must NOT be dropped when `K` truncates the playbook family. Built by
+#1104.
 _Avoid_: gating it on a `UnitRole` (the raisers are not on the healer job);
 spelling its condition as a status check on bit 0 (`STATUS_DEAD` is hollow —
 it encodes cleanly and never fires); giving it `MOST_CRITICAL` resolution (the
 corpse is at 0% HP, so it would win every rank and starve the living — the
 encoder refuses that pairing outright).
+
+**Withdraw posture**:
+The **posture** that carries the retreat verb — "back off when a foe has closed,
+else press": `enemies()` under `target_within(WITHDRAW_TILES)` aimed at the
+enemy the condition matched, over an attack-nearest fall-through. Offered to
+every role including MELEE, and NOT because the ability data answers the
+question the way it does for the **raise-the-fallen posture** — a step needs no
+ability, so nothing in the candidate **context** can say which units want to
+disengage and the role genuinely is the widest key there is. The role is still
+not used as a gate, because planting the verb once puts the whole retreat family
+on the mutation lattice: `ACTION_RETREAT_STEP` is in no mutation menu, so no
+one-step edit can introduce a retreat into a list that has none, but a slot that
+already CARRIES it is one `condition` edit from every distance and self-HP
+threshold the menu offers. So the HP-keyed break-off a melee unit wants is
+authored nowhere and reachable anyway, and withholding the posture from MELEE
+would have withheld the verb from the role for every beat of every rollout.
+Second in the playbook, behind the scarcer revive plant. See ADR-0301.
+_Avoid_: aiming its retreat at the caster (`retreat_step_cell` refuses
+`flee_from == unit_id`, so the row encodes cleanly and is a guaranteed
+`VERDICT_NO_RETREAT` fall-through — `GambitOptions.aim_verdict` grades that cell
+AIM_FORBIDDEN); leaving no slot beneath the retreat (a cornered unit's
+fall-through then lands on ADR-0048's safety net, which walks it back toward
+what it was fleeing); picking its threshold freely (it is pinned to
+`CONDITION_MENU`'s own distance figure so the slot stays a neighbour of the
+menu); authoring a second, HP-keyed withdraw posture (one condition edit apart
+is the near-identical flood the per-ability cap exists to stop).
 
 **Revive bucket**:
 The third bucket of the **static legality prefilter**'s split, beside

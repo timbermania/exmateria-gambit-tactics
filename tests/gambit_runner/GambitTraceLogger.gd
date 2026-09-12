@@ -81,13 +81,12 @@ func on_state_changed(unit_idx: int, prev_state: int, new_state: int, tick: int,
 		"current_gambit": current_gambit,
 	})
 	# Decision-history transitions are surrogate gambit-eval events for the
-	# NORAN baseline. ACTING / SPELL_CHARGING / WALKING entries all come from a
-	# gambit evaluation that fired.
+	# NORAN baseline: a unit entering an acting state or ANY move state got there
+	# from a gambit evaluation that fired. The move half is asked, not listed, so
+	# a new move state counts from the row that declares it.
 	if new_state in [GPUConstants.LOGICAL_ACTIVITY_ACTING,
-			GPUConstants.LOGICAL_ACTIVITY_SPELL_CHARGING,
-			GPUConstants.LOGICAL_ACTIVITY_WALKING,
-			GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST,
-			GPUConstants.LOGICAL_ACTIVITY_APPROACHING]:
+			GPUConstants.LOGICAL_ACTIVITY_SPELL_CHARGING] \
+			or GPUConstants.is_movement_state(new_state):
 		gambit_eval_events += 1
 	# Record first commit: the first time this unit enters ACTING (or
 	# SPELL_CHARGING) we treat as a gambit having committed an action.

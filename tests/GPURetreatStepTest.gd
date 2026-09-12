@@ -9,7 +9,7 @@ extends GPUCombatTestBase
 ## THAT one: a real `Gambit` with `ActionKind.RETREAT` goes through
 ## `GambitEncoder` to `ACTION_RETREAT_STEP` and onto the GPU.
 ##
-## FOUR arms, one battle, two team-0 units sharing the harness (test charter
+## SIX arms, one battle, two team-0 units sharing the harness (test charter
 ## clause 13). The two units are each other's control: one has a retreat that can
 ## always be taken, the other a retreat that can never be.
 ##
@@ -50,6 +50,19 @@ extends GPUCombatTestBase
 ##      the settle brake keeps waiting on a unit that has stopped. 🔴 ARMS 1-4 ALL
 ##      STAY GREEN UNDER THAT BREAK -- MEASURED, which is why this arm exists.
 ##
+##   6. 🔴 **THE HOST SEES THE STEP.** Arms 1-5 are all kernel arms: they read
+##      `U_POS_*` and `U_STATE` and never ask the presentation side anything, and
+##      that is exactly how this feature shipped invisible. `GPUMovementInterpreter`
+##      hand-listed three move states, RETREATING was not among them, so every
+##      retreat classified NO_MOVE — `GPUVisualBridge` then drops the visualizer
+##      and snaps to the GPU tile, which is a TELEPORT, with no facing (that is
+##      written only from travel direction inside `_follow_visualizer`) and no
+##      body activity (`ActivityTranslator` no-ops on a `visualizer` row because
+##      the visualizer is supposed to author it). One omission, and the user saw
+##      all three: "it doesn't seem like it issues a move? he walks backwards...
+##      and it isn't animated well." This arm runs a REAL interpreter over the
+##      REAL per-frame snapshot, so it fails the same way the picture does.
+##
 ## WHY A SELF-AIMED RETREAT AND NOT A UNIT IN A CORNER. A corner is geometry, and
 ## the geometry here is not pinned: `MapComposer` builds the lattice per run and
 ## units settle onto valid cells. Aiming the retreat at the actor is the one
@@ -85,6 +98,8 @@ extends GPUCombatTestBase
 # line per file keeps every use site's spelling, and makes a grep for
 # `ExMateriaAlmanac` a complete census of host->addon symbol coupling.
 
+const InterpClass = preload("res://src/gpu/GPUMovementInterpreter.gd")
+
 const CHASER_START_HP := 400
 
 ## Arm 2's floor. Two tiles is the smallest number that can only come from a
@@ -108,6 +123,15 @@ const REST_DISTANCE := 4
 ## fleeing. MEASURED on this fixture: one step is ~50 ticks, and the condition
 ## flips as early as tick 1 of it. 120 is a little over two whole steps.
 const SETTLE_TICKS := 120
+
+## Arm 6's witness: a real [GPUMovementInterpreter], fed the same per-frame
+## snapshot dict [GPUVisualBridge] feeds its own. Nothing is mocked and nothing is
+## re-derived — a verdict here is the verdict the picture gets.
+var _interp = InterpClass.new()
+var _retreat_frames: int = 0
+var _retreat_new_steps: int = 0
+var _retreat_no_move: int = 0
+var _retreat_steps_seen: Array[String] = []
 
 var _runner_saw_retreating: bool = false
 var _runner_saw_acting: bool = false
@@ -246,6 +270,21 @@ func _process(delta: float) -> void:
 	var dist: int = (abs(int(runner["pos_x"]) - int(chaser["pos_x"]))
 		+ abs(int(runner["pos_z"]) - int(chaser["pos_z"])))
 	_samples += 1
+
+	# Arm 6. Classified EVERY frame and not only the retreating ones, because the
+	# interpreter's new-step detection is cross-frame memory: skipping frames
+	# would hand it a different history than the bridge has and score a verdict
+	# the picture never gets.
+	var step = _interp.classify(0, runner)
+	if int(runner.get("state", -1)) == GPUConstants.LOGICAL_ACTIVITY_RETREATING:
+		_retreat_frames += 1
+		if step.kind == InterpClass.Kind.NEW_STEP:
+			_retreat_new_steps += 1
+			if _retreat_steps_seen.size() < 4:
+				_retreat_steps_seen.append("tick %d (%d,%d)->(%d,%d)" % [current_tick,
+					step.from_grid.x, step.from_grid.y, step.to_grid.x, step.to_grid.y])
+		elif step.kind == InterpClass.Kind.NO_MOVE:
+			_retreat_no_move += 1
 
 	if _start_dist < 0:
 		_start_dist = dist
@@ -393,6 +432,26 @@ func _score() -> void:
 		print("  [x] arm 5: Runner kept stepping after its retreat condition went false")
 	else:
 		print("  [ok] arm 5: Runner settled to IDLE once its retreat condition went false")
+
+	# --- Arm 6: the host sees the step ---------------------------------------
+	checks += 1
+	print("  Host interpreter : %d RETREATING frames, %d NEW_STEP, %d NO_MOVE%s" % [
+		_retreat_frames, _retreat_new_steps, _retreat_no_move,
+		(" [" + ", ".join(_retreat_steps_seen) + "]") if not _retreat_steps_seen.is_empty() else ""])
+	if _retreat_frames == 0:
+		ok = false
+		print("  [x] arm 6: no frame ever sampled Runner in RETREATING, so the host "
+			+ "half was never asked — arm 6 measured nothing")
+	elif _retreat_new_steps < 1:
+		ok = false
+		print("  [x] arm 6: GPUMovementInterpreter never saw a step across %d RETREATING "
+			% _retreat_frames
+			+ "frames (%d classified NO_MOVE) — GPUVisualBridge builds no visualizer, "
+			% _retreat_no_move
+			+ "so the retreat renders as a teleport with no facing and no walk pose")
+	else:
+		print("  [ok] arm 6: the host interpreted %d retreat step(s) as live movement"
+			% _retreat_new_steps)
 
 	print("  Runner at rest   : %s (settle clock from tick %d, moved after=%s)" % [
 		rest_name, _settle_tick, _settle_moved])

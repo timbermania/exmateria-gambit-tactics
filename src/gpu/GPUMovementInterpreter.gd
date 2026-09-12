@@ -43,11 +43,14 @@ func classify(unit_index: int, state: Dictionary) -> MoveStep:
 	var step := MoveStep.new()
 
 	var gpu_state: int = state.get("state", 0)
-	# LOGICAL_ACTIVITY_APPROACHING is a live move too (unit-anchored MOVE, ADR-0062) — it
-	# writes movement steps like LOGICAL_ACTIVITY_WALKING, so the visualizer must follow it.
-	if gpu_state != GPUConstants.LOGICAL_ACTIVITY_WALKING \
-			and gpu_state != GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST \
-			and gpu_state != GPUConstants.LOGICAL_ACTIVITY_APPROACHING:
+	# EVERY move state writes the same movement fields — `write_movement_step` is
+	# one function and APPROACHING, WALKING_TO_CAST and RETREATING all reach it —
+	# so the visualizer must follow all of them. This used to hand-list three, and
+	# the fourth (RETREATING, ADR-0301) arrived without it: the miss is invisible
+	# from here, because a state this does not know about reads as a unit standing
+	# still and the bridge dutifully snaps it to its destination tile.
+	# `GPUConstants.is_movement_state` is derived from the taxonomy instead.
+	if not GPUConstants.is_movement_state(gpu_state):
 		step.kind = Kind.NO_MOVE
 		return step
 

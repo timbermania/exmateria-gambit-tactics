@@ -36,10 +36,10 @@ stronger than that).
 | violated | 0 |
 | closeable | 0 |
 | superseded | 0 |
-| unaudited | 246 |
-| **all** | **298** |
+| unaudited | 248 |
+| **all** | **300** |
 
-114 of 298 ADRs are named by a `tools/check_*.py`. 83 are cited by five or more code files with no guard at all — that set is where a mechanized arm buys the most.
+114 of 300 ADRs are named by a `tools/check_*.py`. 84 are cited by five or more code files with no guard at all — that set is where a mechanized arm buys the most.
 
 ## Battlefield — 8
 
@@ -88,7 +88,7 @@ stronger than that).
 | [0048](0048-safety-net-gambit-is-encoder-injected-ui-invisible.md) | `engine` | 222 | 1 | 6 | 18 | 10 | 15 | · | — | · | · | half-landed |
 | | | | | | | | | | | | | [audit notes](audit-notes/0048.md) · 6 decisions, 6 not yet graded |
 | [0049](0049-ability-hit-policy-is-rom-flag-derived.md) | `content` | 76 | · | · | 5 | 4 | 5 | 3 | — | · | · | unaudited |
-| [0062](0062-gambit-movement-is-one-move-command-flavor-emergent-from-target.md) | `engine` | 97 | · | · | 4 | 4 | 5 | · | — | · | · | unaudited |
+| [0062](0062-gambit-movement-is-one-move-command-flavor-emergent-from-target.md) | `engine` | 97 | · | · | 3 | 4 | 5 | · | — | · | · | unaudited |
 | [0082](0082-command-mode-is-one-frozen-navigable-battle-state.md) | `engine` | 75 | · | · | 1 | 4 | 3 | · | — | · | · | unaudited |
 | [0120](0120-battle-state-has-one-write-path.md) | `engine` | 86 | · | 6 | · | · | 2 | · | — | · | · | unaudited |
 | [0224](0224-the-gpu-battle-mover-addresses-a-cell-so-the-map-is-two-planes-and-the-unit-carries-its-level.md) | `engine` | 519 | 1 | 9 | 8 | 10 | 8 | 1 | — | · | · | unaudited |
@@ -116,8 +116,8 @@ stronger than that).
 | [0292](0292-the-render-clock-is-not-the-tick-clock-interpolate-the-remainder-behind-never-ahead.md) | `engine` | 260 | · | 6 | 1 | 1 | · | · | — | · | · | unaudited |
 | [0293](0293-the-ability-data-is-the-permission-to-land-on-a-corpse-and-an-empty-slot-is-not-one.md) | `engine` | 235 | · | 10 | 2 | · | 1 | · | — | · | · | unaudited |
 | [0298](0298-the-rom-says-how-long-a-status-lasts-and-it-gives-sixteen-of-them-a-byte-to-count-it-in.md) | `engine` | 224 | · | 10 | · | · | 3 | · | — | · | · | unaudited |
-| [0299](0299-the-rom-prices-a-separate-inflict-at-a-flat-24-percent-because-its-inflict-record-has-nowhere-to-put-a-probability.md) | `engine` | 223 | · | 7 | · | 1 | 3 | · | — | · | · | unaudited |
-| [0301](0301-retreat-is-one-tile-directly-away-and-then-a-fresh-decision.md) | `engine` | 229 | · | 4 | 5 | 5 | · | 1 | — | · | · | unaudited |
+| [0299](0299-the-rom-prices-a-separate-inflict-at-a-flat-24-percent-because-its-inflict-record-has-nowhere-to-put-a-probability.md) | `engine` | 223 | · | 7 | · | 1 | 4 | · | — | · | · | unaudited |
+| [0301](0301-retreat-is-one-tile-directly-away-and-then-a-fresh-decision.md) | `engine` | 251 | · | 4 | 9 | 8 | 1 | 1 | — | · | · | unaudited |
 
 ## Character Catalogue — 12
 
@@ -129,7 +129,7 @@ stronger than that).
 | [0066](0066-character-identity-is-a-slug-catalog-above-the-roster.md) | `engine` | 147 | · | 11 | 10 | 5 | 17 | 2 | body_sprite_id_naming, rosters_retired | · | · | unaudited |
 | [0072](0072-a-template-is-a-derived-folder-per-key-asset-packet-that-is-the-runtime-read-surface.md) | `content` | 221 | 1 | 6 | 19 | 11 | 12 | 14 | — | · | · | unaudited |
 | [0078](0078-owned-is-a-catalogue-overlay-and-class-is-derived-per-battle.md) | `engine` | 74 | · | · | 3 | 1 | 5 | 2 | — | · | · | unaudited |
-| [0079](0079-roster-deployed-identity-is-materialized-at-the-deploy-seam.md) | `engine` | 101 | · | · | 4 | 3 | 3 | 2 | — | · | · | unaudited |
+| [0079](0079-roster-deployed-identity-is-materialized-at-the-deploy-seam.md) | `engine` | 101 | · | · | 5 | 3 | 3 | 2 | — | · | · | unaudited |
 | [0081](0081-appearance-type-templates-are-keyed-by-a-semantic-token.md) | `content` | 235 | · | 10 | 9 | 7 | 4 | 2 | — | 1 | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0081.md) · 10 decisions graded · **1 proposed arm(s)**: widen JobDatabase.generic_wardrobe_sprite_ids() past is_generic_human to every job, which retires the 18-sheet remainder and drops the ratchet to 21 |
 | [0180](0180-the-rosters-are-retired-and-the-arena-boots-a-real-battle.md) | `engine` | 404 | 1 | 7 | 19 | 8 | 14 | 4 | path_extends, root_set, rosters_retired | 3 | · | complete |
@@ -183,7 +183,7 @@ stronger than that).
 | | | | | | | | | | | | | [audit notes](audit-notes/0073.md) · 11 decisions graded · **3 proposed arm(s)**: A bare ADR-NNNN citation whose number was RENUMBERED is unresolvable and unchecked - see #680; check_adr_quotes.py:166 already holds the map.; Assert every KINDS entry marked true  |
 | [0075](0075-the-studio-inspectors-first-interactive-control-is-per-edge-child-spawn-suppression.md) | `engine` | 102 | · | 5 | 6 | 4 | 4 | · | — | · | · | unaudited |
 | [0076](0076-battle-vfx-and-timing-are-seq-opcode-driven.md) | `seam` | 124 | · | · | · | · | 1 | · | — | · | · | unaudited |
-| [0085](0085-effect-sfx-authoring-is-three-projected-surfaces-not-one-flattened-ruler.md) | `engine` | 3041 | 27 | 3 | 37 | 30 | 11 | 26 | — | · | · | unaudited |
+| [0085](0085-effect-sfx-authoring-is-three-projected-surfaces-not-one-flattened-ruler.md) | `engine` | 3041 | 27 | 3 | 38 | 30 | 11 | 26 | — | · | · | unaudited |
 | | | | | | | | | | | | | [audit notes](audit-notes/0085.md) · 3 decisions, 3 not yet graded |
 | [0086](0086-camera-authoring-is-sub-channel-lanes-lowered-to-masked-keyframes.md) | `engine` | 351 | · | 26 | 13 | 27 | 7 | 1 | — | · | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0086.md) · 26 decisions graded |
@@ -211,12 +211,12 @@ stronger than that).
 | [0124](0124-effects-tells-audio-a-code-and-a-time.md) | `engine` | 143 | · | 4 | · | · | 9 | 1 | adr_quotes | · | · | unaudited |
 | [0127](0127-effects-publishes-and-requires-two-ports.md) | `engine` | 213 | · | 8 | · | · | 11 | 1 | adr_quotes | · | · | unaudited |
 | [0130](0130-the-texture-has-two-surfaces-a-page-and-a-tab-on-the-inspector-row.md) | `engine` | 670 | · | 13 | 6 | 11 | 3 | · | — | · | · | unaudited |
-| [0134](0134-the-studio-is-an-assembler-and-the-assembler-is-one-file.md) | `method` | 282 | · | 9 | 3 | · | 22 | 2 | root_set | · | · | unaudited |
+| [0134](0134-the-studio-is-an-assembler-and-the-assembler-is-one-file.md) | `method` | 282 | · | 9 | 4 | · | 22 | 2 | root_set | · | · | unaudited |
 | [0199](0199-texture-replacement-is-a-fixed-clut-index-delta-over-8bpp-sheets.md) | `seam` | 181 | · | 6 | 11 | 7 | · | 3 | — | · | · | unaudited |
 | [0200](0200-the-batch-payload-is-deleted-not-designed.md) | `engine` | 274 | · | 14 | 4 | · | 10 | 2 | — | · | · | unaudited |
 | [0286](0286-extraction-7-is-the-effects-runtime-and-the-studio-that-is-seventy-percent-of-the-bucket-is-a-root-set-that-stays.md) | `method` | 431 | · | 11 | 1 | · | 6 | 3 | addon_globals, move_manifest | · | · | unaudited |
 | [0287](0287-the-backwards-edge-is-one-misfiled-file-and-the-arm-that-fails-is-the-one-no-selection-ever-ran.md) | `method` | 354 | · | 9 | 1 | · | 4 | 2 | addon_portability | · | · | unaudited |
-| [0288](0288-the-sixty-one-debug-lines-are-four-booleans-and-the-seam-is-three-addresses-once-the-psx-trio-goes-home.md) | `method` | 537 | · | 11 | 6 | 3 | 5 | 4 | addon_install, addon_portability, lattice_sc… | · | · | unaudited |
+| [0288](0288-the-sixty-one-debug-lines-are-four-booleans-and-the-seam-is-three-addresses-once-the-psx-trio-goes-home.md) | `method` | 537 | · | 11 | 6 | 2 | 5 | 4 | addon_install, addon_portability, lattice_sc… | · | · | unaudited |
 | [0290](0290-an-addon-was-never-a-system-and-the-arm-4b-blocker-is-four-throwaway-probe-shaders.md) | `method` | 499 | · | 11 | 4 | · | 4 | 4 | addon_portability, lattice_scene, move_manif… | · | · | unaudited |
 | [0295](0295-the-forty-five-class-names-collapse-to-twenty-one-and-forty-eight-vault-notes-are-held-by-two-anchors.md) | `method` | 392 | · | 9 | 5 | 1 | 4 | 6 | addon_globals, addon_install, addon_portabil… | · | · | unaudited |
 
@@ -254,22 +254,22 @@ stronger than that).
 | [0249](0249-the-picker-comes-in-on-one-vsync-clock-and-an-animation-with-no-mid-flight-question-has-no-assertion.md) | `engine` | 180 | · | 8 | 2 | 1 | 2 | · | — | · | · | unaudited |
 | [0255](0255-the-gambit-surface-is-three-levels-of-one-list-and-the-action-menu-dispatches-by-name.md) | `engine` | 279 | 1 | 12 | 4 | 3 | 6 | 1 | — | · | · | unaudited |
 | [0261](0261-the-back-grammar-is-one-table-and-the-claims-belong-to-the-stack.md) | `engine` | 103 | · | 6 | 6 | 2 | 1 | · | — | · | · | unaudited |
-| [0268](0268-the-gambit-row-is-a-sentence-read-across-the-screen-and-a-screen-that-owns-the-pad-re-means-the-action.md) | `engine` | 579 | 1 | 13 | 8 | 5 | 7 | 3 | — | · | · | unaudited |
+| [0268](0268-the-gambit-row-is-a-sentence-read-across-the-screen-and-a-screen-that-owns-the-pad-re-means-the-action.md) | `engine` | 579 | 1 | 13 | 9 | 5 | 7 | 3 | — | · | · | unaudited |
 | [0269](0269-the-turn-queue-strip-is-a-row-of-framed-cards-on-a-band-up-for-the-whole-battle.md) | `engine` | 728 | 1 | 9 | 7 | 2 | 2 | 1 | — | · | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0269.md) · 9 decisions graded |
-| [0270](0270-the-safety-net-is-the-last-row-on-the-gambit-surface-dim-and-inert.md) | `engine` | 147 | · | 5 | 5 | 1 | 3 | · | — | · | · | unaudited |
+| [0270](0270-the-safety-net-is-the-last-row-on-the-gambit-surface-dim-and-inert.md) | `engine` | 155 | · | 5 | 5 | 2 | 3 | · | — | · | · | unaudited |
 | [0276](0276-a-sensible-default-is-the-aim-the-rom-cannot-fault-and-the-preference-is-still-open.md) | `engine` | 370 | 1 | 14 | 5 | 3 | 7 | 2 | — | · | · | unaudited |
 | [0278](0278-the-seed-is-the-familys-pool-and-the-family-is-ours-because-the-rom-records-a-hit-policy-and-not-a-purpose.md) | `engine` | 495 | · | 12 | 7 | 4 | 7 | 5 | — | · | · | unaudited |
-| [0283](0283-the-gambit-rows-subject-is-its-own-column-and-the-slot-number-shares-a-lane-to-pay-for-it.md) | `engine` | 439 | · | 7 | 4 | 3 | 7 | 1 | — | · | · | unaudited |
+| [0283](0283-the-gambit-rows-subject-is-its-own-column-and-the-slot-number-shares-a-lane-to-pay-for-it.md) | `engine` | 591 | · | 8 | 4 | 3 | 7 | 1 | — | · | · | unaudited |
 | [0291](0291-dont-target-self-is-the-cursor-rule-and-dont-hit-caster-is-the-splash-rule-and-the-wiki-named-a-third-that-the-engine-never-reads.md) | `engine` | 227 | · | 6 | 1 | 1 | 4 | 3 | — | · | superseded | unaudited |
 | [0296](0296-the-to-list-is-ordered-by-the-abilitys-family-and-the-rom-stores-the-polarity-we-hand-wrote.md) | `engine` | 156 | · | 6 | 1 | 1 | 2 | · | — | · | · | unaudited |
 | [0302](0302-extraction-8-is-ui-selected-against-the-metric-and-the-matrix-that-selects-prints-four-of-its-hundred-and-twenty-seven-inbound-lines.md) | `method` | 391 | · | 9 | · | · | 2 | · | — | · | · | unaudited |
 | [0303](0303-extraction-8s-autoload-question-was-already-answered-by-a-port-and-its-widest-escape-was-an-english-word.md) | `method` | 253 | · | · | · | · | 3 | · | — | · | · | unaudited |
-| [0304](0304-the-panel-that-registers-is-the-panel-that-stays-and-uis-published-surface-is-seventeen-names-not-eighty.md) | `method` | 244 | · | 5 | 1 | 1 | 3 | 1 | — | · | · | unaudited |
+| [0304](0304-the-panel-that-registers-is-the-panel-that-stays-and-uis-published-surface-is-seventeen-names-not-eighty.md) | `method` | 244 | · | 5 | 2 | 1 | 3 | 1 | — | · | · | unaudited |
 | [0305](0305-uis-seventy-nine-globals-collapse-to-one-facade-and-sequencing-the-debug-inversion-first-buys-six-fewer-published-names.md) | `method` | 291 | · | 5 | · | · | 2 | 1 | — | · | · | unaudited |
 | [0306](0306-m5-is-121-the-facade-is-22-or-67-and-adr-0305s-census-does-not-sum.md) | `method` | 309 | · | 7 | 2 | 1 | 2 | 3 | ui_tune_port | · | · | unaudited |
 | [0307](0307-the-tests-lever-is-sublinear-the-facade-is-56-and-the-move-is-not-gated.md) | `method` | 147 | · | 6 | · | · | 1 | · | — | · | · | unaudited |
-| [0308](0308-tune-was-one-of-seven-a-member-may-reach-no-autoload-and-this-gate-is-real.md) | `method` | 142 | · | 6 | 18 | 2 | · | 1 | ui_autoload_reach | · | · | unaudited |
+| [0308](0308-tune-was-one-of-seven-a-member-may-reach-no-autoload-and-this-gate-is-real.md) | `method` | 142 | · | 6 | 26 | 2 | 1 | 4 | addon_portability, ui_autoload_reach | · | · | unaudited |
 
 ## Audio — 4
 
@@ -311,7 +311,7 @@ stronger than that).
 | [0264](0264-gambit-battle-is-a-seek-into-the-navigator-not-a-second-combat-host.md) | `engine` | 149 | · | · | 7 | 6 | 7 | 1 | — | · | · | unaudited |
 | [0265](0265-the-navigator-needed-a-battle-host-surface-and-the-turn-presentation-is-components.md) | `engine` | 236 | · | 4 | 9 | 4 | 3 | 1 | — | · | · | unaudited |
 
-## Render — 15
+## Render — 16
 
 | ADR | bucket | lines | amd | dec | code | test | doc | tool | guard | arms | body | verdict |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|---|
@@ -324,18 +324,19 @@ stronger than that).
 | [0060](0060-battle-meshes-apply-par-through-one-seam.md) | `seam` | 133 | · | · | 6 | 1 | 9 | 2 | addon_portability, par_shaders | · | · | unaudited |
 | [0067](0067-color-modes-are-one-model.md) | `seam` | 416 | 1 | 6 | 18 | 9 | 8 | 2 | color_shaders | 1 | · | half-landed |
 | | | | | | | | | | | | | [audit notes](audit-notes/0067.md) · 6 decisions, 6 not yet graded · **1 proposed arm(s)**: A docstring arm \| A dead-reference arm \| A profile arm |
-| [0074](0074-display-space-fold-is-a-material-contract-not-a-module.md) | `seam` | 204 | · | 9 | 51 | 6 | 18 | 12 | addon_portability, compositor_routing, fold_… | 1 | · | complete |
+| [0074](0074-display-space-fold-is-a-material-contract-not-a-module.md) | `seam` | 204 | · | 9 | 51 | 6 | 19 | 12 | addon_portability, compositor_routing, fold_… | 1 | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0074.md) · 9 decisions graded · **1 proposed arm(s)**: Stale-spelling arm: assert `sorting_offset` reaches no live fold path, scoped past tools/probe_demi_engine_fold.gd which still assigns it. The citation-namespace arm (no ADR-NNNN f |
-| [0080](0080-the-fold-composites-pre-transparent-to-layer-modern-over-psx.md) | `seam` | 84 | · | · | 2 | · | 2 | · | — | · | · | unaudited |
+| [0080](0080-the-fold-composites-pre-transparent-to-layer-modern-over-psx.md) | `seam` | 84 | · | · | 2 | · | 3 | · | — | · | · | unaudited |
 | [0096](0096-a-texture-alpha-channel-carries-the-stp-bit-not-opacity.md) | `seam` | 86 | · | 3 | 2 | 4 | 3 | 3 | — | · | · | unaudited |
 | [0128](0128-a-colour-crossing-is-an-affine-op-with-an-opaque-mode-token.md) | `engine` | 118 | · | 7 | · | · | 6 | · | — | · | · | unaudited |
 | [0129](0129-the-fold-is-renders-and-a-producer-keeps-its-shader.md) | `engine` | 264 | · | 11 | 4 | · | 28 | 2 | — | · | · | unaudited |
-| [0150](0150-psxdisplay-stays-because-render-is-the-playstation-look.md) | `method` | 237 | · | 8 | 2 | 1 | 11 | 2 | adr_quotes | · | · | unaudited |
+| [0150](0150-psxdisplay-stays-because-render-is-the-playstation-look.md) | `method` | 237 | · | 8 | 2 | 1 | 12 | 2 | adr_quotes | · | · | unaudited |
 | [0151](0151-an-addon-reaches-no-system-and-a-declarative-panel-is-not-built.md) | `seam` | 190 | · | 6 | 12 | 3 | 18 | 4 | addon_portability, adr_quotes, debug_panel_t… | · | · | unaudited |
-| [0152](0152-a-psx-compromise-is-a-policy-the-bracket-is-given.md) | `engine` | 127 | · | 5 | 10 | 4 | 6 | · | — | · | · | unaudited |
+| [0152](0152-a-psx-compromise-is-a-policy-the-bracket-is-given.md) | `engine` | 127 | · | 5 | 10 | 4 | 7 | · | — | · | · | unaudited |
 | [0171](0171-the-display-port-is-platforms-and-render-is-the-fold-bracket.md) | `method` | 263 | 1 | 6 | 6 | 2 | 13 | 4 | addon_portability, guard_registry, sprite_st… | · | · | unaudited |
 | [0191](0191-the-fold-predicate-is-the-kernels-and-a-producer-picks-between-two-shaders.md) | `seam` | 353 | · | 13 | 32 | 6 | 9 | 8 | addon_portability, fold_shader_preload, no_p… | · | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0191.md) · 13 decisions graded |
+| [0309](0309-the-fold-resolves-every-pixel-because-the-psx-framebuffer-was-15-bit-screen-wide.md) | `engine` | 247 | · | 7 | 1 | 1 | · | · | — | · | · | unaudited |
 
 ## Debug — 4
 
@@ -352,7 +353,7 @@ stronger than that).
 
 | ADR | bucket | lines | amd | dec | code | test | doc | tool | guard | arms | body | verdict |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|---|
-| [0013](0013-fft-bitmask-decoding-lives-at-the-parser-boundary.md) | `seam` | 377 | · | 5 | 10 | 1 | 17 | 12 | adr0013_deferred_flags | · | · | unaudited |
+| [0013](0013-fft-bitmask-decoding-lives-at-the-parser-boundary.md) | `seam` | 377 | · | 5 | 10 | 1 | 17 | 10 | adr0013_deferred_flags | · | · | unaudited |
 | [0052](0052-psx-coords-rotate-180-around-x-at-parser-time.md) | `seam` | 247 | · | 14 | 15 | 11 | 18 | 21 | — | 5 | · | complete |
 | | | | | | | | | | | | | [audit notes](audit-notes/0052.md) · 14 decisions graded · **5 proposed arm(s)**: `_placement_flipped` must be true for every committed chunk, and `_map_size_z` must match its map's terrain.json; Feed convert_position/convert_normal a unit basis; assert net (x,- |
 | [0057](0057-psx-spatial-transforms-sort-into-three-classes-placement-orientation-render.md) | `seam` | 328 | 1 | 3 | 15 | 13 | 13 | 8 | — | 1 | · | half-landed |
@@ -362,7 +363,7 @@ stronger than that).
 | [0091](0091-psx-magnitudes-convert-to-game-units-at-a-single-per-subsystem-seam.md) | `seam` | 138 | · | 6 | 20 | 3 | 13 | 2 | no_raw_psx_units, unit_shader_paths | · | · | unaudited |
 | [0177](0177-focus-is-a-stack-of-states-and-godot-can-make-the-bad-state-unrepresentable.md) | `seam` | 269 | · | 4 | 12 | 5 | 4 | 3 | focus_anchor, guard_registry | · | · | unaudited |
 
-## host — 92
+## host — 93
 
 | ADR | bucket | lines | amd | dec | code | test | doc | tool | guard | arms | body | verdict |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|---|
@@ -373,7 +374,7 @@ stronger than that).
 | [0114](0114-refactor-progress-is-two-per-cluster-numbers.md) | `method` | 103 | · | 7 | · | · | 6 | 1 | — | · | · | unaudited |
 | [0115](0115-a-system-is-a-bundle-that-ships.md) | `method` | 99 | · | 7 | 7 | · | 15 | 3 | addon_portability | · | · | unaudited |
 | [0116](0116-a-crossing-needs-a-payload-an-owner-and-an-edge.md) | `method` | 78 | · | 4 | 2 | · | 4 | · | — | · | · | unaudited |
-| [0117](0117-the-blueprints-ten-systems.md) | `method` | 136 | · | 12 | 6 | 4 | 24 | 2 | adr_quotes | · | · | unaudited |
+| [0117](0117-the-blueprints-ten-systems.md) | `method` | 136 | · | 12 | 6 | 4 | 25 | 2 | adr_quotes | · | · | unaudited |
 | [0118](0118-payloads-are-schemas-services-are-ports.md) | `method` | 233 | · | 6 | 31 | 1 | 23 | 4 | addon_portability | · | · | unaudited |
 | [0119](0119-contested-resources-are-capabilities-not-flags.md) | `method` | 119 | · | 6 | 4 | 1 | 10 | 1 | focus_anchor | · | · | unaudited |
 | [0121](0121-systems-land-in-addons-src-only-shrinks.md) | `method` | 135 | · | 7 | 5 | · | 20 | 2 | adr_quotes | · | · | unaudited |
@@ -383,18 +384,18 @@ stronger than that).
 | [0133](0133-a-wrong-cut-is-fixed-forward-and-the-reconnect-is-the-trigger.md) | `method` | 173 | · | 10 | · | · | 4 | · | — | · | · | unaudited |
 | [0135](0135-the-root-set-is-eleven-scenes-and-its-assembler-is-the-script-nothing-calls.md) | `method` | 186 | · | 11 | 3 | · | 25 | 5 | root_set | · | · | unaudited |
 | [0138](0138-a-publish-does-not-imply-an-assembler.md) | `method` | 232 | · | 11 | · | · | 10 | 2 | — | · | · | unaudited |
-| [0139](0139-the-shared-kernel-is-enumerated-by-the-schema-list.md) | `method` | 386 | · | 14 | 24 | · | 47 | 8 | addon_install, addon_portability | · | · | unaudited |
+| [0139](0139-the-shared-kernel-is-enumerated-by-the-schema-list.md) | `method` | 386 | · | 14 | 26 | · | 47 | 8 | addon_install, addon_portability | · | · | unaudited |
 | [0141](0141-extraction-1-is-render-and-the-clean-five-is-retired.md) | `method` | 234 | · | 6 | 1 | · | 22 | 5 | addon_portability | · | · | unaudited |
 | [0142](0142-an-asset-belongs-to-the-system-that-owns-its-format.md) | `method` | 245 | · | 8 | 4 | · | 16 | 3 | addon_install, addon_portability | · | · | unaudited |
 | [0143](0143-the-root-set-is-ratified-and-the-formation-cluster-is-its-one-exception.md) | `method` | 260 | · | 7 | · | · | 8 | 1 | root_set | · | · | unaudited |
 | [0144](0144-the-instruments-see-the-shaders-the-assets-and-the-closure.md) | `method` | 317 | · | 9 | · | 1 | 18 | 9 | addon_portability, adr_quotes, blueprint_wal… | · | · | unaudited |
 | [0145](0145-the-baseline-is-taken-and-the-series-opens.md) | `method` | 273 | · | 7 | · | 1 | 17 | 8 | baseline, residue, vault_anchors | · | · | unaudited |
 | [0146](0146-the-kernel-is-built-and-a-codec-is-what-gets-in.md) | `method` | 267 | · | 8 | 4 | · | 27 | 16 | addon_portability, adr_quotes, blueprint_wal… | · | · | unaudited |
-| [0147](0147-renders-seam-is-the-fold-bracket-and-one-port.md) | `method` | 410 | · | 9 | 5 | 1 | 24 | 19 | adr_quotes, color_shaders, compositor_routin… | · | · | unaudited |
-| [0148](0148-a-walk-that-does-not-follow-the-refactor-loses-coverage-silently.md) | `method` | 285 | · | 7 | 2 | 4 | 35 | 19 | addon_portability, baseline, battle_material… | · | · | unaudited |
+| [0147](0147-renders-seam-is-the-fold-bracket-and-one-port.md) | `method` | 410 | · | 9 | 5 | 1 | 25 | 19 | adr_quotes, color_shaders, compositor_routin… | · | · | unaudited |
+| [0148](0148-a-walk-that-does-not-follow-the-refactor-loses-coverage-silently.md) | `method` | 285 | · | 7 | 2 | 4 | 36 | 20 | addon_portability, baseline, battle_material… | · | · | unaudited |
 | [0149](0149-the-ten-goals-are-scored-per-extraction-and-three-of-them-are-not.md) | `method` | 195 | · | 7 | 1 | · | 15 | 4 | residue | · | · | unaudited |
 | [0153](0153-audio-extracts-into-a-package-the-walk-reports-rather-than-enters.md) | `method` | 1303 | · | 10 | 10 | 3 | 25 | 10 | addon_portability, baseline, test_baseline, … | · | · | unaudited |
-| [0154](0154-goal-1-is-about-decisions-and-goal-3-is-about-orphans.md) | `method` | 228 | · | 6 | · | · | 14 | 4 | adr_quotes, move_manifest, vault_anchors | · | · | unaudited |
+| [0154](0154-goal-1-is-about-decisions-and-goal-3-is-about-orphans.md) | `method` | 228 | · | 6 | 1 | · | 14 | 4 | adr_quotes, move_manifest, vault_anchors | · | · | unaudited |
 | [0155](0155-where-the-source-that-left-the-walk-went-is-declared-once.md) | `method` | 168 | · | 6 | · | · | 3 | 2 | baseline | · | · | unaudited |
 | [0156](0156-new-code-with-no-original-is-content-not-a-system.md) | `method` | 176 | · | 5 | · | 1 | 6 | 2 | blueprint_walk | · | · | unaudited |
 | [0157](0157-extraction-3-is-battlefield-and-its-interface-is-two-names-one-system-reaches.md) | `method` | 580 | · | 12 | 3 | 4 | 21 | 5 | addon_portability, res_paths | · | · | unaudited |
@@ -408,13 +409,13 @@ stronger than that).
 | [0169](0169-platform-ships-to-its-own-address-and-shipping-a-file-is-not-shipping-a-shader.md) | `method` | 307 | 1 | 7 | 5 | 2 | 15 | 7 | addon_globals, addon_install, addon_portabil… | · | · | unaudited |
 | [0170](0170-the-third-door-is-a-forwarder-and-the-duck-typing-is-a-test-seam.md) | `method` | 358 | · | 6 | 14 | 2 | 11 | 5 | lattice_doors, lattice_ports, lattice_publish | · | · | unaudited |
 | [0173](0173-a-central-replay-existed-because-reset-destroyed-what-only-the-owners-could-rebuild.md) | `method` | 259 | · | 5 | 23 | 14 | 12 | 3 | tune_owner_self_registration | · | · | unaudited |
-| [0175](0175-a-port-answers-arm-1-and-not-arm-2-and-the-debug-residue-was-print-statements.md) | `method` | 419 | · | 6 | 15 | 3 | 19 | 4 | addon_portability, guard_registry | · | · | unaudited |
+| [0175](0175-a-port-answers-arm-1-and-not-arm-2-and-the-debug-residue-was-print-statements.md) | `method` | 419 | · | 6 | 17 | 3 | 20 | 4 | addon_portability, guard_registry | · | · | unaudited |
 | [0186](0186-the-publish-already-existed-on-the-wrong-half.md) | `method` | 217 | · | 8 | 1 | · | 5 | 1 | addon_install | · | · | unaudited |
 | [0187](0187-the-port-is-two-signatures-and-sixteen-of-the-seventy-eight-were-already-inside-it.md) | `method` | 299 | · | 7 | 2 | · | 7 | · | — | · | · | unaudited |
 | [0190](0190-a-global-uniform-earns-its-host-entry-by-having-a-writer.md) | `method` | 205 | 1 | 4 | 7 | 1 | 10 | 8 | addon_install, addon_portability | · | · | unaudited |
 | [0192](0192-the-register-goes-first-because-the-port-erases-its-own-baseline.md) | `method` | 566 | 2 | 7 | 27 | 19 | 23 | 10 | addon_install, lattice_doors, lattice_ports,… | · | · | unaudited |
 | [0193](0193-the-highlight-is-a-publish-with-an-address-and-the-sentinel-belongs-to-the-schema.md) | `method` | 170 | · | 4 | 4 | · | 4 | 1 | lattice_publish | · | · | unaudited |
-| [0194](0194-a-test-belongs-to-the-addon-it-can-run-without-the-game.md) | `method` | 692 | 5 | 12 | 31 | 21 | 28 | 22 | addon_portability, blueprint_walk, guard_reg… | · | · | unaudited |
+| [0194](0194-a-test-belongs-to-the-addon-it-can-run-without-the-game.md) | `method` | 692 | 5 | 12 | 33 | 21 | 29 | 22 | addon_portability, blueprint_walk, guard_reg… | · | · | unaudited |
 | [0195](0195-the-cursor-publishes-a-coordinate-and-criterion-3-closes.md) | `method` | 151 | · | 6 | 4 | · | 4 | · | — | · | · | unaudited |
 | [0196](0196-the-marking-belongs-to-the-schema-and-a-respelling-is-never-the-reason.md) | `method` | 339 | · | 8 | 14 | 1 | 19 | 6 | addon_install, lattice_publish, lattice_scene | · | · | unaudited |
 | [0202](0202-installable-is-the-fork-plus-the-kernel-and-the-port.md) | `method` | 387 | · | 12 | 39 | 4 | 28 | 16 | addon_globals, addon_install, addon_portabil… | · | · | unaudited |
@@ -427,7 +428,7 @@ stronger than that).
 | [0209](0209-one-ruling-over-three-rows-that-needed-three-and-a-file-can-be-ruled-back.md) | `method` | 209 | · | 8 | 1 | 2 | 5 | 4 | lattice_scene, move_manifest | · | · | unaudited |
 | [0210](0210-a-stated-host-use-was-green-and-twenty-times-understated.md) | `method` | 303 | · | 6 | 3 | 6 | 4 | 4 | addon_globals, lattice_publish | · | · | unaudited |
 | [0211](0211-nothing-preloads-in-so-the-class-name-set-is-the-whole-surface.md) | `method` | 340 | · | 9 | 223 | 177 | 26 | 20 | addon_globals, addon_portability, lattice_pu… | · | · | unaudited |
-| [0212](0212-a-count-of-one-was-never-the-invariant-the-addons-one-global-is-the-folder-named-facade.md) | `method` | 321 | · | 11 | 142 | 41 | 22 | 18 | addon_globals, addon_install, addon_portabil… | · | · | unaudited |
+| [0212](0212-a-count-of-one-was-never-the-invariant-the-addons-one-global-is-the-folder-named-facade.md) | `method` | 321 | · | 11 | 142 | 40 | 22 | 18 | addon_globals, addon_install, addon_portabil… | · | · | unaudited |
 | [0213](0213-extraction-4-is-sprite-rig-and-its-widest-inbound-name-is-a-generated-enum.md) | `method` | 457 | · | 12 | · | · | 13 | · | — | · | · | unaudited |
 | [0214](0214-sprite-rigs-scope-is-anchored-and-its-pass-1-numbers-were-taken-through-a-keyhole.md) | `method` | 483 | 1 | 12 | · | · | 5 | 2 | — | · | · | unaudited |
 | [0215](0215-the-sprite-rig-seam-is-a-scene-a-vocabulary-and-a-content-port-and-two-thirds-of-its-interface-belongs-to-two-adapters.md) | `method` | 528 | · | 14 | 35 | 22 | 10 | 3 | addon_globals | · | · | unaudited |
@@ -439,24 +440,25 @@ stronger than that).
 | | | | | | | | | | | | | [audit notes](audit-notes/0223.md) · 13 decisions graded |
 | [0227](0227-a-facade-re-export-is-not-a-use-and-the-closure-could-not-tell.md) | `method` | 196 | · | 6 | · | · | 5 | · | — | · | · | unaudited |
 | [0228](0228-the-rig-scores-six-of-nine-and-it-is-the-first-system-with-no-per-domain-escape.md) | `method` | 234 | · | 7 | · | 1 | 6 | 2 | — | · | · | unaudited |
-| [0229](0229-the-sprite-rig-reads-isolated-on-every-static-instrument-and-does-not-compile.md) | `method` | 360 | · | 8 | 1 | 5 | 5 | 3 | — | · | · | unaudited |
+| [0229](0229-the-sprite-rig-reads-isolated-on-every-static-instrument-and-does-not-compile.md) | `method` | 360 | · | 8 | 1 | 5 | 6 | 3 | — | · | · | unaudited |
 | [0232](0232-goal-5-is-a-conjunction-and-neither-instrument-may-claim-the-word-alone.md) | `method` | 214 | · | 8 | · | 5 | 6 | 3 | — | · | · | unaudited |
 | [0233](0233-a-guard-the-suite-does-not-list-is-a-guard-nobody-runs.md) | `method` | 178 | · | 6 | · | 1 | · | 1 | — | · | · | unaudited |
-| [0234](0234-a-port-half-is-not-shipped-until-both-directions-of-the-value-are-on-it.md) | `method` | 201 | · | 6 | 7 | 3 | 10 | · | — | · | · | unaudited |
-| [0238](0238-a-global-uniform-is-validated-only-in-the-editor-and-the-debt-is-silent.md) | `method` | 224 | · | 7 | 4 | 3 | 5 | 1 | addon_portability | · | · | unaudited |
+| [0234](0234-a-port-half-is-not-shipped-until-both-directions-of-the-value-are-on-it.md) | `method` | 201 | · | 6 | 9 | 3 | 10 | · | — | · | · | unaudited |
+| [0238](0238-a-global-uniform-is-validated-only-in-the-editor-and-the-debt-is-silent.md) | `method` | 224 | · | 7 | 4 | 3 | 6 | 2 | addon_portability | · | · | unaudited |
 | [0240](0240-goal-7-scores-systems-so-a-consumer-exemption-counts-the-jargon-nowhere.md) | `method` | 218 | · | 7 | · | · | 2 | 1 | — | · | · | unaudited |
 | [0241](0241-unitprogression-is-the-catalogues-by-ownership-and-src-datas-by-address.md) | `method` | 396 | · | 1 | 6 | · | 11 | 6 | — | · | · | unaudited |
 | [0243](0243-the-src-data-tier-is-a-third-addon-and-the-split-the-selection-assumed-does-not-exist.md) | `method` | 426 | · | 13 | 3 | · | 8 | 14 | addon_globals, addon_portability, blueprint_… | · | · | unaudited |
 | [0251](0251-the-almanac-is-thirty-two-names-behind-one-and-the-address-collapsed-while-the-buckets-did-not.md) | `method` | 408 | · | 11 | 28 | 2 | 7 | 26 | addon_globals, blueprint_walk, unit_progress… | · | · | unaudited |
 | [0254](0254-an-unattended-loop-may-delete-a-test-and-a-named-survivor-is-what-makes-that-safe.md) | `method` | 113 | · | 7 | · | · | 4 | 1 | — | · | · | unaudited |
 | [0257](0257-a-debug-panel-is-not-a-member-and-the-order-that-counted-it-as-one-is-an-artefact.md) | `method` | 269 | · | 10 | 3 | · | 11 | 5 | — | · | · | unaudited |
-| [0262](0262-the-alias-route-hid-forty-nine-lines-and-the-almanac-reads-as-a-system-only-because-classify-books-by-consumer.md) | `method` | 351 | · | 11 | 19 | 3 | 18 | 8 | addon_globals, lattice_scene, ui_autoload_re… | · | · | unaudited |
+| [0262](0262-the-alias-route-hid-forty-nine-lines-and-the-almanac-reads-as-a-system-only-because-classify-books-by-consumer.md) | `method` | 351 | · | 11 | 21 | 2 | 19 | 8 | addon_globals, lattice_scene, ui_autoload_re… | · | · | unaudited |
 | [0267](0267-the-catalogue-lands-and-the-ninth-published-name-was-a-symbol-census-that-could-not-see-a-path.md) | `method` | 328 | · | 12 | 2 | · | 4 | 1 | — | · | · | unaudited |
 | [0271](0271-the-tier-is-declared-in-plugin-cfg-because-a-vote-over-consumers-cannot-see-a-fourth-tier.md) | `method` | 333 | · | 10 | 13 | · | 4 | 3 | addon_portability | · | · | unaudited |
 | [0272](0272-the-palette-row-edge-is-paid-by-deleting-the-key-because-no-consumer-read-it.md) | `method` | 284 | · | 12 | 7 | 4 | 5 | 3 | addon_portability | · | · | unaudited |
-| [0273](0273-free-ness-inside-the-rules-tier-is-declared-per-member-because-a-package-of-tables-is-not-all-tables.md) | `method` | 254 | · | 9 | 8 | 2 | 5 | 3 | addon_portability | · | · | unaudited |
+| [0273](0273-free-ness-inside-the-rules-tier-is-declared-per-member-because-a-package-of-tables-is-not-all-tables.md) | `method` | 254 | · | 9 | 8 | 1 | 5 | 3 | addon_portability | · | · | unaudited |
 | [0280](0280-gambits-stays-in-the-almanac-and-the-tests-that-said-otherwise-were-measuring-a-kernel-vocabulary-in-the-wrong-package.md) | `method` | 353 | · | 9 | 14 | 3 | 3 | 3 | addon_portability | · | · | unaudited |
 | [0281](0281-a-test-process-has-no-tune-staging-file-and-the-runner-brackets-the-run.md) | `method` | 232 | · | 9 | 3 | 2 | 1 | 2 | — | · | · | unaudited |
 | [0294](0294-the-catalogues-progression-debt-is-a-vocabulary-and-the-kernel-is-where-a-value-set-lives.md) | `method` | 360 | · | 9 | 14 | 2 | 2 | 2 | — | · | · | unaudited |
 | [0300](0300-1059-phase-3-is-rejected-because-the-move-retires-nine-arm-5-lines-and-pays-ten-and-one-reach-has-no-published-name.md) | `method` | 233 | · | 7 | 7 | · | · | 2 | — | · | · | unaudited |
+| [0310](0310-arm-2s-expired-premise-cost-twenty-six-lines-and-the-rig-was-failing-by-name-what-the-arm-printed-as-a-number.md) | `method` | 193 | · | 5 | · | 2 | · | · | — | · | · | unaudited |
 

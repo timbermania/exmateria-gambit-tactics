@@ -303,6 +303,44 @@ ARM1_BURN_DOWN = {
 # root and the rest were prose), and what is left splits two ways. A pattern like "skip a
 # bare scheme root" would excuse rows 2 and 3 AND excuse `res://assets/maps/`, which is a
 # real dependency. Naming them is the only way to say they differ.
+# --- arm 2's burn-down (#1225, ADR-0308 dec. 1) ---------------------------
+# `(addon file, autoload name) -> (owner, why)`. Arms 1/6/7's shape, and EMPTY, which
+# is the whole point of adding it.
+#
+# 🔴 WHY THIS LIST EXISTS AT ALL: ARM 2 USED TO HAVE TWO VERDICTS FOR ONE QUESTION.
+# An addon with its own `project.godot` was RED (`STANDALONE PARSE`); an in-walk addon
+# with none was a printed `standalone-parse DEBT` block whose heading read *"Not
+# enforced (there is no standalone project to parse against yet)"*. That reason was
+# TRUE when it was written and had been false for some time: ADR-0238 already struck
+# the identical sentence out of arm 4 — *"There ARE standalone projects now -- six
+# stranger rigs"* — and there are now EIGHT, one per in-walk addon, every one of them
+# declaring an empty `[autoload]` block (ADR-0308 §1). So the set of addons the DEBT
+# branch covered and the set with a rig to fail against are the same set, and the
+# branch was measuring the absence of a thing that had arrived.
+#
+# 🔴 AND IT WAS COSTING A REAL MEASUREMENT, NOT JUST TIDINESS. All 26 of the debt
+# block's lines were `addons/exmateria_effects`, and they were the addon's LAST
+# install blocker: three of its five `known_failures.tsv` rows were exactly three of
+# those files. The rig failed them one file at a time, by name, while this arm printed
+# them as an unenforced number — two instruments, one defect, and only the slow one
+# scoring it. #1225 paid all 26 (two in-addon overlay ports plus
+# `ExMateriaPlatform.SfxPort`), which is what makes flipping this free: the corpus-wide
+# count is 0, so enforcement changes no verdict TODAY and changes every verdict after.
+#
+# A row here would say: this addon names a host `[autoload]` identifier, we know, it is
+# ticketed, and goal #5's install half is unmet for it on record. BOTH directions fail,
+# arms 1/6/7's rule — an unlisted reach, and a listed reach that no longer happens — so
+# a list that outlives its debt cannot re-admit the reach under a green guard, which is
+# the arm ADR-0308 dec. 5 names as the one a one-armed ratchet misses.
+#
+# ⚠️ BEFORE ADDING A ROW, CHECK WHICH ADDON SHIPS THE SCRIPT THE AUTOLOAD POINTS AT.
+# Arm 2b's remedy note is the rule and it splits on ownership, not on compilability: if
+# THIS addon ships the script, the fix is a node-path bind and needs no row here (#1225
+# did that for `TintedSurfaces` and `ScreenEffectOverlay`). Only a reach into a script
+# the addon does NOT ship needs a port — or a row.
+ARM2_BURN_DOWN = {}
+
+
 ARM6_BURN_DOWN = {
     ("../exmateria-sound/addons/exmateria_sound/runtime/audio_engine.gd",
      "res://assets/music/WAVESET.WD"):
@@ -447,9 +485,29 @@ _ARM7_KINDS = {"class_name"}
 # `exmateria_catalogue` had declared and not reached since #1071, which survived 474
 # commits precisely because nothing in `tools/` read the key (ADR-0272, #1239).
 ARM8_DEPS_NOT_BY_CLASS_NAME = {
-    # EMPTY, and an empty list is not a quiet one: `test_a_clean_dep_left_in_the_list
-    # _is_STALE_and_red` seeds a row naming a dep that IS reached, so this file going
-    # empty cannot make the stale arm vacuous.
+    # It landed EMPTY at #1241 and took its first row at #1286, which is the case the
+    # header above describes in the abstract: a dependency that is REAL, must be
+    # STAGED, and is invisible to arm 5 because it is a `res://` path rather than a
+    # symbol. An empty list is not a quiet one either way —
+    # `test_a_clean_dep_left_in_the_list_is_STALE_and_red` seeds a row naming a dep
+    # that IS reached, so this list going empty again cannot make the stale arm
+    # vacuous.
+    ("addons/exmateria_effects", "exmateria_sound"): (
+        "#1286",
+        "FOUR `preload`s and ZERO `class_name`s, which is exactly the shape this list "
+        "exists for. `cast/EffectInstance.gd` preloads three files out of "
+        "`res://addons/exmateria_sound/runtime/` and `file_model/EffectData.gd` "
+        "preloads `res://addons/exmateria_sound/exmateria_sound.gd` for "
+        "`FedsBank.load_from_file` — the blueprint's Format-owner rule, `Effects` "
+        "reads `Audio`'s `feds.bin` (ADR-0288 dec. 8 calls that row correct as "
+        "written). It was the bare global `ExMateriaSound` until #1241's arm 8 ruled "
+        "an undeclared sibling `class_name` unconditional; re-spelling it as a PATH "
+        "is what moved it out of arm 5's sight and into this list's. "
+        "NOT STALE AND NOT WAIVABLE: `tests/stranger/exmateria_effects/run.sh` stages "
+        "the transitive closure of `deps=`, and deleting this dep takes those four "
+        "preloads back to unresolvable — the state that was this rig's last two "
+        "`known_failures.tsv` rows until #1286 declared the dep and drained them to "
+        "ZERO. The direction test is the rig itself."),
 }
 
 
@@ -964,7 +1022,10 @@ def own_global_uniform_declarations(addon: pathlib.Path):
 
     Arm 4 asks whether a name the addon binds is one the HOST declares, and can
     only report it as debt in-walk because there is no standalone project to fail
-    against. This asks a different question that needs no such project: **which
+    against. (Arm 2 no longer has that branch — #1225 flipped it to `ARM2_BURN_DOWN`
+    once the corpus count hit 0, for the reason ADR-0238 gave. Arm 4 keeps it because
+    ADR-0238's reason is DIFFERENT and still stands: a missing `global uniform` is not
+    a compile error outside the editor, so no rig can fail against it.) This asks a different question that needs no such project: **which
     addon is the declaration IN.** That is a fact about this tree, so it enforces.
     """
     out = collections.defaultdict(list)
@@ -1174,7 +1235,7 @@ def walk_addons(roots, named=None, gone=None) -> dict:
     host_auto = autoload_names(PROJECT_DIR / "project.godot")
     gone = gone or {}
 
-    arm1_raw, debt, scanned, parse_bad = [], [], [], []
+    arm1_raw, scanned, parse_raw = [], [], []
     inc_bad, glob_bad, glob_debt, decl_bad = [], [], [], []
     decl_unprovided = []
     route_bad = []
@@ -1319,10 +1380,14 @@ def walk_addons(roots, named=None, gone=None) -> dict:
         # --- arm 2: standalone parse --- runs for EVERY subject, the kernel
         # included: an addon the classifier books to no system must still not name
         # a host autoload, so this sits BEFORE arm 1's `continue`.
+        # ONE bucket, not two. The `own is not None` split that used to send in-walk
+        # addons to an unenforced `debt` list is gone — see `ARM2_BURN_DOWN`'s header for
+        # why the reason it gave expired. `own` is still carried on the row so the report
+        # can name which project.godot declares the identifier.
         own = package_project(addon)
         reaches = autoload_reaches(addon, host_auto)
         for r in reaches:
-            (parse_bad if own is not None else debt).append((rel, own) + r)
+            parse_raw.append((rel, own) + r)
 
         # --- arm 6: a res:// path that leaves every addon root (#658) --- ENFORCING for
         # EVERY subject, and it sits before arm 1's `continue` deliberately: arm 1 skips
@@ -1551,7 +1616,7 @@ def walk_addons(roots, named=None, gone=None) -> dict:
 
     return {
         "scanned": scanned, "named": named,
-        "arm1_raw": arm1_raw, "debt": debt, "parse_bad": parse_bad,
+        "arm1_raw": arm1_raw, "parse_raw": parse_raw,
         "inc_bad": inc_bad, "glob_bad": glob_bad, "glob_debt": glob_debt,
         "decl_bad": decl_bad, "decl_unprovided": decl_unprovided,
         "route_bad": route_bad, "path_raw": path_raw,
@@ -1582,7 +1647,32 @@ def report_walk(w) -> int:
     """
     named = w["named"]
     scanned = w["scanned"]
-    parse_bad, debt = w["parse_bad"], w["debt"]
+
+    # --- the SUBJECT arm, and it is every arm's (#1225, ADR-0308 dec. 5 direction 3) ---
+    # A ratchet has three ways to rot and the third is that its SUBJECT went empty: the
+    # roots moved, `WALK_ROOTS` lost an entry, or an extraction finished and nobody
+    # deleted the guard. EVERY arm below is a "nothing found" over `scanned`, so an
+    # empty subject makes all of them vacuously green at once and prints a clean bill
+    # over nothing. That is the ADR-0148 stale-root defect this file's own header
+    # describes, which is why it is checked rather than assumed.
+    #
+    # Deliberately no count in this message. The first draft read "all fourteen of
+    # them", which was invented — `grep -oE "^\s*# --- arm [0-9a-z]+"` reports TWELVE
+    # (1, 2, 2b, 3, 4, 4b, 4c, 5, 6, 7, 8, 8b) — and a hardcoded arm count in a guard's
+    # own output is a number nothing updates when arm 9 lands.
+    if not scanned:
+        print("\ncheck_addon_portability: FAIL — the SUBJECT IS EMPTY, so every arm below\n"
+              "would pass by having nothing to look at. Either classify_blueprint.WALK_ROOTS\n"
+              "and _walk_roots.EXTRACTED name no directory that exists, or a `--root` was\n"
+              "given for a path that is not there. This is the one state a green report\n"
+              "cannot be told from.")
+        return 1
+    # Arm 2's, on arms 1/6/7's rule and scoped the same way: `--root` NARROWS the
+    # subject, so a row naming a file outside it is OUT OF SCOPE, not stale.
+    parse_burn = [r for r in w["parse_raw"] if (r[2], r[3]) in ARM2_BURN_DOWN]
+    parse_bad = [r for r in w["parse_raw"] if (r[2], r[3]) not in ARM2_BURN_DOWN]
+    parse_stale = ([] if named else
+                   sorted(set(ARM2_BURN_DOWN) - {(r[2], r[3]) for r in parse_burn}))
     inc_bad, glob_bad, glob_debt = w["inc_bad"], w["glob_bad"], w["glob_debt"]
     decl_bad, decl_unprovided = w["decl_bad"], w["decl_unprovided"]
     route_bad = w["route_bad"]
@@ -1699,13 +1789,18 @@ def report_walk(w) -> int:
             owner, why = ARM8_DEPS_NOT_BY_CLASS_NAME[(rel, d)]
             print("  %s  declares %s\n      %s — %s" % (rel, d, owner, why))
 
-    if debt:
-        n = sum(len(d[4]) for d in debt)
-        print("\nstandalone-parse DEBT — %d line(s) in an addon with no project.godot of its\n"
-              "own name a HOST autoload. Not enforced (there is no standalone project to\n"
-              "parse against yet); it is what the next extraction has to answer." % n)
-        for rel, _own, f, name, lines in debt:
-            print("  %s:%s  %s" % (f, ",".join(map(str, lines[:6])) + ("…" if len(lines) > 6 else ""), name))
+    if parse_burn:
+        n = sum(len(r[4]) for r in parse_burn)
+        print("\nSTANDALONE-PARSE BURN-DOWN — %d line(s) in an addon name a HOST autoload\n"
+              "identifier and are NAMED in ARM2_BURN_DOWN with an owner. Not a pass: this is\n"
+              "goal #5's INSTALL half unmet, on record, with the ticket that closes it\n"
+              "(#1225, ADR-0308 dec. 1).\n" % n)
+        for rel, _own, f, name, lines in parse_burn:
+            owner, why = ARM2_BURN_DOWN[(f, name)]
+            print("  %s:%s  %s   [%s]"
+                  % (f, ",".join(map(str, lines[:6])) + ("…" if len(lines) > 6 else ""),
+                     name, owner))
+            print("      %s" % why)
 
     if glob_debt:
         n = sum(len(d[4]) for d in glob_debt)
@@ -1797,6 +1892,16 @@ def report_walk(w) -> int:
             owner, _why = ARM7_BURN_DOWN[(f, target)]
             print("  %s  ->  %s   [%s]" % (f, target, owner))
 
+    if parse_stale:
+        print("\nSTALE ARM2_BURN_DOWN — %d entr(ies) name an autoload reach that no longer\n"
+              "happens (or a file that is gone). Lower the list in the SAME commit that pays\n"
+              "the debt: a baseline that outlives its debt re-admits the reach silently, which\n"
+              "is the arm ADR-0308 dec. 5 names as the one a one-armed ratchet misses.\n"
+              % len(parse_stale))
+        for f, name in parse_stale:
+            owner, _why = ARM2_BURN_DOWN[(f, name)]
+            print("  %s  %s   [%s]" % (f, name, owner))
+
     if path_stale:
         print("\nSTALE ARM6_BURN_DOWN — %d entr(ies) name a path reach that no longer\n"
               "happens, or a file that is gone. Delete the row; a burn-down that outlives\n"
@@ -1846,7 +1951,7 @@ def report_walk(w) -> int:
     if (not bad and not stale and not parse_bad and not inc_bad and not glob_bad
             and not sib_bad and not decl_bad and not route_bad and not path_bad
             and not path_stale and not decl_unprovided
-            and not type_bad and not type_stale
+            and not parse_stale and not type_bad and not type_stale
             and not dep_undeclared and not dep_bad and not dep_stale
             and not eng_bad and not eng_stale and not eng_wrong):
         print("\naddon portability OK — %s reach no system, name no foreign autoload — as a\n"
@@ -1862,6 +1967,9 @@ def report_walk(w) -> int:
         if burn:
             print("%d reach line(s) are on ARM1_BURN_DOWN above and are NOT part of that "
                   "sentence." % sum(len(b[4]) for b in burn))
+        if parse_burn:
+            print("%d line(s) are on ARM2_BURN_DOWN above and are NOT part of that "
+                  "sentence." % sum(len(r[4]) for r in parse_burn))
         if type_burn:
             print("%d line(s) are on ARM7_BURN_DOWN above and are NOT part of that "
                   "sentence." % sum(len(r[4]) for r in type_burn))
@@ -1871,9 +1979,18 @@ def report_walk(w) -> int:
         n = sum(len(b[4]) for b in parse_bad)
         print("\nSTANDALONE PARSE: %d line(s) name an identifier only an autoload block declares (goal #5).\n" % n)
         for rel, own, f, name, lines in parse_bad:
+            # `own` is None for an IN-WALK addon, which ships in the host project and has
+            # no `project.godot` of its own. Its standalone project is its STRANGER RIG,
+            # which declares an empty `[autoload]` block on purpose (ADR-0308 §1) — so
+            # name that rather than printing `None`, because the rig is where a reader
+            # reproduces this row.
+            where = (_sg._rel(own) if own is not None
+                     else "%s (empty [autoload] on purpose)"
+                          % _sg._rel(PROJECT_DIR / "tests" / "stranger"
+                                     / pathlib.Path(rel).name / "project.godot"))
             print("  %s:%s  %s -> declared by %s, NOT by %s"
                   % (f, ",".join(map(str, lines)), name,
-                     _sg._rel(PROJECT_DIR / "project.godot"), _sg._rel(own)))
+                     _sg._rel(PROJECT_DIR / "project.godot"), where))
         print("\nReach the singleton by NODE PATH instead — it names no symbol, so the file\n"
               "parses in any project and simply returns null where the consumer did not\n"
               "autoload it:\n"

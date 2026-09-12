@@ -91,6 +91,11 @@ func _ready() -> void:
 	var host: FormationDetailTransition = FormationDetailTransition.new()
 	host.name = "Host"
 	add_child(host)
+	# #1273 — the screen now STATES `input_refused` and the host names the buzz. This
+	# test builds its own screen instead of going through `mount_over_map`, so it wires
+	# it the same way `NavigatorMain` and `GPUArena` do, and the buzz asserts below keep
+	# measuring the CUE rather than the signal.
+	UIWiring.wire_formation_screen(host)
 	for _i in 4:
 		await get_tree().process_frame
 

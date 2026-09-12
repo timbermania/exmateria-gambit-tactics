@@ -188,13 +188,6 @@ const RAMZA_EVENT_UID := 0x01
 ## it up as decided without new evidence.
 const SQUAD_EVENT_UID_BASE := 0x78
 
-## Story-context STUB for the deploy-seam Form selection (ADR-0079). The active Form is
-## chosen per story chapter; while the navigator reaches only Chapter 1 (Gariland) there is
-## no live chapter state to read, so the seam selects with this constant. The seam SELECTS
-## (`Character.active_special_name`) rather than hardcoding a `special_name`, so a reachable
-## Ch2+ replaces this stub with real chapter state and every unique's later Form drops in.
-const STORY_CHAPTER_STUB := 1
-
 ## Debug tunable (ADR-0068, default false): show the view-only FORMATION overlay between
 ## the opener and deployment (wayfinder #234 E). OFF by default → the proof plan omits the
 ## formation_view action entirely (non-gating). Read at plan time.
@@ -1552,13 +1545,14 @@ func _spawn_owned_unit(character) -> Node:
 	# Materialize the active Form at the deploy seam (ADR-0079). A roster-deployed owned
 	# unit has no live ENTD slot to read `special_name` off (the ENTD seam ScenarioPlayerScene
 	# uses), so it SELECTS the active Form from the ROM-derived Form set on its Catalog
-	# Character and stamps that Form's `special_name` one line before `resolve()` — mirroring
-	# the SHAPE of the ENTD seam. A miss (no Form on file) returns SPECIAL_NAME_NONE, which the
-	# resolver job-routes — exactly right for the generic squadmates. Story-context selection
-	# is stubbed to Ch1 while Gariland is the sole reachable chapter; the seam SELECTS (not
-	# hardcodes), so a Ch2+ battle drops in without reshaping it. The resolver stays a pure
-	# function of the stamped param — it never reads story context.
-	character.special_name = character.active_special_name(STORY_CHAPTER_STUB)
+	# Character and stamps that Form's `special_name` before `resolve()` — mirroring the SHAPE
+	# of the ENTD seam. A miss (no Form on file) leaves SPECIAL_NAME_NONE, which the resolver
+	# job-routes — exactly right for the generic squadmates. The stamp itself, and the Ch1
+	# story-context stub behind it, live on [UnitSpawn] beside the seam they are a
+	# precondition of: this path used to hold the only copy, which is why the scenario cast
+	# had none. The resolver stays a pure function of the stamped param — it never reads
+	# story context.
+	UnitSpawn.materialize_active_form(character)
 	var unit := UnitSpawn.build(character)
 	if unit == null:
 		push_error("[NavigatorMain] deploy: cannot spawn a Unit for %s" % str(character.slug))
@@ -3029,6 +3023,8 @@ func _mount_formation_map_screen() -> void:
 		_player_camera, _cursor_rig, _unit_at_grid,
 		_set_screen_pause,
 		func() -> bool: return _combat_loop != null)
+	# #1273 — the screen states `input_refused`; this host names the buzz.
+	UIWiring.wire_formation_screen(_formation_map_screen)
 	# The ROW SET, armed AT MOUNT and never re-armed — `mount_over_map` does not set it, and an
 	# empty `action_rows` makes `FormationDetailTransition._row_label` fall back to the ROM's five,
 	# whose row 3 is "Remove Unit". That row is not in `MENU_LABEL_STATE`, so Tab -> row 3 -> ○ went

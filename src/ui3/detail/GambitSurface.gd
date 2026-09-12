@@ -63,11 +63,15 @@ extends Node3D
 ## ADR-0048 injects one gambit per unit at the encoder boundary — an unconditional
 ## `Attack / Nearest Foe`, below everything the player authored — so a unit whose every slot
 ## misses still has a terminal candidate. The OBJECT carries one `ALWAYS` condition; the ROW
-## reads `Attack / Nearest Foe / Their / —` (ADR-0283 dec. 7): blank IS the absence of a
-## condition since that ADR's dec. 2 and `condition_label` reads either spelling back as blank,
-## while the SUBJECT stays named — its dec. 3, amended, see `GambitOptions.subject_label` —
-## because with no condition that field is the only thing gating the row, and on the net being
-## gated on a foe existing is the entire mechanism.
+## reads `Attack / Nearest Foe / Always` (ADR-0283 dec. 7), with its `If` cell DIM and holding
+## `—` — the net has nothing parked, because nobody authored it (dec. 8, and see
+## [method _write_if_cell]). That is ADR-0270 dec. 1's original string, reached through the
+## general rule rather than restated: the net is not a special case of the readout.
+##
+## It read `Attack / Nearest Foe / Their / —` in between, while ADR-0283 dec. 2 had `Always` out
+## of the screen's vocabulary. `Their` was honest — with no condition that field is the only
+## thing gating the row, and on the net being gated on a foe existing is the entire mechanism —
+## but it dangled off a question nobody had asked.
 ##
 ## ADR-0048's own dec. 2 made the net invisible on purpose; ADR-0270 supersedes it: the net is
 ## the LAST row, rendered DIM, with a BLANK enable cell, and ←/→ refused on it.
@@ -417,16 +421,43 @@ func row_entries() -> Array:
 			# they are two states, and a row that printed the same glyph for both would make an
 			# unconditional rule look like an empty slot.
 			"subj": GambitOptions.subject_label(g),
-			"iff": GambitOptions.condition_label(g),
 			# ADR-0268 dec. 3 — the screen edits condition index 0 and NEVER destroys the rest. A slot
 			# carrying more says so, because a screen that silently drops data the player cannot
 			# see is worse than a screen that cannot author it.
 			"extra": maxi(0, g.conditions.size() - 1),
 		})
+		_write_if_cell(out[-1], g)
 	if offers_imperative():
 		out.append({"text": imperative_row()})
 	out.append(safety_net_row())
 	return out
+
+
+## Finish one row's `If` cell — the live value, or the parked one rendered DISABLED.
+##
+## The column is drawn on EVERY row. `if_disabled` is the flag the widget reads, and it changes
+## two things: the cell paints in the dim band whatever the row is doing, and SUBJECT is allowed
+## [constant GambitSurfaceMenu.COL_SUBJ_DISABLED_CAP] instead of the 20 px switch cap.
+##
+## That extra room is the 13 px chevron gap in front of `If`, and it is free only because the
+## column is DISABLED rather than merely empty — `_last_part` keeps the cursor off `PART_IF`
+## here, so no arrow is ever mounted in that gap. `Always` measures 26 px and does not fit 20;
+## it fits 33 with 7 px to spare.
+func _write_if_cell(row: Dictionary, g) -> void:
+	if not GambitOptions.is_unconditional(g):
+		row["iff"] = GambitOptions.condition_label(g)
+		return
+	# The `If` column STAYS and goes DIM. It was removed outright at first, and a column that
+	# vanishes under the player is the wrong answer to *"it's not applicable"*: the eye loses the
+	# place it reads the fourth word from, and a row with one fewer column than the row above it
+	# reads as a different KIND of row rather than as the same row with a part switched off.
+	# Disabled is the state, so disabled is what it renders.
+	row["if_disabled"] = true
+	# WHAT IT SHOWS IS THE PARKED PREDICATE, not a placeholder. `Always` set it aside and a flip
+	# back restores it ([method _write_unconditional]), so printing it dim is the row saying what
+	# is waiting there — which is the whole reason the park exists. `—` when nothing is parked,
+	# because then there genuinely is nothing to come back to.
+	row["iff"] = GambitOptions.parked_label(g)
 
 
 ## ADR-0048's injected fallback, as a row (ADR-0270). Read off
@@ -442,19 +473,27 @@ func row_entries() -> Array:
 ## BLANK rather than `○`, because the mark is a state the player can change and this one is not.
 func safety_net_row() -> Dictionary:
 	var g = GambitEncoder.safety_net_gambit()
+	var row := _net_row_for(g)
+	_write_if_cell(row, g)
+	return row
+
+
+func _net_row_for(g) -> Dictionary:
 	return {
 		"enable": "",
 		"do": _do_text(g),
 		"to": _target_text(g.condition_target),
-		# THE `If` COLUMN BLANK, THE SUBJECT NAMED, and it is the net's own object that says so
-		# rather than this row choosing it: `safety_net_gambit` carries one `ALWAYS` condition,
-		# which `GambitOptions.condition_label` reads back as blank. The subject no longer
-		# blanks with it (ADR-0283 dec. 3, amended) — the row reads
-		# `Attack / Nearest Foe / Their / —` where ADR-0270 dec. 1 stated
-		# `Attack / Nearest Foe / Always`, and `Their` is the same `condition_target` the `to`
-		# cell above is read off, so the two cannot drift into disagreeing about one field.
+		# THE SUBJECT READS `Always` AND THERE IS NO `If` COLUMN, and it is the net's own object
+		# that says so rather than this row choosing it: `safety_net_gambit` carries one `ALWAYS`
+		# condition, which is exactly the state `GambitOptions.is_unconditional` names. So the
+		# row reads `Attack / Nearest Foe / Always` — the string ADR-0270 dec. 1 stated when the
+		# net was first given a row, arrived at again from the object rather than from a literal.
+		#
+		# It read `Attack / Nearest Foe / Their / —` in between, which is the reading ADR-0283
+		# dec. 2 forced by retiring the word `Always` from the screen: `Their` was honest about
+		# the gate but dangled off a question nobody had asked, and the em dash beside it was the
+		# whole of the player's complaint.
 		"subj": GambitOptions.subject_label(g),
-		"iff": GambitOptions.condition_label(g),
 		"extra": 0,
 		"inert": true,
 	}
@@ -905,11 +944,13 @@ func choices_for(part: int) -> Array:
 					if was_mirrored:
 						_mirror_subject_onto_aim(g)})
 		Part.SUBJ:
-			# TWO ROWS, and the list is offered even on a row with no condition — the subject is
-			# what MAKES the condition mean something, so refusing it until a test is set would
-			# be a part the player has to author out of order.
+			# THREE ROWS, and the list is offered even on a row with no condition — the subject
+			# is what MAKES the condition mean something, so refusing it until a test is set
+			# would be a part the player has to author out of order. The third row, `Always`,
+			# is the one that says there will BE no test.
 			for c in GambitOptions.subjects():
 				var make: Callable = c["make"]
+				var unconditional := bool(c.get(GambitOptions.UNCONDITIONAL, false))
 				out.append({"name": c["name"], "apply": func() -> void:
 					var g = _gambit()
 					if g == null:
@@ -917,7 +958,10 @@ func choices_for(part: int) -> Array:
 					# `Their` is a COPY of the gambit's own aim, so the copy has to be taken
 					# from the aim as it stands NOW and not from whatever it was when the list
 					# opened. That is why `make` takes the aim rather than closing over it.
+					# `Always` mirrors identically — with no test the subject is the row's only
+					# gate, so the two rows hold the SAME selector and differ in the write below.
 					g.condition_target = make.call(g.action_target)
+					_write_unconditional(g, unconditional)
 					# A subject the aim forbids changes what `Them` resolves to (ADR-0276), so
 					# the aim is re-gated against the subject that just landed.
 					_seed_aim(g, false)})
@@ -946,6 +990,10 @@ func choices_for(part: int) -> Array:
 						g.conditions = seed
 					else:
 						g.conditions[0] = make.call()
+					# Landing a REAL predicate retires the park for `_clear_condition`'s reason:
+					# whatever `Always` set aside is not what this row tests any more, and the
+					# invariant this screen keeps is that only an `Always` row carries a park.
+					g.parked_condition = null
 					# 🔴 THIS PRESS MUST NOT TOUCH THE SUBJECT, and it used to.
 					#
 					# It called `_seed_subject(g)`, which re-derives the subject from the aim —
@@ -1005,7 +1053,48 @@ func _subject_mirrors_aim(g) -> bool:
 ## and which is a different rule about a different column — is that the screen never destroys
 ## `conditions[1..]`, and a row carrying them keeps its `+N` through a blank: the column reads
 ## what index 0 says.
+## The half of a `Subject` press that is about the CONDITION — declare `Always`, or take the
+## declaration back.
+##
+## 🔴 `My` AND `Their` DROP A LEADING `ALWAYS`, and that is not tidying — it is what makes the
+## press VISIBLE. Pressing `My` on a row reading `Always` has to change the row, or this screen
+## is back in the state #1255 was filed about: a column the player can open, choose from, and
+## see no answer to. Dropping the declaration returns the row to `My / —`, which is a row with
+## an `If` column again — and wanting one is the only reason to name a subject.
+##
+## Index 0 only, both ways (ADR-0268 dec. 3): `conditions[1..]` survive a press here exactly as
+## they survive [method _clear_condition], and the row keeps its `+N` through it.
+func _write_unconditional(g, unconditional: bool) -> void:
+	if unconditional:
+		if g.conditions.is_empty():
+			var seed: Array[GambitCondition] = [GambitCondition.always()]
+			g.conditions = seed
+			return
+		# PARK the predicate rather than destroying it, so the flip is reversible. Only a REAL
+		# predicate is parked: `Always` pressed on a row already reading `Always` would otherwise
+		# park the `ALWAYS` itself and throw away what the player actually set.
+		if not GambitOptions.is_unconditional(g):
+			g.parked_condition = g.conditions[0]
+		g.conditions[0] = GambitCondition.always()
+		return
+	if not GambitOptions.is_unconditional(g):
+		return
+	# RESTORE, and CONSUME the park — leaving it behind would let a later `Always` resurrect a
+	# predicate the player has since replaced.
+	if g.parked_condition != null:
+		g.conditions[0] = g.parked_condition
+		g.parked_condition = null
+		return
+	g.conditions.remove_at(0)
+
+
 func _clear_condition(g) -> void:
+	# THE PARK GOES WITH IT. Clearing the condition is the player saying there is nothing here,
+	# so there is nothing for a later `Always` to set aside and nothing for a flip back to
+	# restore. Left standing, a stale park would print a predicate the player had already
+	# deleted into the dim cell and then RESURRECT it on the flip — an edit they never made,
+	# arriving two presses after they undid it.
+	g.parked_condition = null
 	if g.conditions.is_empty():
 		_mirror_subject_onto_aim(g)
 		return
@@ -1037,8 +1126,10 @@ func handle_action(action: StringName) -> bool:
 	match String(action):
 		"ui_up":
 			top.move_up()
+			_reclamp_after_row_move()
 		"ui_down":
 			top.move_down()
+			_reclamp_after_row_move()
 		"ui_left":
 			return _move_part(-1)
 		"ui_right":
@@ -1054,6 +1145,16 @@ func handle_action(action: StringName) -> bool:
 		_:
 			return false
 	return true
+
+
+## ↑/↓ landed on a different row, which may be a NARROWER one — see [method _clamp_part_to_row].
+## Only at the row level: with a choice list up, ↑/↓ walk the list and the row underneath has not
+## moved at all.
+func _reclamp_after_row_move() -> void:
+	if _level != Level.ROW or _menu == null or not is_instance_valid(_menu):
+		return
+	if _clamp_part_to_row():
+		_menu.set_row_entries(row_entries(), _part)
 
 
 ## The menu the pad reaches: the choice list when one is up, the row list otherwise. One
@@ -1081,11 +1182,50 @@ func _move_part(step: int) -> bool:
 	# consumed press would leave the chevron sitting on a column that cannot be opened.
 	if _focused_row_is_net():
 		return false
-	var next := clampi(_part + step, 0, PART_COUNT - 1)
+	var next := clampi(_part + step, 0, _last_part())
 	if next == _part:
 		return true   # consumed: the row owns the axis even at its ends
 	_part = next
 	_menu.set_row_entries(row_entries(), _part)
+	return true
+
+
+## The last part the FOCUSED row offers — [constant Part.IF] normally, [constant Part.SUBJ] on a
+## row that has declared `Always`.
+##
+## 🔴 THE CURSOR CANNOT STAND ON A COLUMN THAT IS NOT DRAWN. An `Always` row spans its subject
+## cell over the `If` column (`GambitSurfaceMenu`), so a `_part` of `IF` there aims the chevron
+## at 188 with nothing beside it and opens a condition list under a heading the row has just
+## said does not apply — the player would author a test into a row whose own readout denies it.
+##
+## Read off the MENU's selected row and not off [member _slot], for [method
+## _focused_row_is_net]'s reason: ↑/↓ move the glove without landing a press, so `_slot` names
+## whatever was last opened rather than what the cursor is on.
+func _last_part() -> int:
+	return Part.SUBJ if GambitOptions.is_unconditional(_focused_row_gambit()) else PART_COUNT - 1
+
+
+## The gambit under the glove, or `null` on the imperative's row and the net's — neither of which
+## is a slot the player owns.
+func _focused_row_gambit():
+	if _menu == null or not is_instance_valid(_menu):
+		return null
+	var row := _menu.selected_row()
+	if row < 0 or row >= GambitList.VISIBLE_SLOTS:
+		return null
+	var list = character.gambits if character != null else null
+	return list.get_at(row) if list != null else null
+
+
+## Pull the cursor back onto a part the row actually has, after ↑/↓ moved it onto a different
+## row. `_part` PERSISTS across rows on purpose — walking down a column and staying in it is what
+## the layout asks for — so the one thing that has to be re-checked is whether the new row is
+## narrower than the old one. Returns true when it moved, so the caller can repaint.
+func _clamp_part_to_row() -> bool:
+	var last := _last_part()
+	if _part <= last:
+		return false
+	_part = last
 	return true
 
 

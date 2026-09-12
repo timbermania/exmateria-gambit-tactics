@@ -1,5 +1,6 @@
 extends Node
 # test-kind: logic
+# seeded-break: aim the withdraw posture at the caster in src/gpu/RolloutPlaybook.gd:297 (`TargetSelector.triggering()` -> `TargetSelector.self_()`) — 'a retreat is aimed at the CASTER' reds in all five roles, which is property 6: retreat_step_cell refuses flee_from == unit_id, so the row encodes cleanly and can never fire
 # seeded-break: stop appending the incumbent in src/gpu/RolloutCandidates.gd:259 (`out.append(incumbent)` -> `pass`), leaving the `seen[_key(incumbent)]` mark in place so it can never rejoin the list — 'candidate 0 must be the UNMUTATED incumbent' reds, which is property 1: without it the beat has no leave-it-alone arm
 
 ## Pure `RolloutCandidates` test (#895, §7). No GPU / RenderingDevice / scene.
@@ -22,6 +23,12 @@ extends Node
 ##      off by the ability table's inflict list, and one posture per unit that can
 ##      raise — in every role, because the raisers sit on a MAGE job. A revive filed
 ##      by its HEALING bit alone is a posture that encodes cleanly and cannot work.
+##   6. **A retreat is never aimed at the caster, and the verb is playbook-only
+##      (#1104 / ADR-0301).** `retreat_step_cell` refuses `flee_from == unit_id`, so
+##      a withdraw posture aimed at `self_()` is a row that can never fire. And no
+##      mutation family can introduce `ACTION_RETREAT_STEP` into a list that has
+##      none — which is what the posture is FOR, and what makes its position at the
+##      head of the playbook load-bearing rather than cosmetic.
 ##
 ## Plus the interleave: a K smaller than the full enumeration must still touch
 ## several families, because dropping whole families biases the search.
@@ -73,11 +80,12 @@ func _ready() -> void:
 	_test_interleave()
 	_test_unaffordable_never_offered()
 	_test_revive_bucket_and_posture()
+	_test_withdraw_posture()
 	_test_rows_round_trip()
 	if _failed:
 		print("[FAIL] RolloutCandidates test")
 	else:
-		print("[PASS] RolloutCandidates: incumbent-first, safety-net intact, deterministic, static prefilter bites, a revive is only ever aimed at a corpse")
+		print("[PASS] RolloutCandidates: incumbent-first, safety-net intact, deterministic, static prefilter bites, a revive is only ever aimed at a corpse, a retreat never at the caster")
 	get_tree().quit()
 
 
@@ -378,6 +386,166 @@ func _test_revive_bucket_and_posture() -> void:
 			reached = true
 	_expect(reached,
 		"no playbook candidate opens with the revive — the posture never reached the candidate set")
+
+
+## The withdraw posture and the two claims that justify its shape (#1104 / ADR-0301).
+##
+## 🔴 THE LOAD-BEARING ARM IS THE AIM. A retreat's `action_target` is the unit to
+## move AWAY from, and `retreat_step_cell` refuses `flee_from == unit_id` outright —
+## so a withdraw posture aimed at `self_()` encodes cleanly, packs cleanly, and is a
+## guaranteed `VERDICT_NO_RETREAT` fall-through every evaluation forever.
+## `GambitOptions.aim_verdict` grades that cell AIM_FORBIDDEN, but the surface is not
+## the path a rollout takes: the playbook goes straight through the encoder into the
+## buffer, so nothing between this file and the GPU would have said a word.
+##
+## The positive arm's oracle is `GPURetreatStepTest`'s own `flee` gambit — the
+## `enemies()` / `target_within` / `RETREAT` / `triggering()` quadruple whose five
+## arms watch a unit on the GPU step exactly one tile away and come to REST. So what
+## is asserted is not "some retreat-ish gambit" but the shape a battle has run.
+## Only its THRESHOLD differs (that test needs 4 for its rest arm), and the
+## threshold has its own arm below, against the mutation menu it is pinned to.
+##
+## ⚠️ AND THE SECOND CLAIM IS MEASURED, NOT ARGUED. The posture exists because no
+## one-step mutation can reach the verb, and it omits an HP-keyed sibling because one
+## `condition` edit reaches the break-off once the verb is planted. Both halves are
+## run here: the five mutation families over a retreat-free incumbent must produce no
+## `ACTION_RETREAT_STEP` at all, and `_family_condition` over the PLANTED posture must
+## produce `SELF / HP_BELOW` on the retreat's own slot.
+func _test_withdraw_posture() -> void:
+	var buf := _ability_buffer()
+
+	# 1. THE THRESHOLD IS PINNED, NOT CHOSEN. `_family_condition` re-conditions any
+	# enabled slot from CONDITION_MENU, whose two distance entries both read 3;
+	# authoring the same number puts this posture's slot on the mutation lattice
+	# instead of one step off it. A drift here would leave it a neighbour of nothing.
+	var distance_entries := 0
+	for entry in RolloutCandidates.CONDITION_MENU:
+		var t := int(entry["type"])
+		if t != GPUConstants.COND_DISTANCE_LESS and t != GPUConstants.COND_DISTANCE_GREATER:
+			continue
+		distance_entries += 1
+		_expect(int(entry["value"]) == RolloutPlaybook.WITHDRAW_TILES,
+			"CONDITION_MENU offers distance %d but the withdraw posture authors %d — the posture's slot is no longer a neighbour of the menu" % [
+				int(entry["value"]), RolloutPlaybook.WITHDRAW_TILES])
+	# Positive control for the loop above: with no distance entry it asserts nothing.
+	_expect(distance_entries == 2,
+		"CONDITION_MENU should hold two distance entries (LESS and GREATER), found %d — the pinning arm above just went blind" % distance_entries)
+
+	# 2. THE VERB IS PLAYBOOK-ONLY. `_action_menu` holds ATTACK, WAIT and the unit's
+	# spells; nothing offers ACTION_RETREAT_STEP. This is the whole reason the posture
+	# exists and the reason it sits at the head where K cannot truncate it.
+	var retreat_free := _fixture_rows()
+	var fam := RolloutCandidates.families(retreat_free, _ctx())
+	for family_name in ["swap", "condition", "action", "delete", "insert"]:
+		for cand in fam[family_name]:
+			var image: PackedInt32Array = cand
+			for slot in range(MAX_USER_GAMBITS):
+				_expect(image[slot * GAMBIT_SIZE + GF.ACTION_TYPE] != GPUConstants.ACTION_RETREAT_STEP,
+					"the '%s' family introduced a retreat into a list that had none — the withdraw posture's whole justification is that no one-step edit can" % family_name)
+
+	# The oracle: GPURetreatStepTest's `flee` gambit, at this file's threshold.
+	var proven := GPUCombatPacker._pack_gambits(GambitEncoder.encode_gambits([
+		Gambit.create(
+			TargetSelector.enemies(),
+			[GambitCondition.target_within(RolloutPlaybook.WITHDRAW_TILES)],
+			Gambit.ActionKind.RETREAT, -1, TargetSelector.triggering()),
+	])).slice(0, GAMBIT_SIZE)
+	_expect(proven[GF.COND_TARGET_TYPE] == GPUConstants.TARGET_NEAREST_ENEMY
+			and proven[GF.COND_TYPE_0] == GPUConstants.COND_DISTANCE_LESS
+			and proven[GF.COND_VAL_0] == RolloutPlaybook.WITHDRAW_TILES
+			and proven[GF.ACTION_TYPE] == GPUConstants.ACTION_RETREAT_STEP
+			and proven[GF.ACTION_TARGET_TYPE] == GPUConstants.TARGET_THEM
+			and proven[GF.ACTION_ID] == 0,
+		"the reference image is not GPURetreatStepTest's flee quadruple — this arm's oracle is broken, not the playbook: got %s" % str(proven))
+
+	var split := RolloutCandidates.usable_abilities(
+		[ID_CHEAP, ID_HEAL, ID_REVIVE], UNIT_MAX_MP, buf)
+	for role in ALL_ROLES:
+		var role_name: String = UnitRole.get_role_name(role)
+		var postures := RolloutPlaybook.postures_for(
+			role, split["offensive"], split["healing"], split["revive"])
+		var withdraw_at := -1
+		var retreat_sites := 0
+		for pi in range(postures.size()):
+			var posture: Array = postures[pi]
+			var configs: Array = GambitEncoder.encode_gambits(posture)
+			for i in range(mini(posture.size(), configs.size())):
+				var cfg = configs[i]
+				_expect(cfg != null,
+					"%s: posture %d gambit %d did not encode (ADR-0023 skip)" % [role_name, pi, i])
+				if cfg == null or int(cfg.get("action_type", -1)) != GPUConstants.ACTION_RETREAT_STEP:
+					continue
+				retreat_sites += 1
+				withdraw_at = pi
+				# The trap. NOT the caster, and not a pool that could resolve to it.
+				_expect(int(cfg["action_target_type"]) != GPUConstants.TARGET_SELF,
+					"%s: a retreat is aimed at the CASTER — retreat_step_cell refuses flee_from == unit_id, so this row can never fire" % role_name)
+				_expect(int(cfg["action_target_type"]) == GPUConstants.TARGET_THEM
+						and int(cfg["cond_target_type"]) == GPUConstants.TARGET_NEAREST_ENEMY,
+					"%s: a retreat flees (aim %d, subject %d), not the nearest enemy the condition matched" % [
+						role_name, int(cfg["action_target_type"]), int(cfg["cond_target_type"])])
+
+		# EVERY role, MELEE included. Withholding it would withhold the VERB from the
+		# role for every beat of every rollout, and the break-off a melee unit wants is
+		# one condition edit from this posture (arm 4) — but only once it is planted.
+		_expect(retreat_sites == 1,
+			"%s: expected exactly one retreat gambit across every posture, got %d" % [
+				role_name, retreat_sites])
+		if withdraw_at < 0:
+			continue
+
+		# Second when the unit can revive, first when it cannot: the head of the
+		# playbook is the two verbs no edit can introduce, revive the scarcer plant.
+		_expect(withdraw_at == 1,
+			"%s: the withdraw posture is at index %d, not behind the revive at 1" % [
+				role_name, withdraw_at])
+		var no_revive := RolloutPlaybook.postures_for(
+			role, split["offensive"], split["healing"], [])
+		var head_cfgs: Array = GambitEncoder.encode_gambits(no_revive[0])
+		_expect(not head_cfgs.is_empty() and head_cfgs[0] != null
+				and int(head_cfgs[0]["action_type"]) == GPUConstants.ACTION_RETREAT_STEP,
+			"%s: with no revive the withdraw posture should lead the playbook" % role_name)
+
+		var withdraw: Array = postures[withdraw_at]
+		var packed := GPUCombatPacker._pack_gambits(
+			GambitEncoder.encode_gambits(withdraw)).slice(0, GAMBIT_SIZE)
+		_expect(packed == proven,
+			"%s: the withdraw posture's slot 0 is not the quadruple GPURetreatStepTest runs — got %s" % [
+				role_name, str(packed)])
+
+		# 3. A SLOT UNDER THE RETREAT, AND IT FIGHTS. ADR-0301 picks the cell in the
+		# DECIDE stage precisely so a cornered unit falls through; with nothing beneath
+		# it the fall-through lands on ADR-0048's safety net, which walks the unit back
+		# toward the thing it was fleeing.
+		var tail_cfgs: Array = GambitEncoder.encode_gambits(withdraw)
+		var last := withdraw.size() - 1
+		_expect(withdraw.size() >= 2 and tail_cfgs[last] != null
+				and int(tail_cfgs[last]["action_type"]) == GPUConstants.ACTION_ATTACK,
+			"%s: the withdraw posture has no ATTACK beneath its retreat — a cornered unit reaches the safety net instead" % role_name)
+
+	# 4. THE HP-KEYED SIBLING IS ONE EDIT AWAY, so it is deliberately not authored.
+	# Planted posture in, `condition` family out, looking for SELF / HP_BELOW on the
+	# retreat's own slot. If this ever reds, the second posture has to be written.
+	var melee_ctx := RolloutCandidates.make_context("4c", [ID_CHEAP], UNIT_MAX_MP, buf)
+	var planted := PackedInt32Array()
+	for cand in RolloutCandidates.families(retreat_free, melee_ctx)["playbook"]:
+		if (cand as PackedInt32Array).slice(0, GAMBIT_SIZE) == proven:
+			planted = cand
+	_expect(not planted.is_empty(),
+		"no playbook candidate opens with the withdraw quadruple — the posture never reached the candidate set")
+	if planted.is_empty():
+		return
+	var reached_break_off := false
+	for cand in RolloutCandidates.families(planted, melee_ctx)["condition"]:
+		var image: PackedInt32Array = cand
+		for slot in range(MAX_USER_GAMBITS):
+			var base := slot * GAMBIT_SIZE
+			if image[base + GF.ACTION_TYPE] == GPUConstants.ACTION_RETREAT_STEP \
+					and image[base + GF.COND_TARGET_TYPE] == GPUConstants.TARGET_SELF \
+					and image[base + GF.COND_TYPE_0] == GPUConstants.COND_HP_BELOW:
+				reached_break_off = true
+	_expect(reached_break_off,
+		"no one-step condition edit turns the planted retreat into a self-HP break-off — the playbook now owes a second, HP-keyed withdraw posture")
 
 
 func _test_rows_round_trip() -> void:

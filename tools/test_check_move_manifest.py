@@ -57,8 +57,8 @@ def tree(paths):
 class ManifestShape(unittest.TestCase):
     """The register says what four passes measured, and says it out of the tree."""
 
-    def test_sixty_nine_rows_sixty_six_moves_two_authored_one_merged(self):
-        """67 moved in; the 68th was WRITTEN in the addon (#1218).
+    def test_seventy_one_rows_sixty_six_moves_four_authored_one_merged(self):
+        """66 moved in; four more were WRITTEN in the addon (#1218, #658, #1225).
 
         The count used to read 67 / all-`move`. #1218 added
         `addons/exmateria_effects/install/EffectsDebug.gd` — a file with no original,
@@ -67,13 +67,20 @@ class ManifestShape(unittest.TestCase):
         a move that never happened, which is the exemption arm 1's `new` branch was
         built to avoid needing (its first user was `Lattice.gd` at extraction #3).
         """
-        self.assertEqual(len(MAN7), 69)
+        self.assertEqual(len(MAN7), 71)
         self.assertEqual({r["disposition"] for r in MAN7}, {"move", "new", "merged"})
         self.assertEqual(len(MOVES7), 66)
-        # TWO authored rows now: `install/EffectsDebug.gd` (#1218, the debug seam) and
-        # `install/EffectsContent.gd` (#658/ADR-0202 dec. 5, the content root). Both are
-        # `install/` files that exist so the addon stops naming something the host owns.
-        self.assertEqual(len(NEW7), 2)
+        # FOUR authored rows now, and every one of them is an `install/` file that
+        # exists so the addon stops naming something the host owns — which is what
+        # `install/` means here rather than a naming habit:
+        #   `EffectsDebug.gd`        #1218, the debug seam (61 `DebugConfig` reads)
+        #   `EffectsContent.gd`      #658 / ADR-0202 dec. 5, the content root
+        #   `TintedSurfacesPort.gd`  #1225 / ADR-0308 dec. 1, 11 `TintedSurfaces` reaches
+        #   `ScreenOverlayPort.gd`   #1225 / ADR-0308 dec. 1, 4 `ScreenEffectOverlay` reaches
+        # The last two are the addon's OWN autoloads, which is why they could be paid
+        # in-addon; the eleven `ExMateriaEffectSfx` reaches in the same pass could not
+        # and went to `ExMateriaPlatform.SfxPort`, so they add no row HERE.
+        self.assertEqual(len(NEW7), 4)
         self.assertEqual(len(MERGED7), 1)
         self.assertEqual({r["kind"] for r in MAN7}, {"script", "shader"})
 
@@ -225,7 +232,7 @@ class ArmOneNewRowBothDirections(unittest.TestCase):
         self.assertEqual(fail, [])
         self.assertEqual(len(buckets["at_src"]), 0)
         self.assertEqual(len(buckets["at_dst"]), 0)
-        self.assertIn("2 written in the addon", rep)
+        self.assertIn("4 written in the addon", rep)
 
     def test_a_new_row_that_names_a_src_reds(self):
         """It is a move, and recording it as authored erases where it came from."""
@@ -413,17 +420,17 @@ class ArmThreeBothDirections(unittest.TestCase):
                   and (r["disposition"] or "").strip() != "merged")
 
     def test_set_equal_passes_and_the_trio_is_reported_not_dropped(self):
-        """64 moved in + 1 written in (#1218) — arm 3 does not care which.
+        """63 moved in + 4 written in (#1218, #658, #1225 x2) — arm 3 does not care which.
 
         Set equality is over the DSTS, and a `new` row has one. That is the property
         that makes an authored addon file checkable at all: the alternative on offer
-        was `scaffolding`, i.e. an exemption, and `install/EffectsDebug.gd` is not
+        was `scaffolding`, i.e. an exemption, and none of the four `install/` files is
         plugin plumbing.
         """
         rep, fail = G.arm3(MAN7, self.ROOT, set(self.WANT), MERGED7, SUBJ7["scaffolding"])
         self.assertEqual(fail, [])
-        self.assertEqual(len(self.WANT), 65)
-        self.assertIn("manifest wants 65", rep)
+        self.assertEqual(len(self.WANT), 67)
+        self.assertIn("manifest wants 67", rep)
         self.assertIn("3 row(s) land in ANOTHER addon", rep)
 
     def test_a_file_in_the_addon_that_is_not_on_the_manifest_reds(self):

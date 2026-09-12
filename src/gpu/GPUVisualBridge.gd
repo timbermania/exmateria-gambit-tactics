@@ -177,8 +177,12 @@ func update_visual_positions(gpu_states: Array, units: Array, lattice: Lattice,
 			# NO_MOVE — waiting/retry, stale, or not moving. Drop any stale
 			# visualizer so it can't reactivate, and snap to the GPU tile.
 			if movement_visualizers.has(i):
+				# Which of the interpreter's two NO_MOVE reasons this was. A stale
+				# list here does not misrender anything — it MISNAMES, which is
+				# worse to debug from: the third copy of this predicate spent
+				# ADR-0301 reporting every retreat as "state_left_moving".
 				var reason := ("retry/wait timer=%d total=%d" % [timer, total_ticks]) \
-					if (gpu_state == GPUConstants.LOGICAL_ACTIVITY_WALKING or gpu_state == GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST or gpu_state == GPUConstants.LOGICAL_ACTIVITY_APPROACHING) \
+					if GPUConstants.is_movement_state(gpu_state) \
 					else ("state_left_moving state=%s" % _state_name(gpu_state))
 				_log_viz_erase(i, unit, reason)
 				_clear_movement_state(i)

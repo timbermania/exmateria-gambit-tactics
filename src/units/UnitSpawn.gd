@@ -78,6 +78,37 @@ const CHARACTER_SLUG_META := "character_slug"
 ## ADR-0180 Amendment 2.
 const CHARACTER_META := "character"
 
+## Story-context STUB for the deploy-seam Form selection (ADR-0079). The active Form is
+## chosen per story CHAPTER; while Chapter 1 (Gariland) is the only reachable one there is
+## no live chapter state to read, so the seam selects with this constant. It SELECTS
+## (`Character.active_special_name`) rather than hardcoding a `special_name`, so real
+## chapter state drops in here and every unique's later Form follows with it.
+const STORY_CHAPTER_STUB := 1
+
+
+## Materialize `character`'s active Form as its `special_name` — the ADR-0079 deploy seam,
+## and [method build]'s one precondition. Call it on a character a host DEPLOYS: a
+## catalogue-resident unit has no ENTD slot to read the byte off, and without the stamp
+## `build` job-routes a unique to a generic sheet instead of resolving its own template
+## folder.
+##
+## A character with NO Form set is left untouched, and that guard is load-bearing: an
+## ENTD-derived `Character` ([code]Character.from_entd_slot[/code]) carries its slot's
+## `special_name` and an empty Form set, so a blanket stamp would overwrite Delita's byte
+## with the job-route sentinel. Forms in, selection; no forms, no opinion — which is what
+## makes this safe to call over a whole cast rather than only the units a host knows are
+## unique.
+##
+## It lives HERE, beside the seam whose precondition it is, rather than as a line in each
+## deploy path. A per-host copy is exactly how [ScenarioCast] came to have none: every
+## scenario-booted battle job-routed Ramza to the generic Squire body and portrait while
+## the navigator's own copy kept working.
+static func materialize_active_form(character) -> void:
+	if character == null or character.forms.is_empty():
+		return
+	character.special_name = character.active_special_name(STORY_CHAPTER_STUB)
+
+
 static var _unit_scene: PackedScene = null
 
 

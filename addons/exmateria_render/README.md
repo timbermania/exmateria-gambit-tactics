@@ -49,7 +49,7 @@ declare a global, and nothing published may dangle.
 |---|---|
 | `FoldSurface.gd` | Pass A (POST_OPAQUE seed) and Pass C (PRE_TRANSPARENT resolve), installed on a camera via a `Compositor`. One `FullscreenPass` implementation; each pass is an adapter supplying five values — stage, shader, source, destination, quantization |
 | `foldsurface_seed.glsl` | Pass A — opaque scene colour → a game-owned display-space texture |
-| `foldsurface_resolve.glsl` | Pass C — the engine-owned target → the colour layer, display→linear + quantize to `FoldSurface.quantize_levels` |
+| `foldsurface_resolve.glsl` | Pass C — the engine-owned target → the colour layer, display→linear + quantize to `FoldSurface.quantize_levels`, for **every pixel** (there is no coverage mark: the PSX framebuffer was 15-bit screen-wide) |
 
 **The 5-bit crush is a policy, not a constant.** `FoldSurface.quantize_levels`
 defaults to `31.0` — the PSX RGB555 framebuffer — and `0.0` resolves at full

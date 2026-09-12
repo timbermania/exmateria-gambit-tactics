@@ -27,6 +27,13 @@ extends "res://addons/exmateria_effects/subsystem/ColorSubsystem.gd"
 
 const ScreenData = preload("res://addons/exmateria_effects/file_model/ScreenData.gd")
 
+## The backdrop overlay reached through its PORT rather than through the bare
+## `ScreenEffectOverlay` autoload identifier. A member may name no autoload at all
+## (ADR-0308 dec. 1), and this file's single `:171` reach was one of the three
+## `known_failures.tsv` rows the rig could not compile — the one it described as
+## *"a pure CASCADE plus a reach of its own"*.
+const ScreenOverlayPort = preload("res://addons/exmateria_effects/install/ScreenOverlayPort.gd")
+
 const ColorStackClass = ExMateriaSchema.ColorStack
 
 ## And the same for `addons/exmateria_schema`, whose six generic-English globals
@@ -168,7 +175,7 @@ func _deliver_output() -> void:
 	# start==end) fold identically to the single-stream path.
 	top_color = _fold_color(build_stream(_phase_first_frame, ENDPOINT_TOP), _default_top)
 	bottom_color = _fold_color(build_stream(_phase_first_frame, ENDPOINT_BOTTOM), _default_bottom)
-	ScreenEffectOverlay.update_layer_gradient(owner_id,
+	ScreenOverlayPort.update_layer_gradient(owner_id,
 		_delta(top_color, _default_top), _delta(bottom_color, _default_bottom))
 
 

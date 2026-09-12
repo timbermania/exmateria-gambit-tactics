@@ -103,12 +103,26 @@ static func entd_idx_of(scenario_id: int) -> int:
 
 
 ## Spawn one combat-ready [Unit] per [Character], unplaced and hidden. Goes through
-## [UnitSpawn], the ONE spawn seam — the same one the navigator's deploy path uses.
+## [UnitSpawn], the ONE spawn seam — the same one the navigator's deploy path uses, and
+## preceded by the same ADR-0079 Form stamp (see the call site's note below).
 static func spawn_characters(host: Node, characters: Array, team: UnitStats.Team,
 		facing: int, label: String) -> Array:
 	var spawned: Array = []
 	print("%s:" % label)
 	for character in characters:
+		# ADR-0079's deploy seam, and the one thing a CATALOGUE character needs that an ENTD
+		# slot does not: nothing in the catalogue says which chapter incarnation is on the
+		# field, so the active Form is SELECTED and materialized as `special_name` before the
+		# resolver runs. Skipping it is not a missing nicety — a unique's identity deliberately
+		# carries no durable `special_name`, so an unstamped Ramza falls through the resolver's
+		# job-routed branch and fights every scenario-booted battle as a generic Squire, body
+		# and portrait alike. It sits HERE rather than in `compose` so the other caller gets it
+		# too: `GPUArena`'s stress clone carries its source's Form set precisely so that "a
+		# clone of a unique that resolved as a generic" cannot happen, and it is minted below
+		# this line, not above it. A slot-derived Character has no Form set and is left alone
+		# ([UnitSpawn.materialize_active_form]'s guard), which is what lets the stamp stand on
+		# the shared path instead of one caller's.
+		UnitSpawn.materialize_active_form(character)
 		var unit := UnitSpawn.build(character)
 		if unit == null:
 			continue

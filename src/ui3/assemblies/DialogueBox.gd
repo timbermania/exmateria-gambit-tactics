@@ -253,6 +253,25 @@ static func _load_curves() -> Dictionary:
 signal typed_out   ## emitted when the typewriter finishes revealing the text
 signal advanced    ## emitted when the player/caller advances past the box
 
+## A REAL page turn happened (#1273). Emitted from `advance_page` AFTER its
+## `has_more_pages` guard, which is the whole point of a separate signal.
+##
+## 🔴 DO NOT FOLD THIS INTO `advanced`. `advanced` is emitted by `advance()` — the
+## player leaving the box — and this is emitted by `advance_page()`, the text rolling
+## to the next page with the box still up. The two verbs are one word apart and mean
+## opposite things, which is the best argument available for two signals. `SfxRouter`'s own cue row says the blip fires
+## "on a real page turn (O/Circle)" and never on the final advance or box close, so
+## reusing `advanced` would play a page-flip on every dismissal. That is exactly the
+## trap `TileCursor.cursor_stepped` documents: inverting onto the broader signal
+## would be "a behaviour change wearing a refactor's clothes".
+signal page_turned
+
+## One glyph was revealed by the typewriter (#1273). The host turns this into the
+## "Text Typing" blip; `DialogueOverlay` already wires the SAME cue onto its OWN
+## `TypewriterController.glyph_typed`, which is the evidence that the cue is host
+## vocabulary and never belonged in here.
+signal glyph_revealed
+
 ## World units per virtual pixel (ui3 screen-space convention: 0.04).
 @export var pixels_per_unit: float = 0.04:
 	set(value):
@@ -792,8 +811,9 @@ func advance_page() -> bool:
 	_active = true
 	_render_current_page()
 	# "Flip Page" blip (PSX system SFX 0x2d/45) fires on a real page turn only —
-	# never on the final advance (guarded above) or box close.
-	SfxRouter.play_cue("ui.dialogue_page_flip")
+	# never on the final advance (guarded above) or box close. The CUE is host
+	# vocabulary (#1273); this states the event and `UIWiring` names the sound.
+	page_turned.emit()
 	return true
 
 
@@ -950,8 +970,9 @@ func _on_typewriter_completed() -> void:
 
 
 func _on_typewriter_glyph() -> void:
-	# One "Text Typing" blip per revealed glyph (PSX system SFX 0x73).
-	SfxRouter.play_cue("ui.text_typing")
+	# One "Text Typing" blip per revealed glyph (PSX system SFX 0x73) — named by
+	# `UIWiring`, not here (#1273).
+	glyph_revealed.emit()
 
 
 # --- Layout ------------------------------------------------------------------

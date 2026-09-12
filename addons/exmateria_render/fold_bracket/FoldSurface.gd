@@ -5,18 +5,22 @@ extends RefCounted
 ## and carriers — it only owns the two fullscreen passes. The bracket sits *before* the transparent pass
 ## (ADR-0080) so modern linear-alpha transparents composite over the folded PSX result:
 ##   Pass A (POST_OPAQUE)      seeds   = opaque scene color -> a GAME-OWNED display-space texture
-##                                       (linear->display, coverage α=0), bound as the layer's
-##                                       `seed_texture`; the engine copies it into the held-out
-##                                       target before Pass B. Reuses foldsurface_seed.
+##                                       (linear->display), bound as the layer's `seed_texture`;
+##                                       the engine copies it into the held-out target before
+##                                       Pass B. Reuses foldsurface_seed.
 ##   Pass B (ENGINE)           folds   = the `compositor_layer` carriers, hardware add/sub/mix, drawn
 ##                                       over the seed into the engine-owned target (not ours). The engine
 ##                                       runs it between Pass A and Pass C — after the POST_OPAQUE seed,
 ##                                       before the PRE_TRANSPARENT resolve (Fold.FOLD_LAYER.stage=POST_OPAQUE).
 ##   Pass C (PRE_TRANSPARENT)  resolves = the engine-owned target (read via get_layer_texture) ->
 ##                                       color layer (display->linear + quantize to
-##                                       `quantize_levels` + coverage
-##                                       discard), reusing foldsurface_resolve. Runs before the transparent
+##                                       `quantize_levels`), for EVERY PIXEL, reusing
+##                                       foldsurface_resolve. Runs before the transparent
 ##                                       pass, so transparents then draw over the resolved PSX layer.
+##
+## There is no coverage mark: the PlayStation's framebuffer was 15-bit for the whole screen, so the
+## fold crushes the whole screen (ADR-0309, which deletes the mark and records the stencil
+## alternative it was weighed against).
 ##
 ## Migrated (wayfinder ticket 15) off the old magic-string `compositor_fold`/`color` scratch onto the
 ## general `compositor_layer` primitive: the held-out target is now engine-owned and keyed by the

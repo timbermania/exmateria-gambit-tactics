@@ -48,12 +48,13 @@ const WALK_SEARCH_TICKS := 400
 ## shows up as a battle that never finishes rather than as a lucky pass.
 const SETTLE_TICKS := 400
 
-const AWAITED := [
-	GPUConstants.LOGICAL_ACTIVITY_WALKING,
-	GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST,
-	GPUConstants.LOGICAL_ACTIVITY_APPROACHING,
-	GPUConstants.LOGICAL_ACTIVITY_ACTING,
-]
+## The host mirror of the kernel's `settle_awaited_state`: BETWEEN TILES, or
+## ACTING. Asked rather than listed — a hand-listed mirror of a predicate drifts
+## from it silently, and this one had (it was still the pre-ADR-0301 three when
+## the kernel's was four).
+static func _is_awaited(state: int) -> bool:
+	return GPUConstants.is_movement_state(state) \
+		or state == GPUConstants.LOGICAL_ACTIVITY_ACTING
 
 var _sb_failed: bool = false
 var _sb_asserts: int = 0
@@ -275,7 +276,7 @@ func _run_the_arms() -> void:
 				# finishing something is CELEBRATING on the next tick. The flip zeroes
 				# U_TIMER on its way past, so the timer has to be read from BEFORE it.
 				if now["state"][u] == GPUConstants.LOGICAL_ACTIVITY_CELEBRATING \
-						and AWAITED.has(prev[b]["state"][u]):
+						and _is_awaited(prev[b]["state"][u]):
 					fiat_flip[b].append([u, int(prev[b]["state"][u]), int(prev[b]["timer"][u])])
 			prev[b] = now
 			if finished_at[b] < 0 and gpu_simulator.is_battle_finished(b):
@@ -361,7 +362,7 @@ func _snap(battle_id: int) -> Dictionary:
 
 
 ## Living units that are BETWEEN TILES right now — in a movement state with a step
-## still on the clock. Not `_is_movement_state` alone: a walker whose timer has just
+## still on the clock. Not `is_movement_state` alone: a walker whose timer has just
 ## drained is standing on its tile, and flipping THAT one costs nothing.
 func _mid_step_units(battle_id: int) -> Array:
 	var snap: Dictionary = _snap(battle_id)
@@ -369,7 +370,7 @@ func _mid_step_units(battle_id: int) -> Array:
 	for u in range(snap["state"].size()):
 		if (snap["flags"][u] & GPUConstants.FLAG_DEAD_BIT) != 0:
 			continue
-		if TurnDirector._is_movement_state(snap["state"][u]) and snap["timer"][u] > 0:
+		if GPUConstants.is_movement_state(snap["state"][u]) and snap["timer"][u] > 0:
 			out.append(u)
 	return out
 

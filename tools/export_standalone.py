@@ -56,6 +56,10 @@ REQUIRED = (
     ".gitignore",
     "SETUP_FROM_SCRATCH.md",
     "LICENSE",
+    # Register step 11. Required, not merely nice: without it GitHub renders the
+    # published repo as a bare file listing, and the FIRST thing a reader sees is the
+    # zero-byte file `0` that sorts above every real entry.
+    "README.md",
 )
 
 # (glob, why). Package-relative, matched against the EXPORT path (prefix already
@@ -153,6 +157,23 @@ EXCLUDE = (
      "tools/test_reference_goldens.py skip rather than fail — it asserted "
      "path.exists() and is a PRE-FLIGHT guard, so left alone it would have aborted "
      "a clone's whole suite before any test ran."),
+
+    # FOUND BY RUNNING IT (register step 13, the end-to-end proof). A clone of the
+    # published repo booted, reached "GPU simulator ready" and held 60-62 fps — and
+    # printed exactly three ERROR lines, all from this one file.
+    ("vendor/exmateria_sound/fft_smd.gdextension*",
+     "MONOREPO-ONLY, and the file says so in its own first line: 'excluded from the "
+     "published tree by publish/manifests/exmateria-sound.manifest'. It registers "
+     "FFTSmdSequencerNative, the L3 parity rig's SMD accelerator, whose library "
+     "`libfftsmd.*.so` is NEVER built here and is not shipped — so `sync_exmateria_sound.sh` "
+     "copied a .gdextension pointing at a library that does not exist, and Godot failed "
+     "it three times on every launch: 'Can't open dynamic library', 'GDExtension dynamic "
+     "library not found', 'Error loading extension'. Not Square data — a monorepo-only "
+     "file that upstream's own publish manifest already drops, which this export had no "
+     "equivalent of. Costs nothing: the file's header states that a published install "
+     "does not get it and `sequencer.gd` then finds no such class and stays on its "
+     "GDScript driver (D2 #375 dec. 2). The glob takes the `.uid` with it, because a "
+     "stray .uid for a deleted resource is its own dangling reference."),
 
     ("tests/goldens/world_map_prims_ss*.txt",
      "Square Enix data: 2 files / 12 KB that WorldMapPrimitivesTest's own header "

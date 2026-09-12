@@ -98,15 +98,6 @@ const ACTING_STATES := [
 	GPUConstants.LOGICAL_ACTIVITY_SPELL_CHARGING,
 ]
 
-const ACTIVE_STATES := [
-	GPUConstants.LOGICAL_ACTIVITY_ACTING,
-	GPUConstants.LOGICAL_ACTIVITY_SPELL_CHARGING,
-	GPUConstants.LOGICAL_ACTIVITY_WALKING,
-	GPUConstants.LOGICAL_ACTIVITY_WALKING_TO_CAST,
-	GPUConstants.LOGICAL_ACTIVITY_APPROACHING,
-	GPUConstants.LOGICAL_ACTIVITY_AWAITING_IMPACT,
-]
-
 
 ## Evaluate every expectation in [code]expect[/code]; return an array of
 ## per-expectation result dicts.

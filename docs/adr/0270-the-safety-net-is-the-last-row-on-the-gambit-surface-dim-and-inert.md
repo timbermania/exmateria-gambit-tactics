@@ -20,12 +20,20 @@ authoring surface — does not care which side the discrepancy comes from.
 
 ## Status
 
-accepted. Its dec. 1 readout string is RE-DERIVED by
+accepted, and its dec. 1 readout string — `Attack / Nearest Foe / Always` —
+STANDS.
 [ADR-0283](0283-the-gambit-rows-subject-is-its-own-column-and-the-slot-number-shares-a-lane-to-pay-for-it.md)
-— `Attack / Nearest Foe / Their / —`, its dec. 7 — and the decision itself is
-untouched. `Their` and not a blank because ADR-0283 dec. 3 stopped the subject
-blanking with the condition: with no test on the row that field is the only
-thing gating it, and on the net that gate is the whole mechanism.
+takes it away and gives it back: its dec. 2 first retired `Always` from the
+screen, leaving `Attack / Nearest Foe / Their / —`, and the same dec. 2 now
+offers the word in the SUBJECT column instead of the `If` one, where it answers
+*whether* there is a test rather than what it is. The net carries one explicit
+`ALWAYS` condition, which is exactly that state, so ADR-0283 dec. 7 arrives back
+at this string through its general rule rather than by restating it.
+
+The decision itself was never edited through either move. That is the property
+this ADR is about: the row is DERIVED from `GambitEncoder.safety_net_gambit()`
+through the same label function every other row uses, so its string changes when
+the screen's vocabulary changes and cannot be made to disagree with the buffer.
 
 Supersedes [ADR-0048](0048-safety-net-gambit-is-encoder-injected-ui-invisible.md) **dec. 2**,
 and the second half of that ADR's title with it. ADR-0048 dec. 1, 3, 4, 5 and 6 stand
@@ -35,14 +43,14 @@ absent from the domain, still unhooked at runtime, and still composes with fall-
 ## Decision
 
 1. **The safety net is the LAST row of the gambit surface.** After the four slots and after
-   the imperative's row, reading `Attack · Nearest Foe · — · —`. *(The third cell read `Always`
-   until
-   [ADR-0283](0283-the-gambit-rows-subject-is-its-own-column-and-the-slot-number-shares-a-lane-to-pay-for-it.md)
-   dec. 2 retired the word from the screen's vocabulary — blank IS the absence of a condition —
-   and dec. 1 gave the subject a fourth column, which is the second dash. The row is DERIVED
-   from `GambitEncoder.safety_net_gambit()` through the same label function every other row
-   uses, so this string changed without the row being edited, which is the property this
-   decision is about.)* Slot order **is** priority
+   the imperative's row, reading `Attack · Nearest Foe · Always` with its `If` cell DIM and
+   empty — a row that has declared it has no test keeps the column and disables it
+   ([ADR-0283](0283-the-gambit-rows-subject-is-its-own-column-and-the-slot-number-shares-a-lane-to-pay-for-it.md)
+   dec. 8), and the net has nothing parked there because nobody authored it.
+   *(It read `Attack · Nearest Foe · — · —` in between, while ADR-0283 dec. 2 had the
+   word out of the screen's vocabulary and dec. 1's new subject column had nothing to say on a
+   conditionless row; then `Attack · Nearest Foe · Their · —` once the subject printed. The row
+   was never edited through any of it — see Status.)* Slot order **is** priority
    (rule A1) and the net is evaluated last, so the bottom of the list is where it belongs and
    reading order stays priority order for the rows that are rules.
 

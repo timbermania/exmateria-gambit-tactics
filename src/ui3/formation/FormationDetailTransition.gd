@@ -367,6 +367,22 @@ signal settled(to)
 ## standalone (`Formation.tscn`), the same signal is that scene's own hand-back. Which role it plays
 ## is decided by whether anything is hosting it.
 signal dismissed()
+
+## The screen REFUSED an input (#1273). Three sites emit it and they are one event:
+## a key with no verb on the open screen, a `learn_ability_from_job` that returned
+## false, and a Learn row the ROM refuses. All three already played the SAME
+## system-bank "invalid" cue, which is why this is one signal and not three.
+##
+## 🔴 THE CUE NAME DOES NOT TRAVEL WITH THE SCREEN. `"invalid"` is host vocabulary —
+## `GambitBattle.gd` plays it from seven of its own sites and has nothing to do with
+## the formation screen. `UIWiring.wire_formation_screen` names the sound; this
+## states only that a press was refused. Same ruling as
+## `BattlefieldWiring._play_cursor_cue`, whose comment is the precedent.
+##
+## No argument: a listener that needs to know WHICH refusal does not exist yet, and
+## `TileCursor.cursor_stepped` is the standing warning against widening a signal
+## before something asks for the width.
+signal input_refused
 ## The LIFO screen stack (ADR-0084). Top = the current screen; empty = IDLE (the plain roster). Most
 ## FFT Formation exits RE as a FULL unwind to the roster (memory `formation-detail-screen-port-built`
 ## / RE25), so a sub-screen exit clears the stack rather than popping one — the LIFO generalizes
@@ -1097,10 +1113,16 @@ func _set_battle_paused(paused: bool) -> void:
 ## the tile cursor latched, so ASK it, and pass the answer (possibly null) to the null-safe overlay.
 ## The roster host has no unit and no accessor, and takes the bare builder unchanged.
 ##
-## Every `set_unit_view` in this file goes through here, so the two hosts differ in ONE place. What
-## the overlay moves is only what a FIGHT can move — the numerators and the status list; the
-## denominators, name, job, level, exp and portrait stay the identity's, which is what keeps the
-## equip and Change-Job repaint sites (whose whole job is to show a MOVED denominator) correct.
+## Every `set_unit_view` in this file goes through here, so the two hosts differ in ONE place —
+## which is also why the hover panel, Tab, Status and the detail screens all inherit the overlay
+## from that one edit, and why a second call site must not be added beside it.
+##
+## What the overlay moves is what a FIGHT can move — the numerators and the status list — PLUS the
+## portrait's `template_folder`, which a fight cannot move but which only the unit holds (ADR-0079
+## keeps it off the identity; see [method FormationMapHost.vitals_view_for] for the ownership split
+## and the Orbonne case that forced it). The denominators, name, job, level, exp and the job-routed
+## fallback sprite id stay the identity's, which is what keeps the equip and Change-Job repaint
+## sites (whose whole job is to show a MOVED denominator) correct.
 func _vitals_view(character) -> Dictionary:
 	var host := _map_host()
 	if host == null:
@@ -1232,8 +1254,9 @@ const _NAV_ACTIONS := ["ui_up", "ui_down", "ui_left", "ui_right"]
 ## SCREEN produced byte-identical feedback, so the report could not distinguish them and neither
 ## could the person reading it.
 ##
-## The cue is the one a disabled row already uses (`SfxRouter.play_system("invalid")`), so this adds
-## no new vocabulary — it extends an existing refusal to the case that had none.
+## The refusal is the one a disabled row already emits (`input_refused`, which `UIWiring` plays as
+## the system-bank "invalid" cue), so this adds no new vocabulary — it extends an existing refusal
+## to the case that had none.
 func _refuse(event: InputEvent) -> void:
 	_claim_pad(event)
 	if map_pad_exempt(event):
@@ -1247,7 +1270,7 @@ func _refuse(event: InputEvent) -> void:
 		if event.is_action_pressed(nav):
 			return
 	print("[FormationDetailTransition] refused: no verb for %s on the open screen" % str(event.as_text()))
-	SfxRouter.play_system("invalid")
+	input_refused.emit()
 
 
 ## Input routing while an overlay is up. Handled in `_input` (BEFORE FormationScene's
@@ -2828,7 +2851,7 @@ func _on_learn_list_chosen(entry_index: int) -> void:
 		return
 	var ability_id := int((_learn_list.entries[entry_index] as Dictionary).get("id", 0))
 	if not character.progression.learn_ability_from_job(ability_id, _learn_job_id):
-		SfxRouter.play_system("invalid")
+		input_refused.emit()
 		return
 	if _detail != null and is_instance_valid(_detail):
 		_detail.set_stats_view(DetailScene.stats_view_from_character(character))
@@ -2840,7 +2863,7 @@ func _on_learn_list_chosen(entry_index: int) -> void:
 ## system-bank "invalid" cue — the raw-id→slug mapping is unresolved, and it is the same cue
 ## the JP-fail on the job picker already uses.
 func _on_learn_list_refused(_entry_index: int) -> void:
-	SfxRouter.play_system("invalid")
+	input_refused.emit()
 
 
 ## Re-derive the list's payload in place after a commit — the JP pool moved, so rows that

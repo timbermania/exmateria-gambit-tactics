@@ -125,10 +125,56 @@ static func targets() -> Array:
 ## edit of the `To` column silently rewrite the subject of a condition the player is not
 ## looking at. [method GambitSurface._resync_subject] re-derives it on purpose instead, which
 ## is a write the row can show.
+##
+## === AND THE THIRD ROW IS `Always`, WHICH IS THE ROW THAT ANSWERS "NO TEST" ================
+##
+## *"My or Their shouldn't be mandatory — we could have a gambit which only uses the first 2
+## items"*. Before it, a row the player stopped authoring after `To` read `Attack / Nearest Foe
+## / Their / —`: a subject dangling off a question nobody asked, plus an em dash. `Always` is
+## the word for what that row DOES, and choosing it drops the `If` column entirely (see
+## [method is_unconditional] and `GambitSurfaceMenu`'s span) — not an `N/A` beside it, which
+## would be one more glyph to explain and would re-create the dangling pair.
+##
+## 🔴 IT IS A (SUBJECT, CONDITION) PAIR AND NOT A PURE SUBJECT, which is why this entry alone
+## carries [constant UNCONDITIONAL]. Its `make` returns the same mirrored selector `Their`
+## does — the two are the same GATE, and they have to be: with no test, `select_target` on the
+## condition target is the row's only filter, and a row that said `Always` while gating on the
+## ACTOR would fire at a pool it never checked was there (see [method GambitSurface._clear_condition]).
+## What the choice ALSO writes is `conditions[0] = GambitCondition.always()`, and THAT is the
+## bit the column reads back — after moving whatever predicate was there into
+## `Gambit.parked_condition`, so choosing `Always` is REVERSIBLE and the `If` column can show,
+## dim, what is waiting to come back.
+##
+## === WHY THE EXPLICIT `ALWAYS` CONDITION AND NOT A ZERO-LENGTH ARRAY =======================
+##
+## Both spellings fire every time — `check_gambit_conditions` returns true at zero conditions
+## and an `ALWAYS` returns true at one — so the kernel cannot tell them apart, and the first
+## instinct is to read BOTH as `Always`. That build is unshippable and the reason is
+## `GambitSurfaceTest`'s reading-order arm: a row mid-authoring has a zero-length `conditions`,
+## so reading zero as `Always` makes a `Subject = My` press show NO CHANGE — which is the
+## reported bug #1255 fixed, re-opened by its own successor.
+##
+## So the two spellings are two ROW STATES, and the screen says so:
+##
+## [codeblock]
+## conditions == []          no test CHOSEN YET   `My` / `Their` + `—`
+## conditions == [ALWAYS]    no test, DECLARED    `Always`, `If` DIM and unreachable
+## [/codeblock]
+##
+## That is the same two-marks-for-two-states rule [method GambitSurface.row_entries] already
+## runs for `---` (this row holds nothing) against `—` (this column is unset on a row that
+## holds something), and a pre-ADR-0283 save carrying a lone `ALWAYS` lands in the second line
+## — which is what it meant.
+##
+## E1-CLEAN, and that is not an assumption: `GambitEncoder._encode_gambit_condition` maps
+## `Type.ALWAYS` to `GPUConstants.COND_ALWAYS` and `UNSUPPORTED_CONDITION_TYPES` does not carry
+## it. `GambitEncoderTest` round-trips this catalogue, so the claim is graded rather than
+## stated.
 static func subjects() -> Array:
 	return [
 		{"name": SUBJECT_MINE, "make": func(_aim): return TargetSelector.self_()},
 		{"name": SUBJECT_THEIRS, "make": func(aim): return mirror_of(aim)},
+		{"name": SUBJECT_ALWAYS, "make": func(aim): return mirror_of(aim), UNCONDITIONAL: true},
 	]
 
 
@@ -157,6 +203,14 @@ static func mirror_of(aim):
 const SUBJECT_MINE := "My"
 ## Whoever the `To` column picked out. `Their HP<50%` is "when THAT one is below half".
 const SUBJECT_THEIRS := "Their"
+## NO TEST, said out loud. The row fires whenever its aim resolves, and the `If` column is
+## ABSENT rather than blank — the subject cell spans it. See [method subjects].
+const SUBJECT_ALWAYS := "Always"
+## The key that marks the one [method subjects] entry which is a (subject, condition) PAIR.
+## A named constant rather than a literal because the surface and the encoder guard both probe
+## for it, and a typo in either would read as "an ordinary subject" — which renders and encodes
+## perfectly while dropping the write that makes the row unconditional.
+const UNCONDITIONAL := "unconditional"
 ## What a column with nothing in it reads as — `—`, the em dash, which FONT.BIN carries as one
 ## 10-px glyph.
 ##
@@ -283,8 +337,8 @@ static func condition_label(gambit) -> String:
 ##
 ## A row holding NOTHING never reaches here — `GambitSurface.row_entries` short-circuits an
 ## `is_empty()` slot to `---` in all four columns — so what newly prints a subject is a row that
-## already says something. That includes the safety net, which reads `Attack / Nearest Foe /
-## Their / —`: `Their` is the pool the net is gated on, and the column now says so.
+## already says something. The safety net is not one of the rows this branch answers for: it
+## carries an explicit `ALWAYS`, so it leaves above as `Always` (see [method is_unconditional]).
 ##
 ## Read off the POOL and not off a catalogue probe, because [constant SUBJECT_THEIRS] has no
 ## fixed selector to probe against — it is a copy of whatever the `To` column holds. SELF is
@@ -294,10 +348,50 @@ static func condition_label(gambit) -> String:
 static func subject_label(gambit) -> String:
 	if gambit == null:
 		return BLANK
+	# BEFORE the pool is read, because `Always` mirrors the aim and would otherwise read as
+	# `Their` — the two hold the same selector on purpose (see [method subjects]).
+	if is_unconditional(gambit):
+		return SUBJECT_ALWAYS
 	var subject = gambit.condition_target
 	if subject == null or subject.pool_type == TargetSelector.PoolType.SELF:
 		return SUBJECT_MINE
 	return SUBJECT_THEIRS
+
+
+## Has this row DECLARED that it has no test — `conditions[0]` is an explicit `ALWAYS`?
+##
+## 🔴 A ZERO-LENGTH `conditions` IS NOT THIS, and the asymmetry is deliberate. The kernel cannot
+## tell the two apart (`check_gambit_conditions` returns true at zero AND at one `ALWAYS`), but
+## the SCREEN must: zero is "no test chosen yet", which is the state every row is in while the
+## player is still authoring it left to right, and reading that as `Always` makes their
+## `Subject` press show no change — the ADR-0283 dec. 3 defect, re-opened. [method subjects]
+## carries the full argument.
+##
+## Index 0 ONLY, like every other rule this screen runs (ADR-0268 dec. 3): a row carrying
+## `[ALWAYS, HP<50%]` says `Always` and shows `+1`, because index 0 is what the kernel's first
+## test reads and the rest are data the screen preserves without displaying.
+## What the DIM `If` cell reads on an `Always` row — the predicate the subject set aside, or
+## [constant BLANK] when nothing was set aside.
+##
+## Named off the same catalogue probe every other condition readout uses, so a parked `HP<50%`
+## prints exactly the string it printed while it was live. A row whose dim cell said one thing
+## and whose restored cell said another would make the flip look like an edit.
+static func parked_label(gambit) -> String:
+	if gambit == null or gambit.parked_condition == null:
+		return BLANK
+	for entry in conditions():
+		var probe = entry["make"].call()
+		if probe.type == gambit.parked_condition.type \
+				and probe.comparator == gambit.parked_condition.comparator \
+				and is_equal_approx(probe.threshold, gambit.parked_condition.threshold):
+			return String(entry["name"])
+	return GambitProse.condition_sentence(gambit.parked_condition)
+
+
+static func is_unconditional(gambit) -> bool:
+	if gambit == null or gambit.conditions.is_empty() or gambit.conditions[0] == null:
+		return false
+	return gambit.conditions[0].type == GambitCondition.Type.ALWAYS
 
 
 ## The job-independent control verbs the "Do" part offers above the unit's abilities. Each

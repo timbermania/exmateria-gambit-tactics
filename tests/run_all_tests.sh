@@ -1032,10 +1032,12 @@ fi
 
 # `Tune` was never the problem; it was ONE OF SEVEN (ADR-0308). All eight stranger rigs
 # declare an EMPTY `[autoload]` block, so a member may reach NO autoload identifier at
-# all -- not just `Tune`. Six stood at ADR-0308 across 49 lines; TWO stand today across
-# 6, after #1274 (EventBus -> EventPort), #1263 (PSXDisplay -> DisplayPort), #1271
-# (DebugConfig -> UIDebug's slugs) and #1272 (CharacterCatalog -> UIRoster). This is a
-# RATCHET, not a gate: the suite stays green
+# all -- not just `Tune`. Six stood at ADR-0308 across 49 lines; ONE stands today across
+# 1, after #1274 (EventBus -> EventPort), #1263 (PSXDisplay -> DisplayPort), #1271
+# (DebugConfig -> UIDebug's slugs), #1272 (CharacterCatalog -> UIRoster) and #1273
+# (SfxRouter -> INVERTED onto three signals, named by `src/scenes/UIWiring.gd`). The one
+# left is `UI3Registry`, UI's OWN autoload, which dissolves into a preload at the move --
+# there is no port to build for it. This is a RATCHET, not a gate: the suite stays green
 # while they are paid off one port at a time, and it reds if one GROWS, if a NEW one
 # appears, or if a debt is paid and its BASELINE row is left behind.
 # Deleted with the `Tune` block above at the move.
@@ -1484,6 +1486,20 @@ TESTS=(
     # Seeded three ways -- fallback flipped to `true`, `_live()` given a cache, and the
     # seed removed -- reds the absent arm, arm 3, and the vacuity guard respectively.
     "UIRosterDoorTest"
+    # Guard (#1273): UI's five `SfxRouter` reaches, INVERTED rather than routed through
+    # a door. #1263/#1271/#1272 all answered their autoload with a port because they
+    # READ host state UI needs to render; this one only WRITES an effect UI never
+    # consumes, and the thing written is a CUE NAME -- host vocabulary
+    # (`GambitBattle.gd` plays "invalid" from seven of its own sites). `TileCursor` had
+    # the identical reach at #589 and `BattlefieldWiring` is the precedent this copies.
+    # The failure mode a static guard cannot see is a signal that is too WIDE:
+    # `DialogueBox.advanced` already existed, fires on DISMISSAL, and is one word away
+    # from `advance_page` -- folding the page-flip onto it would compile, pass the
+    # ratchet, and blip on every close. Arms 1-2 pin that. Cues are observed through
+    # `SfxRouter.cue_requested`, which is emitted BEFORE backend dispatch precisely so a
+    # test with no SPU can see them; the return token is 0 both on an unknown cue and on
+    # an absent backend, so asserting it would be vacuous. Seeded five ways, all run.
+    "UICueInversionTest"
     # Guard (#743, ADR-0217 dec. 9): the sprite rig's CONTENT PORT — seven scalar
     # queries over FOUR key spaces, asserted BY VALUE against known rows because
     # every int key space typechecks against every other one. Also holds the half no

@@ -23,6 +23,25 @@ const ParticleSubsystem = preload("res://addons/exmateria_effects/subsystem/Part
 ## extraction #7 (#1220) and lost its three bare `class_name`s on the way.
 const PsxChirality = ExMateriaPlatform.PsxChirality
 
+## The battle effect-SFX engine, reached through the platform PORT instead of the
+## host's `ExMateriaEffectSfx` autoload identifier — eleven lines in this file, and the
+## last of this addon's twenty-six arm-2 standalone-parse reaches (ADR-0308 dec. 1).
+##
+## 🔴 WHY THIS ONE IS A PORT AND THE TWO OVERLAY PORTS BELOW ARE NOT. All three
+## identifiers were the same defect to arm 2, but arm 2b splits them: a node-path bind
+## is free only when *"the autoload points at a script THIS addon ships"*. The host
+## registers `TintedSurfaces` and `ScreenEffectOverlay` at
+## `res://addons/exmateria_effects/…` paths, so this addon binds them itself.
+## `ExMateriaEffectSfx` lives at `res://addons/exmateria_sound/runtime/…`, which this
+## addon does not ship, and a node path there would only swap a parse error for a
+## silent null — a quieter report of the same dependency. So it routes through the port
+## tier, which is what a system addon is allowed to name (ADR-0139 dec. 9/12).
+##
+## The absent path needed no work at any of the eleven sites: `SfxPort`'s answers are
+## the engine's own not-ready answers, and `_sfx_token == 0` is already this file's
+## "no cast".
+const SfxPort = ExMateriaPlatform.SfxPort
+
 
 const EffectParticleRendererClass = preload("res://addons/exmateria_effects/render/EffectParticleRenderer.gd")
 const ScreenSubsystemClass = preload("res://addons/exmateria_effects/subsystem/ScreenSubsystem.gd")
@@ -34,6 +53,17 @@ const EffectTimelineClass = preload("res://addons/exmateria_effects/cast/EffectT
 const SoundSubsystemClass = preload("res://addons/exmateria_effects/subsystem/SoundSubsystem.gd")
 const EffectJSONLoaderClass = preload("res://addons/exmateria_sound/runtime/effect_json_loader.gd")
 const EffectSoundResolverClass = preload("res://addons/exmateria_sound/runtime/effect_sound_resolver.gd")
+
+## This addon's two overlay autoloads, reached through their PORTS rather than as bare
+## identifiers — a member may name no autoload at all (ADR-0308 dec. 1). Seven of this
+## file's reaches were `TintedSurfaces` and `ScreenEffectOverlay`; the eleven that are
+## `ExMateriaEffectSfx` go through `ExMateriaPlatform.SfxPort` instead, and the
+## difference is not style. The two below point at scripts THIS addon ships, so the
+## node-path bind inside them is free on arm 2b's stated grounds; `ExMateriaEffectSfx`
+## points into `addons/exmateria_sound/`, which this addon does not ship, and for that
+## one a node path would only swap a parse error for a silent null.
+const TintedSurfacesPort = preload("res://addons/exmateria_effects/install/TintedSurfacesPort.gd")
+const ScreenOverlayPort = preload("res://addons/exmateria_effects/install/ScreenOverlayPort.gd")
 
 # Signals for external logging/UI
 signal emitter_started(effect_name: String, emitter_idx: int, channel_idx: int, frame: int)
@@ -177,7 +207,7 @@ func _exit_tree() -> void:
 	# FEDS pairs finish their natural sequence + tail instead of cutting them.
 	# The engine reaps the cast once its sound actually ends.
 	if _sound_controller and not Engine.is_editor_hint():
-		ExMateriaEffectSfx.orphan_effect(_sfx_token)
+		SfxPort.orphan_effect(_sfx_token)
 	_sound_controller = null
 	_sound_loaded = null
 
@@ -193,23 +223,23 @@ func _exit_tree() -> void:
 		camera_controller = null
 
 	if screen_controller and not Engine.is_editor_hint():
-		ScreenEffectOverlay.remove_layer(screen_controller.get_owner_id())
+		ScreenOverlayPort.remove_layer(screen_controller.get_owner_id())
 	if palette_controller and not Engine.is_editor_hint():
-		TintedSurfaces.remove_layer(TintedSurfaces.SURFACE_MAP, palette_controller.get_owner_id())
+		TintedSurfacesPort.remove_layer(TintedSurfacesPort.SURFACE_MAP, palette_controller.get_owner_id())
 		# Clean up unit tints for caster and target
-		TintedSurfaces.remove_all_layers_for_owner(palette_controller.get_owner_id())
+		TintedSurfacesPort.remove_all_layers_for_owner(palette_controller.get_owner_id())
 
 
 func _reinitialize() -> void:
 	"""Reinitialize when effect_path changes in editor"""
 	# Clear screen effect if active
 	if screen_controller and not Engine.is_editor_hint():
-		ScreenEffectOverlay.remove_layer(screen_controller.get_owner_id())
+		ScreenOverlayPort.remove_layer(screen_controller.get_owner_id())
 	# Clear map tint effect if active
 	if palette_controller and not Engine.is_editor_hint():
-		TintedSurfaces.remove_layer(TintedSurfaces.SURFACE_MAP, palette_controller.get_owner_id())
+		TintedSurfacesPort.remove_layer(TintedSurfacesPort.SURFACE_MAP, palette_controller.get_owner_id())
 		# Clear unit tints
-		TintedSurfaces.remove_all_layers_for_owner(palette_controller.get_owner_id())
+		TintedSurfacesPort.remove_all_layers_for_owner(palette_controller.get_owner_id())
 
 	# Return borrowed meshes before clearing renderer
 	if sprite_renderer and sprite_renderer.has_method("release_pool_meshes"):
@@ -331,7 +361,7 @@ func initialize(name: String, data_path: String, anchor: Vector3, init_pool_size
 		# each separately — the screen is a gradient, not a flat tint). Phase boundaries
 		# are not passed: the timeline resolves the phase and hands it to advance().
 		screen_controller.initialize(effect_data.screen,
-			ScreenEffectOverlay.get_default_top(), ScreenEffectOverlay.get_default_bottom())
+			ScreenOverlayPort.get_default_top(), ScreenOverlayPort.get_default_bottom())
 
 	# Initialize palette subsystem if palette data exists (map tinting)
 	if effect_data.palette and not Engine.is_editor_hint():
@@ -436,7 +466,7 @@ func _load_effect_sound(effect_dir: String) -> void:
 		if _sound_controller.load_effect(_sound_loaded):
 			_sound_controller.pair_triggered.connect(_on_sound_pair_triggered)
 			# Fresh SFX cast (re-seeds the entity; ends any prior cast's sound).
-			_sfx_token = ExMateriaEffectSfx.begin_effect()
+			_sfx_token = SfxPort.begin_effect()
 			# pre_anchor_offset=0, vm_snapshot={} — PCSX parity-calibration
 			# inputs that default to faithful in-game behaviour.
 			_sound_controller.start(_target_count, 0, {})
@@ -464,7 +494,7 @@ func _on_sound_pair_triggered(pair_idx: int, from_channel: int, sound_id: int,
 		return
 	var bank = _live_feds_bank()
 	if bank:
-		ExMateriaEffectSfx.play_pair(_sfx_token, bank, pair_idx, sound_id)
+		SfxPort.play_pair(_sfx_token, bank, pair_idx, sound_id)
 
 
 ## The FEDS bank the audible path must use: `EffectData`'s when there is one, else the
@@ -513,12 +543,12 @@ func audition_container(index: int, fires: int = 6, spacing_ms: int = 380) -> vo
 	# ends ALL casts — playback survives only because seek/reset re-arm a fresh token via
 	# _restart_sound_cast). play_pair on that dead token is a silent no-op; a fresh cast
 	# is valid regardless. end_effect is a key-off (the tail rings out), not a cut.
-	var tok: int = ExMateriaEffectSfx.begin_effect()
+	var tok: int = SfxPort.begin_effect()
 	for fire in range(fires):
 		var resolved: int = int(resolver.resolve(index, timeline_sid))
 		var pair_idx := resolved - 1
 		if resolved > 0 and pair_idx >= 0 and pair_idx < feds_bank.num_pairs:
-			ExMateriaEffectSfx.play_pair(tok, feds_bank, pair_idx, resolved)
+			SfxPort.play_pair(tok, feds_bank, pair_idx, resolved)
 		# Space the fires so successive sounds are distinct to the ear (the last fire
 		# needs no trailing wait).
 		if fire < fires - 1:
@@ -527,7 +557,7 @@ func audition_container(index: int, fires: int = 6, spacing_ms: int = 380) -> vo
 	# immediate one would clip a sustained tail). If the instance is freed mid-wait the
 	# orphaned session is reclaimed by the next render/panic — no audible consequence.
 	await get_tree().create_timer(AUDITION_RINGOUT_S).timeout
-	ExMateriaEffectSfx.end_effect(tok)
+	SfxPort.end_effect(tok)
 
 
 func audition_sound(resolved: int) -> void:
@@ -541,10 +571,10 @@ func audition_sound(resolved: int) -> void:
 		return
 	var pair_idx := resolved - 1
 	if resolved > 0 and pair_idx >= 0 and pair_idx < feds_bank.num_pairs:
-		var tok: int = ExMateriaEffectSfx.begin_effect()
-		ExMateriaEffectSfx.play_pair(tok, feds_bank, pair_idx, resolved)
+		var tok: int = SfxPort.begin_effect()
+		SfxPort.play_pair(tok, feds_bank, pair_idx, resolved)
 		await get_tree().create_timer(AUDITION_RINGOUT_S).timeout
-		ExMateriaEffectSfx.end_effect(tok)
+		SfxPort.end_effect(tok)
 
 
 func _process(delta: float) -> void:
@@ -835,8 +865,8 @@ func _restart_sound_cast() -> void:
 	Shared by reset() (in-game loop restart) and seek() (studio backward seek), the two
 	replay entry points; the SFX token it manages is owned here."""
 	if _sound_controller and not Engine.is_editor_hint():
-		ExMateriaEffectSfx.end_effect(_sfx_token)
-		_sfx_token = ExMateriaEffectSfx.begin_effect()
+		SfxPort.end_effect(_sfx_token)
+		_sfx_token = SfxPort.begin_effect()
 		_sound_controller.start(_target_count, 0, {})
 
 

@@ -199,11 +199,33 @@ what it will hold.
   leaves all five arms green. Reaching the four-neighbour scan needs authored
   terrain that blocks the away-direction, which is #795's fixture work.
 
-- **`LOGICAL_ACTIVITY_RETREATING` joins both brakes.** It is a state a unit can
-  start something from and a state the picture is mid-step in, so it is listed in
-  the turn brake, the settle brake, and `settle_awaited_state`. Omitting it from
-  the last would let a battle report a win while a retreating sprite teleports the
-  rest of its step.
+- **`LOGICAL_ACTIVITY_RETREATING` is a movement state everywhere, and it gets
+  there by DERIVATION rather than by being listed.** It is a state a unit can
+  start something from and a state the picture is mid-step in, so it belongs to
+  the kernel's turn brake, its settle brake and `settle_awaited_state`, and
+  equally to the host's turn gate, `GPUMovementInterpreter` and
+  `GPUVisualBridge`. 🔴 THIS ADR'S FIRST CUT SWEPT THE KERNEL'S THREE AND NONE OF
+  THE HOST'S, AND THE SYMMETRY IS WHAT HID IT: all six sites hand-listed the same
+  states and each said in its docstring that it agreed with the others, which was
+  true right up until a fourth state existed. The host kept classifying every
+  retreat as no-move, so `GPUVisualBridge` dropped the visualizer and snapped —
+  the sprite teleported, held the facing `update_facing_toward_target` gave it
+  (facing the unit it was fleeing), and slid in whatever pose it was already in,
+  because on a `visualizer` row the translator no-ops and the visualizer that was
+  supposed to author the pose never existed. One omission, three symptoms. The
+  host's set is now generated from this row's own `routing: visualizer` into
+  `GPUConstants.is_movement_state`, so a fifth move state joins every host
+  consumer by being a YAML row. **The kernel's three lists stay hand-written**,
+  and the reason is ADR-0299's compile-time race rather than anything about the
+  code: a shared GLSL `is_movement_state()` made the pipeline cache miss, and
+  `warm_pipelines_async()` then outlived a short test's `quit()` and read a freed
+  autoload. MEASURED, interleaved 3 rounds — `All 8 stages ready in` 30/31/30 ms
+  without it against 3504/3528/3361 ms with it, and
+  `NavigatorWorldMapFormationTest`'s freed-autoload errors went 4-of-9 runs to
+  9-of-9, isolated by reverting the shaders alone while holding every GDScript
+  change. A macro would not help — the cost is not the call, it is that the SPIR-V
+  changed. So the kernel half is a copy, and the comment above
+  `settle_awaited_state` says so.
 
 - **This supersedes ADR-0062's retreat clause and nothing else of it.** One
   movement command became two; the *flavour-from-target* principle still holds for

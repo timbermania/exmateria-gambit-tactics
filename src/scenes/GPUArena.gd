@@ -593,6 +593,9 @@ func _setup_formation_map_screen() -> void:
 	# HOST-side panel mount (#1267). `mount_over_map` returns null when the camera has no
 	# `FocusPoint/Camera`, and this site never guarded that — the panel call is the first
 	# thing here that would dereference it, so the guard comes in with it.
+	# #1273 — the screen states `input_refused`; this host names the buzz. Guarded by
+	# `wire_formation_screen` itself, so it sits outside the panel guard below.
+	UIWiring.wire_formation_screen(_formation_map_screen)
 	if _formation_map_screen != null:
 		FormationDebugPanels.register_formation_panels(_formation_map_screen.formation())
 

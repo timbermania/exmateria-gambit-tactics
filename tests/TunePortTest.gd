@@ -1,7 +1,18 @@
 extends Node
 
-## Guard (#588, ADR-0175 dec. 2): the two PORT FAÇADES the battlefield addon names
-## instead of the host's autoloads — `TunePort` and `DisplayPort`.
+## Guard (#588, ADR-0175 dec. 2): the PORT FAÇADES an addon names instead of the
+## host's autoloads — `ExMateriaPlatform`'s `TunePort`, `DisplayPort`, `EventPort` and
+## `SfxPort`, plus `exmateria_effects`' two IN-ADDON ports (#1225, ADR-0310).
+##
+## 🔴 THE TWO IN-ADDON PORTS ARE HERE RATHER THAN IN AN ADDON-OWNED TEST, and it is a
+## charter call, not laziness. `docs/TEST-CHARTER.md` prices a test at a ~2.3 s Godot
+## boot FOREVER and inverts the usual advice: carry every assertion that shares your
+## setup. These arms share this file's entire setup — rename an autoload, drop the
+## façade's cache, assert the absent answer, put it back — so they are four functions
+## here instead of a ninth process. `addons/exmateria_effects/tests/` would also have
+## been wrong for a second reason: the STRANGER RIG has no autoloads at all, so an
+## addon-owned test there can only ever see the absent branch and could never assert
+## that the BOUND branch reaches the real node.
 ##
 ## The re-point itself is enforced statically: `check_addon_portability.py` arm 2
 ## loses its 78 standalone-parse rows and arm 5 gains them as a counted platform
@@ -30,6 +41,12 @@ extends Node
 const DisplayPort = ExMateriaPlatform.DisplayPort
 const TunePort = ExMateriaPlatform.TunePort
 const EventPort = ExMateriaPlatform.EventPort
+const SfxPort = ExMateriaPlatform.SfxPort
+
+## `exmateria_effects`' own two, reached by path because they declare no `class_name`
+## (the addon publishes one symbol, `ExMateriaEffects`).
+const TintedSurfacesPort = preload("res://addons/exmateria_effects/install/TintedSurfacesPort.gd")
+const ScreenOverlayPort = preload("res://addons/exmateria_effects/install/ScreenOverlayPort.gd")
 
 const SLUG := "tuneport.probe"
 const BOUND := 3.0
@@ -43,6 +60,13 @@ var _hp_beats := 0
 var _mp_beats := 0
 var _par_beats := 0
 var _saw_any_change := 0
+## Whether the effect-SFX engine booted, read off its own `ready_ok`. The absent SFX
+## arm's `begin_effect() == 0` is only a measurement when this is true.
+var _sfx_ready := false
+
+## An owner id no real cast can hold, so the in-addon port arms cannot disturb live
+## tint state or read somebody else's layer as their own.
+const _PROBE_OWNER := -918273
 
 
 func _ready() -> void:
@@ -51,10 +75,14 @@ func _ready() -> void:
 	_test_present_display_port_matches_the_autoload()
 
 	_test_present_event_port()
+	_test_present_sfx_port()
+	_test_present_in_addon_ports()
 
 	_test_absent_tune_port()
 	_test_absent_display_port()
 	_test_absent_event_port()
+	_test_absent_sfx_port()
+	_test_absent_in_addon_ports()
 
 	_test_the_port_recovers_after_the_autoload_returns()
 	_test_an_absent_bind_is_replayed_when_the_port_returns()
@@ -409,6 +437,174 @@ func _test_absent_event_port() -> void:
 	EventPort._forget_port()
 	_assert_true(EventPort.connect_unit_hp_changed(_on_probe_hp),
 		"the port recovers once the autoload is back under its name")
+
+
+## `SfxPort` resolves to the very autoload node, and its verbs answer what the engine
+## answers.
+##
+## 🔴 EVERY ASSERTION HERE IS AN EQUIVALENCE OR A CONTROLLED ABSOLUTE, BECAUSE THE
+## ENGINE'S OWN ANSWER DEPENDS ON `ready_ok` AND THIS SCENE DOES NOT CONTROL IT.
+## `begin_effect` returns `0` when the engine is not ready, which is the SAME value the
+## absent path returns — so a bare `== 0` in the absent arm below would be an arm that
+## cannot fail whenever audio failed to boot, which is this file's own documented trap
+## one section up. `_sfx_ready` is the positive control that separates them, and it is
+## read off the engine rather than assumed.
+func _test_present_sfx_port() -> void:
+	var node := get_tree().root.get_node_or_null(^"ExMateriaEffectSfx")
+	if node == null:
+		_fail("the ExMateriaEffectSfx autoload is not in this tree — the SFX arms cannot run")
+		return
+	_sfx_ready = bool(node.ready_ok)
+
+	_assert_true(SfxPort._resolve() == node,
+		"bound: the port resolves to the ExMateriaEffectSfx autoload node itself")
+
+	var tok := SfxPort.begin_effect()
+	_assert_eq(tok != 0, _sfx_ready,
+		"bound: begin_effect returns a live token exactly when the engine is ready_ok")
+
+	# A NULL bank is the engine's own pre-mutex guard (`if not ready_ok or feds_bank ==
+	# null: return false`), so this exercises the port's pass-through without dispatching
+	# a voice — which is what keeps this arm silent and side-effect-free.
+	_assert_eq(SfxPort.play_pair(tok, null, 0, 0), false,
+		"bound: play_pair forwards the engine's own null-bank refusal")
+	_assert_eq(SfxPort.play_pair(tok, null, 0, 0), node.play_pair(tok, null, 0, 0),
+		"bound: the port's play_pair answer IS the autoload's answer")
+
+	# Both void verbs, on a real token, must not raise. `orphan_effect` then
+	# `end_effect` is the order `EffectInstance` uses when a cast's visual outlives it.
+	SfxPort.orphan_effect(tok)
+	SfxPort.end_effect(tok)
+	_assert_true(true, "bound: orphan_effect + end_effect complete without raising")
+
+
+## With the autoload renamed out from under it, every verb answers the ENGINE'S OWN
+## not-ready answer and nothing raises.
+func _test_absent_sfx_port() -> void:
+	var node := get_tree().root.get_node_or_null(^"ExMateriaEffectSfx")
+	if node == null:
+		_fail("the ExMateriaEffectSfx autoload is not in this tree — the absent arm cannot run")
+		return
+	node.name = "ExMateriaEffectSfx_absent_probe"
+	SfxPort._forget_port()
+
+	_assert_true(SfxPort._resolve() == null,
+		"absent: the port resolves to null once the autoload is not under its name")
+
+	# Discriminating ONLY if the bound arm got a live token. Say so rather than bank a
+	# green: a 0 here and a 0 there would agree for the wrong reason.
+	if _sfx_ready:
+		_assert_eq(SfxPort.begin_effect(), 0,
+			"absent: begin_effect returns 0 where the bound arm returned non-zero")
+	else:
+		print("    [skip] absent begin_effect: the engine was not ready_ok, so 0 here " +
+			"cannot be told from 0 there — no positive control, no assertion")
+
+	_assert_eq(SfxPort.play_pair(1, null, 0, 0), false,
+		"absent: play_pair reports NOT dispatched rather than raising")
+	SfxPort.end_effect(1)
+	SfxPort.orphan_effect(1)
+	_assert_true(true, "absent: the two void verbs are no-ops rather than raising")
+
+	node.name = "ExMateriaEffectSfx"
+	SfxPort._forget_port()
+	_assert_true(SfxPort._resolve() == node,
+		"the port recovers once the autoload is back under its name")
+
+
+## `exmateria_effects`' two in-addon ports resolve to their own autoloads, and
+## `SURFACE_MAP` comes off the SCRIPT rather than the node.
+func _test_present_in_addon_ports() -> void:
+	var tinted := get_tree().root.get_node_or_null(^"TintedSurfaces")
+	var screen := get_tree().root.get_node_or_null(^"ScreenEffectOverlay")
+	if tinted == null or screen == null:
+		_fail("TintedSurfaces / ScreenEffectOverlay are not in this tree — arms cannot run")
+		return
+
+	_assert_true(TintedSurfacesPort._resolve() == tinted,
+		"bound: the tinted port resolves to the TintedSurfaces autoload itself")
+	_assert_true(ScreenOverlayPort._resolve() == screen,
+		"bound: the screen port resolves to the ScreenEffectOverlay autoload itself")
+
+	# 🔴 THE CONST IS THE ARM THAT MATTERS. A GDScript `const` is not a property, so
+	# `node.SURFACE_MAP` on a resolved autoload fails at RUNTIME — the one respelling of
+	# this reach that would go GREEN in the stranger rig and RED in the game. The port
+	# reads it off the preloaded script, and this asserts the two agree.
+	_assert_eq(TintedSurfacesPort.SURFACE_MAP, tinted.SURFACE_MAP,
+		"bound: SURFACE_MAP off the port equals the autoload's own constant")
+
+	_assert_eq(ScreenOverlayPort.get_default_top(), screen.get_default_top(),
+		"bound: get_default_top is the overlay's own answer")
+	_assert_eq(ScreenOverlayPort.get_default_bottom(), screen.get_default_bottom(),
+		"bound: get_default_bottom is the overlay's own answer")
+	_assert_true(TintedSurfacesPort.remove_all_layers_for_owner(_PROBE_OWNER),
+		"bound: a write verb reports DELIVERED")
+
+
+## With both autoloads renamed away, every write verb reports NOT delivered and the two
+## colour reads fall back to the values the SHIPPED SCRIPT declares for its own corners.
+func _test_absent_in_addon_ports() -> void:
+	var tinted := get_tree().root.get_node_or_null(^"TintedSurfaces")
+	var screen := get_tree().root.get_node_or_null(^"ScreenEffectOverlay")
+	if tinted == null or screen == null:
+		_fail("TintedSurfaces / ScreenEffectOverlay are not in this tree — arms cannot run")
+		return
+	# Seed the difference FIRST: with no map loaded the live overlay may already be
+	# sitting on its own declared corners, in which case the absent assertion below
+	# cannot fail. Push it somewhere the script's defaults cannot be, then the absent
+	# answer differing from the live one is a measurement.
+	var live_top: Color = screen.get_default_top()
+	screen.set_default_gradient(Color(0.77, 0.11, 0.44), Color(0.22, 0.66, 0.33))
+	_assert_true(ScreenOverlayPort.get_default_top() != Color(0.1, 0.15, 0.3, 1.0),
+		"the seed moved the live baseline off the script's declared fallback, so the " +
+		"absent arm below can discriminate")
+
+	tinted.name = "TintedSurfaces_absent_probe"
+	screen.name = "ScreenEffectOverlay_absent_probe"
+	TintedSurfacesPort._forget_port()
+	ScreenOverlayPort._forget_port()
+
+	_assert_true(TintedSurfacesPort._resolve() == null,
+		"absent: the tinted port resolves to null")
+	_assert_true(ScreenOverlayPort._resolve() == null,
+		"absent: the screen port resolves to null")
+
+	_assert_eq(TintedSurfacesPort.is_surface_registered(_PROBE_OWNER), false,
+		"absent: is_surface_registered answers false — nothing IS registered")
+	_assert_eq(TintedSurfacesPort.update_stack(0, _PROBE_OWNER, [], 0), false,
+		"absent: update_stack reports NOT delivered rather than raising")
+	_assert_eq(TintedSurfacesPort.update_layer(0, _PROBE_OWNER, Color.RED), false,
+		"absent: update_layer reports NOT delivered")
+	_assert_eq(TintedSurfacesPort.remove_layer(0, _PROBE_OWNER), false,
+		"absent: remove_layer reports NOT delivered")
+	_assert_eq(TintedSurfacesPort.remove_all_layers_for_owner(_PROBE_OWNER), false,
+		"absent: remove_all_layers_for_owner reports NOT delivered")
+	_assert_eq(ScreenOverlayPort.update_layer_gradient(_PROBE_OWNER, Color.RED, Color.BLUE),
+		false, "absent: update_layer_gradient reports NOT delivered")
+	_assert_eq(ScreenOverlayPort.remove_layer(_PROBE_OWNER), false,
+		"absent: screen remove_layer reports NOT delivered")
+
+	# The two reads are the only verbs whose absent answer is not the identity, and they
+	# are DERIVED from the shipped script rather than restated from it.
+	_assert_eq(ScreenOverlayPort.get_default_top(), Color(0.1, 0.15, 0.3, 1.0),
+		"absent: get_default_top is the script's own declared top-corner fallback")
+	_assert_eq(ScreenOverlayPort.get_default_bottom(), Color(0.3, 0.5, 0.7, 1.0),
+		"absent: get_default_bottom is the script's own declared bottom-corner fallback")
+
+	# `SURFACE_MAP` is a `const` off a `preload`, so it is the one member that is
+	# UNAFFECTED by the autoload being gone. That is the property the port exists for.
+	_assert_eq(TintedSurfacesPort.SURFACE_MAP, 0,
+		"absent: SURFACE_MAP still reads, because it comes off the script not the node")
+
+	tinted.name = "TintedSurfaces"
+	screen.name = "ScreenEffectOverlay"
+	TintedSurfacesPort._forget_port()
+	ScreenOverlayPort._forget_port()
+	screen.set_default_gradient(live_top, screen.get_default_bottom())
+	_assert_true(TintedSurfacesPort._resolve() == tinted,
+		"the tinted port recovers once the autoload is back under its name")
+	_assert_true(ScreenOverlayPort._resolve() == screen,
+		"the screen port recovers once the autoload is back under its name")
 
 
 func _assert_true(cond: bool, what: String) -> void:

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b_ui_cue_inversion_test_01"]
+
+[ext_resource type="Script" path="res://tests/UICueInversionTest.gd" id="1_test"]
+
+[node name="UICueInversionTest" type="Node3D"]
+script = ExtResource("1_test")

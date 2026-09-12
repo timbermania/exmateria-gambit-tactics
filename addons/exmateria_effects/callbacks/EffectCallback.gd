@@ -40,8 +40,8 @@ const ANGLE_MASK: int = 0xFFF
 
 # Callback blend material. On the engine-fold path (fork >= 4.8 + Forward+, CompositorAutopilot owns
 # compositing) the mesh wears the `compositor_layer` variant so the engine folds it into the display
-# scratch instead of the transparent color layer — where Pass C's coverage-discard would clobber it
-# under any folded prim's footprint (the E065 Shiva "spikes pierce the flash" bug). Stock/Mobile and
+# scratch instead of the transparent color layer — where Pass C would composite the folded result
+# OVER it under any folded prim's footprint (the E065 Shiva "spikes pierce the flash" bug). Stock/Mobile and
 # the test runner keep the plain additive shader (the fold variant's compositor_layer render_mode is
 # Forward+-only).
 #

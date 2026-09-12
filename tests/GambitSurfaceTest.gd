@@ -688,7 +688,126 @@ func _arm_4_the_drill_lands_an_edit() -> void:
 		+ " SEED, so the default it used to compute has to come from the mirror invariant"
 		+ " instead, or this is a regression wearing a bug fix's clothes")
 
+	# ==========================================================================================
+	# `Always` IN THE SUBJECT COLUMN — THE ROW THAT SAYS IT HAS NO TEST, AND SPANS THE `If`.
+	#
+	# *"My or Their shouldn't be mandatory — we could have a gambit which only uses the first 2
+	# items"*. Before this the player's only conditionless reading was `Attack / Foe / Their /
+	# —`: a subject dangling off a question nobody asked, next to an em dash. `Always` is the
+	# word for what that row DOES, and choosing it drops the `If` column rather than filling it
+	# with an `N/A` — which would be one more glyph to explain and would re-create the pair.
+	#
+	# 🔴 THE COLUMN STAYS AND GOES DIM — it is not removed. A column that vanishes under the
+	# player is the wrong answer to "not applicable": the eye loses the place it reads the fourth
+	# word from, and a row with one fewer column reads as a different KIND of row.
+	#
+	# AND THE PREDICATE IS PARKED, NOT DESTROYED. *"if they flip it i don't want them to have to
+	# repick it"* — so `HP<50%` moves to `Gambit.parked_condition`, the dim cell shows it, and
+	# flipping back off `Always` restores it.
+	_apply_choice(surface, GambitSurfaceScript.Part.DO, "Attack")
+	_apply_choice(surface, GambitSurfaceScript.Part.TO, "Nearest Foe")
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_THEIRS)
+	_apply_choice(surface, GambitSurfaceScript.Part.IF, "HP<50%")
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_ALWAYS)
+	var always_row: Dictionary = surface.row_entries()[0]
+	_eq(String(always_row["subj"]), GambitOptions.SUBJECT_ALWAYS,
+		"the Subject column reads `Always` — the row's answer to 'what does it test', given in"
+		+ " the column that asks WHETHER there is a test rather than what it is")
+	_true(bool(always_row.get("if_disabled", false)),
+		"and the `If` column is flagged DISABLED — which is what paints it in the dim band and"
+		+ " widens SUBJECT to COL_SUBJ_DISABLED_CAP. `Always` measures 26 px against the 20 px"
+		+ " switch cap, so a row that set the label without the flag would render it ELIDED")
+	_eq(String(always_row["iff"]), "HP<50%",
+		"…and the dim cell shows the PARKED predicate, not a placeholder — the row saying what"
+		+ " is waiting to come back, which is the whole reason the park exists")
+
+	var parked_g = character.gambits.get_at(0)
+	_true(parked_g != null and parked_g.parked_condition != null
+			and parked_g.parked_condition.type == GambitCondition.Type.TARGET_HP
+			and is_equal_approx(parked_g.parked_condition.threshold, 50.0),
+		"and the FIELD holds it — `Gambit.parked_condition`, which is where a flip back reads it"
+		+ " from. A build that only changed the LABEL would pass the cell assertion above and"
+		+ " lose the predicate the moment the player flipped")
+	_true(parked_g.conditions.size() == 1
+			and parked_g.conditions[0].type == GambitCondition.Type.ALWAYS,
+		"…while `conditions` holds the lone `ALWAYS` and NOT `[ALWAYS, HP<50%]` — the kernel ANDs"
+		+ " every entry, so parking the predicate in the array would leave the row reading"
+		+ " `Always` and firing only below half HP")
+
+	# THE FLIP BACK RESTORES IT. This is the assertion the ticket exists for.
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_THEIRS)
+	var restored: Dictionary = surface.row_entries()[0]
+	_eq(String(restored["iff"]), "HP<50%",
+		"flipping off `Always` RESTORES the parked predicate — the player does not re-pick it")
+	_true(not bool(restored.get("if_disabled", false)),
+		"…and the column is live again, not dim")
+	_true(character.gambits.get_at(0).parked_condition == null,
+		"…and the park is CONSUMED, or a later `Always` would resurrect a predicate the player"
+		+ " has since replaced")
+
+	# RE-PRESSING `Always` ON AN ALREADY-`Always` ROW MUST NOT PARK THE `ALWAYS` ITSELF, which
+	# would overwrite the predicate the player actually set with a no-op they cannot see.
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_ALWAYS)
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_ALWAYS)
+	_eq(String((surface.row_entries()[0] as Dictionary)["iff"]), "HP<50%",
+		"a second `Always` press leaves the park alone — it is idempotent, and a build that"
+		+ " parked unconditionally would show `—` here and have eaten the predicate")
+
+	# THE FIELD, not only the column. An explicit `ALWAYS` condition is the state — a zero-length
+	# array is the row MID-AUTHORING and reads `My`/`Their` (the arms above), so a build that
+	# wrote the label off an empty array would make every `Subject` press invisible again.
+	var always_g = character.gambits.get_at(0)
+	_true(always_g != null and always_g.conditions.size() == 1
+			and always_g.conditions[0].type == GambitCondition.Type.ALWAYS,
+		"and the write is an EXPLICIT `ALWAYS` condition, which is what distinguishes a row that"
+		+ " declared it has no test from one the player has not finished authoring")
+	_true(GambitOptions.is_unconditional(always_g),
+		"…and the predicate the widget spans on agrees with the label, or the cell is drawn at"
+		+ " the narrow cap with the wide word in it")
+
+	# 🔴 THE CURSOR CANNOT STAND ON A DISABLED COLUMN, and that is also what PAYS for the word:
+	# SUBJECT borrows the 13 px chevron gap in front of `If`, which is only free because no arrow
+	# can ever be mounted there. `_move_part` clamped to `PART_COUNT - 1` unconditionally, so →
+	# from the subject landed on `If` and ○ would open a condition list under a column this row
+	# has just greyed out.
+	surface._part = GambitSurfaceScript.Part.SUBJ
+	_true(surface._move_part(1),
+		"→ on an `Always` row is CONSUMED — the row owns the axis even at its ends, exactly as"
+		+ " it does at `Do` (arm 14), so the coordinator must not be handed the press")
+	_eq(surface.part(), GambitSurfaceScript.Part.SUBJ,
+		"…and lands nowhere — Subject IS the last part on this row, because the `If` column it"
+		+ " would walk onto is disabled")
+
+	# AND THE WAY BACK IS VISIBLE THE MOMENT IT IS MADE, which is the reading-order rule above
+	# applied to the new row: pressing `Their` on an `Always` row has to CHANGE something, or
+	# this column is mute again in a new state. It drops the declaration, so the `If` column
+	# wakes up — and wanting one is the only reason to name a subject at all.
+	#
+	# DRIVEN ON A ROW WITH NOTHING PARKED, which is the OTHER half of the restore: the block
+	# above proved a park comes back, and this one proves the column still wakes up when there
+	# is nothing to come back to. A build that woke the column only when it had a value to
+	# restore would pass up there and strand the player down here.
+	_apply_choice(surface, GambitSurfaceScript.Part.IF, GambitOptions.BLANK)
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_ALWAYS)
+	_true(character.gambits.get_at(0).parked_condition == null,
+		"the row under the way-back arm has NOTHING parked — `—` cannot be parked, so clearing"
+		+ " the condition first is what makes this arm the no-park case rather than a repeat")
+	_apply_choice(surface, GambitSurfaceScript.Part.SUBJ, GambitOptions.SUBJECT_THEIRS)
+	var back_row: Dictionary = surface.row_entries()[0]
+	_eq(String(back_row["subj"]), GambitOptions.SUBJECT_THEIRS,
+		"pressing `Their` on an `Always` row must show `Their` — a press that left the row"
+		+ " reading `Always` is #1255's reported bug re-opened in the state that fixed it")
+	_true(not bool(back_row.get("if_disabled", false))
+			and String(back_row["iff"]) == GambitOptions.BLANK,
+		"…and the `If` column is LIVE again, reading `—` because this row had nothing parked:"
+		+ " naming a subject is asking for a test, so the column the test goes in has to wake up")
+	_eq(surface._move_part(1), true, "→ reaches `If` again on a row that has one")
+	_eq(surface.part(), GambitSurfaceScript.Part.IF,
+		"…and the cursor can stand on it — the clamp is read off the ROW, not latched")
+
 	# RESTORE for the arms after this one.
+	surface._part = GambitSurfaceScript.Part.DO
+	_apply_choice(surface, GambitSurfaceScript.Part.TO, "Foe")
 	_apply_choice(surface, GambitSurfaceScript.Part.IF, GambitOptions.BLANK)
 
 
@@ -1135,16 +1254,31 @@ func _arm_17_the_safety_net_is_the_last_row_and_is_inert() -> void:
 		+ " and renders as 'Them', which names no pool. `Foe` and not `Nearest Foe` since"
 		+ " ADR-0285: the net searches nearest-first and the kernel RETRIES it, which is the"
 		+ " behaviour that makes it a net at all")
-	# `Their / —`, where ADR-0273 dec. 4 DERIVED `Always` (ADR-0283 dec. 2 retires the word from
-	# the screen's vocabulary: blank IS the absence of a condition, and the net's one `ALWAYS`
-	# condition reads back as that). The `If` column ONLY — the amended dec. 3 stops the subject
-	# blanking with it, and on this row that is the honest reading: the net is gated on a foe
-	# existing, which is the entire reason it is a net.
-	_eq(String(net["iff"]), GambitOptions.BLANK, "…unconditionally — `—`, not `Always`")
-	_eq(String(net["subj"]), GambitOptions.SUBJECT_THEIRS,
-		"…and the Subject column names the pool it is gated on, matching its own `to` cell —"
-		+ " both are read off `condition_target`, so a net whose subject and aim disagreed"
-		+ " would be a row disagreeing with itself")
+	# `Attack / Nearest Foe / Always` — ADR-0270 dec. 1's string, arrived at again and from the
+	# OBJECT rather than from a literal: `safety_net_gambit` carries one explicit `ALWAYS`
+	# condition, which is exactly the state the Subject column now names.
+	#
+	# It read `Attack / Nearest Foe / Their / —` in between. ADR-0283 dec. 2 had retired the word
+	# `Always` from the screen on the grounds that the `If` column's job is to say what a rule
+	# TESTS, and `Always` is not a test — which is true of that column and is why the word is
+	# back in a DIFFERENT one: the Subject column answers whether there IS a test. `Their` was
+	# honest about the gate and dangled off a question nobody had asked.
+	#
+	# ⚠️ THIS IS A VISIBLE CHANGE TO A ROW THE PLAYER DID NOT AUTHOR, and it is the assertion
+	# rather than a side effect: the net is the one row whose reading is derived end-to-end from
+	# the encoder's own object, so it is also the row that proves the new state is read off the
+	# FIELD and not off a press the surface remembers.
+	_true(bool(net.get("if_disabled", false)) and String(net["iff"]) == GambitOptions.BLANK,
+		"the net's `If` column is DISABLED and reads `—` — nothing is parked there, because"
+		+ " nobody authored the net. Dim-and-empty, not the live em dash that used to dangle"
+		+ " beside a `Their` this row never asked for")
+	_eq(String(net["subj"]), GambitOptions.SUBJECT_ALWAYS,
+		"…because the column says `Always` instead: the net fires whenever a foe is there, which"
+		+ " is what its one `ALWAYS` condition means and what ADR-0270 dec. 1 first wrote")
+	_true(GambitOptions.is_unconditional(injected),
+		"…read off the INJECTED object, so the row and the buffer cannot drift into two"
+		+ " descriptions of one rule — a net that stopped carrying `ALWAYS` would red here"
+		+ " rather than quietly render a subject")
 	_eq(injected.action_kind, Gambit.ActionKind.ATTACK,
 		"and that is the shape GambitEncoder actually injects (ADR-0048 dec. 1)")
 	_eq(String(net["enable"]), "",

@@ -20,6 +20,7 @@ from __future__ import annotations
 import contextlib
 import io
 import pathlib
+import re
 import unittest
 
 import export_standalone as ex
@@ -469,6 +470,118 @@ class VendorIsTheStandaloneAudioSource(unittest.TestCase):
         doc = (ex.PACKAGE / "SETUP_FROM_SCRATCH.md").read_text()
         self.assertNotIn("    exmateria-sound/addons/exmateria_spu/", doc,
                          "the mis-indented repeated path is back in the tree diagram")
+
+
+class WhatTheEndToEndProofFound(unittest.TestCase):
+    """Register step 13: a clone of the published repo, bootstrapped from a real ISO
+    extract, reached `[GPU Arena] GPU simulator ready` and held 60-62 fps with audio.
+    It also surfaced these two, which no static check had — both arms exist so the run
+    does not have to be repeated to keep them fixed.
+    """
+
+    def test_the_monorepo_only_gdextension_does_not_ship(self):
+        """Exactly three ERROR lines on every launch of a clone, all one cause:
+        `sync_exmateria_sound.sh` copies `vendor/exmateria_sound/` wholesale, so it
+        carried a `.gdextension` pointing at `libfftsmd.*.so` — a library never built
+        here and never shipped. Godot then failed it three ways: can't open the dynamic
+        library, GDExtension library not found, error loading extension.
+
+        The file's own FIRST LINE says it should not be here: "MONOREPO-ONLY — excluded
+        from the published tree by publish/manifests/exmateria-sound.manifest". This
+        export had no equivalent of that manifest until now.
+        """
+        exported = set(ex.manifest())
+        tracked = ex.tracked_package_files()
+        smd = [p for p in tracked if p.startswith("vendor/exmateria_sound/fft_smd.gdextension")]
+        self.assertEqual(len(smd), 2, f"expected the .gdextension and its .uid, got {smd}")
+        for f in smd:
+            self.assertIsNotNone(ex.excluded(f), f"{f} is monorepo-only and must not ship")
+            self.assertNotIn(f, exported)
+        # The SPU's own extension MUST still ship — it is the one with a real library,
+        # and excluding it would be a clone that cannot open at all.
+        self.assertIn("vendor/exmateria_spu/exmateria_spu.gdextension", exported)
+
+    def test_bootstraps_closing_note_is_printed_not_executed(self):
+        """An unquoted heredoc COMMAND-SUBSTITUTES the backticks in its own prose.
+
+        The audio note read "Build it with `cd exmateria-sound && scons` then re-run
+        sync." inside `cat <<EOF`, so every bootstrap run — in BOTH checkouts, since cwd
+        there is `$GODOT_DIR/tools` where no such directory exists in either — actually
+        executed it, printed `cd: exmateria-sound: No such file or directory` to stderr,
+        and substituted the empty result back, telling the reader to "Build it with
+        then re-run sync." The script still exited 0, which is why it survived.
+
+        Asserted structurally, not by looking for the old string: any heredoc that both
+        interpolates and contains a backtick is the same bug again.
+        """
+        src = (ex.PACKAGE / "tools/bootstrap_assets.sh").read_text()
+        lines = src.splitlines()
+        delim, quoted, start = None, None, None
+        offenders = []
+        for i, line in enumerate(lines, 1):
+            if delim is None:
+                m = re.search(r"<<(-?)('?)([A-Za-z_]+)\2\s*$", line)
+                if m:
+                    quoted, delim, start = bool(m.group(2)), m.group(3), i
+                continue
+            if line.strip() == delim:
+                delim = None
+                continue
+            if not quoted and "`" in line:
+                offenders.append(f"line {i} (heredoc opened at {start}): {line.strip()[:60]}")
+        self.assertEqual(
+            offenders, [],
+            "a backtick inside an UNQUOTED heredoc is executed, not printed — "
+            "quote the delimiter (<<'EOF') or escape the backticks:\n  "
+            + "\n  ".join(offenders))
+
+
+class TheReadmeIsTheFrontDoor(unittest.TestCase):
+    """Register step 11. Written AFTER step 13's clone-and-launch on purpose: a
+    quick-start describing a flow nobody had run is a doc that might be wrong, so every
+    number in it is one the real run produced.
+    """
+
+    def test_the_readme_ships_and_is_required(self):
+        self.assertIn("README.md", ex.REQUIRED,
+                      "a missing README must be a loud export failure, not a surprise "
+                      "on the GitHub page")
+        self.assertIn("README.md", ex.manifest())
+        self.assertIn("README.md", ex.tracked_package_files())
+
+    def test_it_states_the_two_things_that_surprise_every_reader(self):
+        """Both were learned the expensive way and both belong above the fold: the
+        extract landing OUTSIDE the clone (step 12) and the single shipped library slot
+        (step 14). A quick-start that omits either sends the reader into a failure whose
+        cause is nowhere near the symptom.
+        """
+        r = (ex.PACKAGE / "README.md").read_text()
+        for claim in (
+            "**`project-assets/` lands BESIDE the clone, not inside it.**",
+            "## Platform support — Linux x86_64 only",
+            "an **exported release build fails even on Linux**",
+        ):
+            self.assertIn(claim, r, f"README lost: {claim!r}")
+            self.assertEqual(r.count(claim), 1, f"{claim!r} must occur exactly once")
+
+    def test_it_does_not_promise_a_build_the_repo_cannot_do(self):
+        """The trap step 14 found, in the doc most likely to repeat it: this repo ships
+        no C++ source, so any 'just build it' instruction for the missing platforms is
+        false. Asserted as an absence, which is the direction that rots."""
+        r = (ex.PACKAGE / "README.md").read_text()
+        self.assertIn("The C++ source is not in this repository", r)
+        self.assertNotIn("cd exmateria-sound && scons", r)
+
+    def test_the_quickstart_command_matches_what_bootstrap_accepts(self):
+        """A copy-pasteable command that does not work is worse than no command. Pinned
+        against the script's own interface rather than against prose."""
+        r = (ex.PACKAGE / "README.md").read_text()
+        boot = (ex.PACKAGE / "tools/bootstrap_assets.sh").read_text()
+        self.assertIn("bash tools/bootstrap_assets.sh", r)
+        self.assertIn("FFT_ISO=", r)
+        self.assertIn('FFT_ISO_PATH="${FFT_ISO:-', boot,
+                      "the README documents $FFT_ISO; bootstrap must still read it")
+        self.assertIn("godot --path . res://assets/scenes/GPUArena.tscn", r)
 
 
 class InvariantStaleInDest(unittest.TestCase):

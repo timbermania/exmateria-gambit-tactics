@@ -780,6 +780,11 @@ func _test_page_flip_sfx_on_advance() -> void:
 	SfxRouter.cue_requested.connect(sub)
 
 	var box := _make_box()
+	# #1273 — the box now STATES `page_turned` and the host names the cue. Wiring it
+	# here is not a test workaround: it is exactly what `ScenarioPlayerScene` does to
+	# each of its three pooled boxes, so this arm still measures the cue end to end
+	# rather than being downgraded to a signal-count.
+	UIWiring.wire_dialogue_box(box)
 	box.show_dialog(toks, 0x12, 0x10, 40.0)
 	_assert_eq(box.page_count(), 3, "flip-sfx: name + 7 lines → 3 pages")
 	# show_dialog itself must NOT blip (opening a box is silent).

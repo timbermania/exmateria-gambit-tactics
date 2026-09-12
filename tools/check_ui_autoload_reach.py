@@ -34,7 +34,6 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # Per autoload: how many reaches stand today, and the ticket that pays it off.
 # A count here is a DEBT, never a budget — see the module docstring.
 BASELINE = {
-    "SfxRouter":        (5,  "#1273  -> play_cue()/play_system() need an audio door"),
     "UI3Registry":      (1,  "dissolves AT the move -- UI's own autoload becomes a preload"),
 }
 

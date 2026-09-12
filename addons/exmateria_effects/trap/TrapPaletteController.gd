@@ -21,6 +21,16 @@ extends RefCounted
 
 const EffectsDebug = preload("res://addons/exmateria_effects/install/EffectsDebug.gd")
 
+## The tint registry reached through its PORT rather than through the bare
+## `TintedSurfaces` autoload identifier — a member may name no autoload at all
+## (ADR-0308 dec. 1). This file's four reaches were one of the three
+## `known_failures.tsv` rows, and the row's own note is why it took a port and not a
+## ticket: it had been re-ticketed twice, to `#1223` and then `#1224`, and neither
+## could ever pay it, because *"a rename moves the identifier this row names, and a
+## merge reduces how many identifiers there are, and the row is about whether ANY of
+## them exists in a project that declared none."*
+const TintedSurfacesPort = preload("res://addons/exmateria_effects/install/TintedSurfacesPort.gd")
+
 var _target_unit: WeakRef
 var _tick: int = 0
 var _owner_id: int  # For TintedSurfaces layer tracking
@@ -125,13 +135,13 @@ func _apply_tint() -> void:
 		return
 
 	var unit_id = unit.get_instance_id()
-	if not TintedSurfaces.is_surface_registered(unit_id):
+	if not TintedSurfacesPort.is_surface_registered(unit_id):
 		if EffectsDebug.iteration():
 			print("[TrapPaletteController] Unit %d not registered for tinting" % unit_id)
 		return
 
 	var tint_color = Color(_current_tint.x, _current_tint.y, _current_tint.z, 1.0)
-	TintedSurfaces.update_layer(unit_id, _owner_id, tint_color)
+	TintedSurfacesPort.update_layer(unit_id, _owner_id, tint_color)
 
 	if EffectsDebug.iteration():
 		print("[TrapPaletteController] Tick %d: tint=(%.2f, %.2f, %.2f)" % [
@@ -143,8 +153,8 @@ func _cleanup() -> void:
 	var unit = _target_unit.get_ref()
 	if unit:
 		var unit_id = unit.get_instance_id()
-		if TintedSurfaces.is_surface_registered(unit_id):
-			TintedSurfaces.remove_layer(unit_id, _owner_id)
+		if TintedSurfacesPort.is_surface_registered(unit_id):
+			TintedSurfacesPort.remove_layer(unit_id, _owner_id)
 
 	_finished = true
 

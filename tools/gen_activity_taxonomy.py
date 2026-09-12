@@ -99,6 +99,24 @@ class Taxonomy:
             out[r.logical] = r.value
         return sorted(out.items(), key=lambda kv: kv[1])
 
+    def movement_entries(self) -> list[tuple[str, int]]:
+        """The (name, value) pairs of the Logical activities routed to the
+        movement VISUALIZER, sorted by integer value.
+
+        `routing: visualizer` is already the YAML's declaration that a row is a
+        move -- the visualizer authors the body activity from per-step writes
+        because the unit is between tiles. Every consumer that needs "is this
+        unit mid-step" derives the set from here rather than re-listing it, so a
+        new move row joins all of them at once.
+        """
+        out: dict[str, int] = {}
+        for r in self.rows:
+            if r.logical is None or r.routing != "visualizer" or r.logical in out:
+                continue
+            assert r.value is not None
+            out[r.logical] = r.value
+        return sorted(out.items(), key=lambda kv: kv[1])
+
     def display_names(self) -> list[str]:
         """Unique display names, preserving first-seen order."""
         seen: dict[str, None] = {}
@@ -317,6 +335,18 @@ def _replace_region(text: str, begin: str, end: str, new_body: str, path: Path) 
     return "\n".join(lines[:bi] + new_lines + lines[ei + 1:]) + "\n"
 
 
+def _movement_set_gd(tax: Taxonomy) -> list[str]:
+    """The host's half: the member list `GPUConstants.is_movement_state` tests."""
+    members = ", ".join(f"LOGICAL_ACTIVITY_{name}" for name, _ in tax.movement_entries())
+    return [
+        "",
+        "# The states in which a unit is BETWEEN TILES -- its logical position is the",
+        "# DESTINATION of a step rather than where the sprite is. Derived from the rows",
+        "# whose routing is `visualizer`. Read it through `is_movement_state()` below.",
+        f"const LOGICAL_ACTIVITY_MOVEMENT_STATES = [{members}]",
+    ]
+
+
 def emit_glsl(tax: Taxonomy) -> list[tuple[Path, str]]:
     body_lines = [
         "// Source of truth: tools/activity_taxonomy.yaml",
@@ -346,6 +376,7 @@ def emit_gpu_constants(tax: Taxonomy) -> list[tuple[Path, str]]:
     body_lines.append("")
     names_in_value_order = ", ".join(f'"{name}"' for name, _ in entries)
     body_lines.append(f"const LOGICAL_ACTIVITY_NAMES = [{names_in_value_order}]")
+    body_lines.extend(_movement_set_gd(tax))
     body = "\n".join(body_lines)
 
     text = GPU_CONSTANTS_PATH.read_text()

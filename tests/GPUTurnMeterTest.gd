@@ -249,7 +249,7 @@ func _movers_in(battle_id: int) -> Array:
 	for u in range(mini(states.size(), flags.size())):
 		if (flags[u] & GPUConstants.FLAG_DEAD_BIT) != 0:
 			continue
-		if TurnDirector._is_movement_state(states[u]):
+		if GPUConstants.is_movement_state(states[u]):
 			out.append(u)
 	return out
 

@@ -116,6 +116,11 @@ func _setup_formation_map_host() -> void:
 func _setup_dialogue_box() -> void:
 	if _dialogue_box == null:
 		return
+	# #1273 — this scene EMBEDS a DialogueBox in its .tscn rather than going through
+	# `ScenarioPlayerScene`'s pool, so the inversion would have silently deleted the
+	# typing and page-flip blips here. This file is host-side (ADR-0304 dec. 1), so
+	# naming the cue in it is the same ruling, not an exception to it.
+	UIWiring.wire_dialogue_box(_dialogue_box)
 	# Use the first friendly unit's sprite for the speaker portrait when
 	# available; else show portrait-less.
 	var sprite_id := -1
