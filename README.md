@@ -59,21 +59,33 @@ after that the SPIR-V cache makes it ~30 ms.
 
 ---
 
-## Platform support — Linux x86_64 only
+## Platform support — Linux x86_64, and an unverified Windows build
 
-Not a soft degrade, and worth knowing before you clone. The SPU's twenty-four voices are
-mixed by a native C++ core; `addons/exmateria_spu/exmateria_spu.gdextension` declares
-**twelve** library slots and exactly **one** ships:
+Worth knowing before you clone. The SPU's twenty-four voices are mixed by a native C++
+core; `addons/exmateria_spu/exmateria_spu.gdextension` declares **twelve** library slots
+and three of them ship:
 
 | slot | ships? |
 |---|---|
-| `linux.debug.x86_64` | ✅ committed, what the editor loads |
-| `linux.release.x86_64` | ❌ so an **exported release build fails even on Linux** |
-| Windows / macOS / arm64 | ❌ |
+| `linux.debug.x86_64` | ✅ committed, exercised — what the maintainers run |
+| `windows.debug.x86_64` | ⚠️ committed, **unverified** — see below |
+| `windows.release.x86_64` | ⚠️ committed, **unverified** |
+| `linux.release.x86_64` | ❌ so an **exported release build fails on Linux** |
+| macOS / arm64 | ❌ |
 
-There is no GDScript mixer to fall back to, so on any other platform the project does
-not open at all. The C++ source is not in this repository — it lives in the separate
-`exmateria-sound` project — so you cannot build the missing ones from here.
+There is no GDScript mixer to fall back to, so on a platform with no binary the project
+does not open at all.
+
+**On "unverified".** The Windows DLLs are built with MSVC by CI and have never been
+run. They export the right entry symbol and import only `KERNEL32.dll`, so there is no
+Visual C++ redistributable to install — but no maintainer owns a Windows machine, and
+nothing beyond "it compiled and linked" has been established. If you try it, please
+report what happens. Two other things Windows users should expect: `tools/bootstrap_assets.sh`
+and the rest of `tools/*.sh` are bash, so you need Git Bash or WSL to produce the assets,
+and the rest of the project is exercised only on Linux.
+
+The C++ source is not in this repository — it lives in the separate `exmateria-sound`
+project — so you cannot build the missing slots from here.
 `SETUP_FROM_SCRATCH.md` section 1.3 has the detail.
 
 ---
