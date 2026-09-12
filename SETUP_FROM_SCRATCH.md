@@ -22,20 +22,139 @@ what's still NOT automated.
 
 ## 1. Prerequisites
 
-### 1.1 System packages
+### 1.1 The engine — the ExMateria Godot fork, built from source
+
+**You cannot run this game on a stock Godot.** There is no distro package and no
+`4.8` on godotengine.org — the engine is a fork:
+
+> **<https://github.com/timbermania/godot>** — branch `master`
+
+**There are now prebuilt editor binaries**, so §1.1's build is optional on Linux:
+[the latest release](https://github.com/timbermania/godot/releases/latest) carries
+a Linux x86_64 editor built in CI on Ubuntu 22.04 (glibc **2.35**, so it runs on
+22.04+, Debian 12+, Fedora and Arch) and an **unverified** Windows x86_64 one. Two
+reasons to keep reading anyway: a release goes stale the moment the fork rebases
+onto upstream and nothing warns you, and source is the only route on macOS, on
+arm64, and on a Linux older than glibc 2.35.
+
+It is a small fork — 6 commits over upstream `master` at the time of writing,
+of which these four are the ones the game depends on (the other two are an
+agent-skills config and its merge):
+
+| fork commit | what it adds |
+|---|---|
+| `cf12328bd4` Add compositor render layers | `render_mode compositor_layer` + named scratch surfaces — the **engine fold** |
+| `f2a208da61` Restore `RenderingServer.is_compositor_layer_supported()` | the probe `src/effects/CompositorAutopilot.gd` uses to decide whether the fold is available |
+| `3e530a3e9b` Route standalone game windows to a fixed window class | a stable Wayland/X11 window class, so window rules and the agent tooling can find the game window |
+| `a2f8debde7` Bind `RenderingDevice.make_current()` + local-device PSO cache | lets a local `RenderingDevice` keep its pipeline cache — the compute path's shader-compile cost |
+
+**What happens on stock Godot instead**, as of #721 / ADR-0191 dec. 14: nothing
+errors. `CompositorAutopilot` probes for the fork, doesn't find it, prints
+`[compositor-autopilot] inactive` and stands down; `Fold.owns()` answers `false`,
+`Fold.add` decorates nothing, and each producer draws the in-scene twin it holds
+beside its folded shader.
+
+⚠️ **That paragraph described an INTENT for months and not a behaviour.** Until #721
+the kernel did not COMPILE on stock — `fold_layer.tres` is a `CompositorRenderLayer`
+and `is_compositor_layer_supported()` is resolved at parse time, either fatal on its
+own — so `Fold.owns()` was "Nonexistent function" and the failure cascaded through
+every display-space effect rather than standing down. The fallback the sentence
+promised had never once been reachable.
+
+🔴 **It is reachable now and it is still not verified.** Nobody has looked at the
+twelve pairs of twins side by side; per the folded shaders' own comments the
+difference is order and blend correctness, not fidelity, so some render identically
+and some render *wrong*. A stock build is a game rendering an unreviewed path, which
+is worse than a crash for the same reason it always was. Any performance number taken
+on stock is also off the real render path. Build the fork.
+
+#### Build it
+
+Upstream's own build prerequisites apply
+([Godot docs: compiling for Linux/BSD](https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_linuxbsd.html)).
+Arch:
+
+```bash
+sudo pacman -S scons pkgconf gcc gcc-libs libxcursor libxinerama libxi \
+               libxrandr mesa glu libglvnd alsa-lib pulseaudio
+```
+
+Then:
+
+```bash
+git clone https://github.com/timbermania/godot.git ~/Repos/godot
+cd ~/Repos/godot
+scons -j"$(nproc)" platform=linuxbsd target=editor dev_build=no
+```
+
+**Build it `dev_build=no` — say it out loud even though that is scons' own
+default**, because a `dev_build=yes` binary is the easy wrong turn and nothing
+at runtime will tell you which one you're on. With `target=editor` +
+`dev_build=no`, `optimize` resolves to `speed_trace`: an **optimized** build
+that still has usable stack traces. With `dev_build=yes` it resolves to `none`
+— `-O0`, plus `DEV_ENABLED` engine asserts — which runs the game markedly slower
+and makes every perf measurement meaningless. (Both resolutions are the
+`if env["optimize"] == "auto"` block in `SConstruct`.) If you want the asserts
+*and* the speed, the middle setting is `dev_build=yes optimize=speed_trace`.
+
+Expect roughly 20–40 min for a cold full build; incremental rebuilds after a
+`git pull` are minutes.
+
+#### Install it on `$PATH`
+
+The flags are encoded in the output filename, so an optimized build lands
+*beside* a dev one rather than overwriting it:
+
+```bash
+ls ~/Repos/godot/bin/
+# godot.linuxbsd.editor.x86_64        ← dev_build=no   (what you want)
+# godot.linuxbsd.editor.dev.x86_64    ← dev_build=yes  (slow)
+
+sudo ln -sf ~/Repos/godot/bin/godot.linuxbsd.editor.x86_64 /usr/local/bin/godot
+```
+
+> ⚠️ **`godot --version` prints `4.8.dev.custom_build` for *both* builds.** That
+> `dev` is the engine's version *status* from `version.py` and has nothing to do
+> with `dev_build`. It tells you that you're on the fork, **not** which build
+> type you're on — for that, check which filename the symlink resolves to
+> (`ls -l /usr/local/bin/godot` or `readlink -f "$(command -v godot)"`).
+
+Confirm the engine before continuing:
+
+```bash
+godot --version                    # → 4.8.dev.custom_build.<short-sha>
+readlink -f "$(command -v godot)"  # → …/godot.linuxbsd.editor.x86_64, no `.dev.`
+```
+
+`--version` proves you are on a **4.8 source build** and names the commit —
+`custom_build` is true of any source build, so it does not by itself prove the
+**fork**. The only direct proof of the fork is the primitive itself:
+
+```bash
+cd <this package>          # godot-learning/ in the monorepo; the clone root standalone
+godot --path . --quit-after 2 res://assets/scenes/GPUArena.tscn 2>&1 \
+  | grep compositor-autopilot
+# → [compositor-autopilot] ACTIVE — engine-fold on for every scene …
+```
+
+That last one needs the assets in place, so it is really a §2 check — on a
+fresh clone, `--version` plus the binary filename is all you have, and it is
+enough to proceed.
+
+### 1.2 Other system packages
 
 | package | why |
 |---|---|
-| `godot` ≥ 4.6 (Forward+ Vulkan renderer) | the game runs on Vulkan compute shaders; OpenGL3 fallback cannot run `RenderingDevice` |
-| **a Vulkan ICD for your GPU** | the Vulkan loader (`vulkan-icd-loader`) is not enough — without an ICD package `RenderingServer.create_local_rendering_device()` returns `null` |
+| **Godot 4.8 with the `compositor_layer` primitive** (Forward+ Vulkan) | §1.1 builds it. The primitive is a hard requirement: `Fold.gd` reaches a `CompositorRenderLayer` and asks `is_compositor_layer_supported()`, and it is the only thing that makes the display-space fold run at all. ⚠️ Do not test this by opening the project with a stock build — Godot rewrites `project.godot` on open and strips the `4.8` feature, so the attempt edits the repo |
+| **a Vulkan ICD for your GPU** | the game runs on Vulkan compute shaders; OpenGL3 has no `RenderingDevice`. The Vulkan loader (`vulkan-icd-loader`) is not enough — without an ICD package `RenderingServer.create_local_rendering_device()` returns `null` |
 | `uv` | Python tooling: every parser is invoked via `uv run python …`; deps are pinned in `tools/pyproject.toml` |
 | `glslangValidator` / `glslc` (optional) | for offline SPIR-V validation of the compute shaders |
 
 Arch example:
 
 ```bash
-sudo pacman -S godot vulkan-intel uv glslang shaderc
-#                  ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑  (or vulkan-radeon / nvidia-utils / etc.)
+sudo pacman -S vulkan-intel uv glslang shaderc
+#              ↑↑↑↑↑↑↑↑↑↑↑↑  (or vulkan-radeon / nvidia-utils / etc.)
 ```
 
 **Verify Vulkan works** before continuing:
@@ -46,7 +165,7 @@ godot --version
 # "switching to OpenGL 3", you're missing the ICD. Install vulkan-<vendor>.
 ```
 
-### 1.2 FFT PSX extract
+### 1.3 FFT PSX extract
 
 You need an extracted FFT PSX disc with this top-level layout:
 
@@ -121,7 +240,7 @@ tool, so you never have to move an extract you already have:
 export FFT_EXTRACT=/mnt/roms/fft-extract
 ```
 
-### 1.3 The audio source-of-truth tree
+### 1.4 The audio source-of-truth tree
 
 `addons/exmateria_sound/` and `addons/exmateria_spu/` are **gitignored in both
 checkouts** — they are copies, and `tools/sync_exmateria_sound.sh` makes them. What
@@ -232,14 +351,26 @@ toolchain wall. Cross-building locally is still a real task in the
 `aarch64-linux-gnu-g++` are all absent on the maintainer's box), not a
 packaging oversight here.
 
+Why the missing three were not simply cross-compiled and committed: measured on
+the maintainer's box, no toolchain for any of them is present (`mingw-w64`,
+`osxcross`, `aarch64-linux-gnu-g++` all absent), and macOS additionally needs
+Apple's SDK, whose licence expects Apple hardware. Cross-building them is a real
+task in the `exmateria-sound` repository, not a packaging oversight here.
+
 ---
 
 ## 2. What "fully set up" means
 
 After the bootstrap, the following should be true:
 
+- `godot --version` prints `4.8.dev.custom_build.<short-sha>` and
+  `readlink -f "$(command -v godot)"` has **no** `.dev.` in the filename — i.e.
+  you are on the fork, on an optimized build.
 - `godot --path . res://assets/scenes/GPUArena.tscn` launches into
   Forward+ Vulkan with no `No rendering device available` error.
+- `[compositor-autopilot] ACTIVE — engine-fold on for every scene` appears in
+  stdout. If it says `inactive`, you are on a stock engine and the folded
+  effects are silently absent (§1.1).
 - The first launch compiles the per-stage compute shaders (≈ 30–60 s on
   Intel iGPU, longer on cold NVIDIA — see `docs/`/timing notes).
   Subsequent launches hit the SPIRV cache in ~30 ms.
@@ -347,7 +478,7 @@ Patched parsers (all retain backward-compatible CLI overrides):
 - `parse_frame.py` (FFT extract root)
 - `extract_all_sprites.py` (FFT extract root + portrait-palette default flipped from 0 → 8)
 
-#### 3.3.3 `src/ui3/elements/UIPortrait.gd` — case-fix
+#### 3.3.3 `addons/exmateria_ui/elements/UIPortrait.gd` — case-fix
 
 One-line change at line 158:
 
@@ -533,6 +664,9 @@ can re-run after updating the FFT extract to refresh parsed assets.
 
 | symptom in log | what to check |
 |---|---|
+| `[compositor-autopilot] inactive` — **and effects just aren't there** | you are on a **stock** Godot, not the fork. Nothing else will error. Build the fork (§1.1) |
+| `Static function "is_compositor_layer_supported()" not found in base "RenderingServer"` | same — stock engine, hit from a code path that calls the probe directly rather than through `has_method` |
+| the game runs, but everything is sluggish and perf numbers look wrong | you're on a `dev_build=yes` binary (`-O0` + engine asserts). Check `readlink -f "$(command -v godot)"` for a `.dev.` in the filename — `godot --version` will not tell you (§1.1) |
 | `Required extension VK_KHR_surface not found` | install Vulkan ICD (`vulkan-intel`, `vulkan-radeon`, etc.) |
 | `No rendering device available` | same — Godot fell back to OpenGL3, which has no RenderingDevice |
 | `Parse Error: Identifier "WavesetParser"` / `"Spu"` | run `tools/sync_exmateria_sound.sh` (it syncs BOTH addons); ensure `exmateria-sound/addons/exmateria_spu/bin/libexmateria_spu.linux.*.so` exists |

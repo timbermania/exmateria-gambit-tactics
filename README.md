@@ -15,16 +15,17 @@ needs from the disc is produced on your machine, from your own copy, by the pars
 ## Quick start
 
 You need a Linux x86_64 machine (see *Platform support*), an FFT PSX disc image you
-own, `uv` on your `$PATH`, and a **Godot 4.8 fork you build yourself**, carrying the
-`compositor_layer` primitive — no stock Godot will do (see *Which Godot* immediately
-below, and *The engine* for how to build it).
+own, `uv` on your `$PATH`, and a **Godot 4.8 fork** carrying the `compositor_layer`
+primitive — no stock Godot will do (see *Which Godot* immediately below).
+[Download it](https://github.com/timbermania/godot/releases/latest) or build it
+yourself; *Building the fork* covers both.
 
 ```bash
-# 0. the engine — build the fork once (~half an hour). There is no package for it.
-git clone https://github.com/timbermania/godot.git ~/godot-exmateria
-cd ~/godot-exmateria
-scons -j"$(nproc)" platform=linuxbsd target=editor dev_build=no
-sudo ln -sf ~/godot-exmateria/bin/godot.linuxbsd.editor.x86_64 /usr/local/bin/godot
+# 0. the engine — download the Linux editor zip from
+#    https://github.com/timbermania/godot/releases/latest
+#    (needs glibc 2.35+; build it yourself if you are older, or on Windows)
+unzip -q ~/Downloads/godot-exmateria-*linux*.zip -d ~/godot-exmateria
+sudo ln -sf ~/godot-exmateria/*/godot.linuxbsd.editor.x86_64 /usr/local/bin/godot
 
 git clone <this repo> exmateria-gambit-tactics
 cd exmateria-gambit-tactics
@@ -104,16 +105,30 @@ after that the SPIR-V cache makes it ~30 ms.
 ## Building the fork
 
 *Which Godot* above says what you need and what stock does instead; this is how to
-get one. There is no package and no download:
+get one. It lives at **<https://github.com/timbermania/godot>** (branch `master`) —
+four commits over upstream `master`, the load-bearing one being compositor render
+layers (`render_mode compositor_layer` plus named scratch surfaces).
 
-> **<https://github.com/timbermania/godot>** — branch `master`. Four commits over
-> upstream `master`, the load-bearing one being compositor render layers
-> (`render_mode compositor_layer` plus named scratch surfaces).
+### Download it
 
-Build it with upstream's own prerequisites
+[**Latest release**](https://github.com/timbermania/godot/releases/latest) — editor
+binaries built in CI, so you do not need a compiler:
+
+| | |
+|---|---|
+| **Linux x86_64** | needs **glibc 2.35** or newer: Ubuntu 22.04+, Debian 12+, Fedora, Arch. Built on 22.04 for exactly that reach — a binary built on a rolling distro needs glibc 2.44 and starts on almost nothing else. |
+| **Windows x86_64** | ⚠️ **unverified.** It compiles, links and answers `--version` on a clean runner; nobody has run the game on Windows. See *Platform support*. |
+
+A release is a snapshot: when the fork rebases onto upstream it goes stale, and
+nothing warns you. Building from source is always current, and stays the answer on
+macOS, on arm64, and on any Linux older than glibc 2.35.
+
+### Build it yourself
+
+With upstream's own prerequisites
 ([Godot docs](https://docs.godotengine.org/en/stable/contributing/development/compiling/compiling_for_linuxbsd.html)),
-then the `scons` line from *Quick start* — roughly 20–40 min on a modern desktop once,
-and minutes for rebuilds after that. Keep `dev_build=no`: it is scons' default and
+then `scons platform=linuxbsd target=editor dev_build=no -j"$(nproc)"` in a clone of
+it — roughly 20–40 min on a modern desktop once, and minutes for rebuilds after that. Keep `dev_build=no`: it is scons' default and
 resolves `optimize` to `speed_trace`, while `dev_build=yes` gives you `-O0` with engine
 asserts on, which is slow and useless to measure on.
 

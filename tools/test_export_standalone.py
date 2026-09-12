@@ -585,6 +585,14 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
         guard can pin a sentence that is confidently wrong, so these needles pin the
         MEASURED section's heading instead of its conclusions.
 
+        They pin HEADINGS for a second reason. The next needle to rot was the fork
+        URL's blockquote — pinned as `> **<...>** — branch `master``, and broken by
+        reflowing that same URL into prose in the very commit that added the release
+        links. The claim was never the punctuation. Both ways of getting an engine
+        are now pinned as their headings, which is what a reader actually needs to
+        find, and the bare URL is left unpinned because it legitimately appears
+        several times.
+
         The engine claims are pinned here rather than in a test of their own because a
         test is a process (charter clause 13) and these share this one's setup.
         """
@@ -595,7 +603,8 @@ class TheReadmeIsTheFrontDoor(unittest.TestCase):
             "an **exported release build fails on Linux**",
             "### Which Godot — this needs a fork, and stock will not do",
             "## Building the fork",
-            "> **<https://github.com/timbermania/godot>** — branch `master`",
+            "### Download it",
+            "### Build it yourself",
             "Keep `dev_build=no`",
         ):
             self.assertIn(claim, r, f"README lost: {claim!r}")
