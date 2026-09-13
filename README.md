@@ -9,6 +9,14 @@ target.
 Everything the game needs from the disc is produced on your machine, from your own
 copy, by the parsers in `tools/`.
 
+# Features
+
+Fully featured VFX editor
+
+https://github.com/user-attachments/assets/5d539319-e9d6-4b01-8b3f-0ab95a205352
+
+
+
 ---
 
 ## Quick start
@@ -84,6 +92,10 @@ screen; after that the SPIR-V cache makes it ~30 ms.
 
 ```bash
 bash tests/run_all_tests.sh --sequential
+
+
+
+
 ```
 
 Tests whose oracle is a disc derivation **skip** rather than fail when it is absent, so
