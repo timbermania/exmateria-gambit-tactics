@@ -106,24 +106,9 @@ screen; after that the SPIR-V cache makes it ~30 ms.
 ```bash
 bash tests/run_all_tests.sh --sequential
 
-
-
-
 ```
 
-Tests whose oracle is a disc derivation **skip** rather than fail when it is absent, so
-`[SKIP]` lines and `OK (skipped=N)` are expected in a clone.
-
 ---
-
-## Provenance
-
-A single squashed root by design. This was extracted from a monorepo whose history
-carries ~22 MB of disc-derived data, and no `.gitignore` reaches a byte already in a
-commit. Emptiness is enforced rather than asserted: `tools/export_standalone.py --check`
-fails if an excluded path reaches the export or an exclusion rule rots into a no-op, and
-`tools/check_generated_assets.py` holds the companion invariant — every disc derivation
-is rebuilt by a named parser and never committed.
 
 ## Licence
 
