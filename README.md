@@ -128,5 +128,5 @@ is rebuilt by a named parser and never committed.
 ## Licence
 
 See `LICENSE`. Final Fantasy Tactics is a trademark of Square Enix; this project is not
-affiliated with, endorsed by, or derived from any Square Enix source code, and it ships
+affiliated with or endorsed by Square Enix, and it ships
 none of their data. You supply your own copy of the game.
