@@ -27,6 +27,9 @@ UI and Menus
 
 https://github.com/user-attachments/assets/f5bd8495-d5e5-49b0-9c95-b56c1d0a076d
 
+Realtime gambit based battles
+
+https://github.com/user-attachments/assets/6207aaa9-eea1-4e0c-811a-0f164694c7c9
 
 
 ---
