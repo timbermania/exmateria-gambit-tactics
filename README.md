@@ -13,13 +13,14 @@ copy, by the parsers in `tools/`.
 
 Fully featured VFX editor
 
-https://github.com/user-attachments/assets/5d539319-e9d6-4b01-8b3f-0ab95a205352
+https://github.com/user-attachments/assets/94584d40-3c3f-46f0-8501-27019e194810
 
 
 
 ---
 
 ## Quick start
+
 
 You need Linux x86_64, `uv`, and an FFT PSX disc image you own.
 
