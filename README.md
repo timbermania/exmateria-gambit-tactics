@@ -21,7 +21,9 @@ https://github.com/user-attachments/assets/6cd0d1d2-7e30-4d8d-b4a8-3e388f9997f3
 
 PSX blending in gamma space
 
-https://github.com/user-attachments/assets/94584d40-3c3f-46f0-8501-27019e194810
+https://github.com/user-attachments/assets/51c29843-926f-446b-8c18-eef3dd264d45
+
+
 
 
 ---
