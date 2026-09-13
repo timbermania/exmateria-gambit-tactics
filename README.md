@@ -31,14 +31,16 @@ FFT_ISO=/path/to/your/'Final Fantasy Tactics.bin' \
   bash tools/bootstrap_assets.sh /path/to/your/fft-extract
 
 # 4. play
-godot --path . res://assets/scenes/GPUArena.tscn
+godot --path . res://assets/scenes/NavigatorMain.tscn
 ```
 
 Bootstrap takes a while, is idempotent, and produces ~800 MB: 156 sprite textures,
 119 battle maps, 401 ability effects, 30 animation JSONs, 137 cutscene segments,
-`WAVESET.WD` + 100 SMD music files. Then the game reports `[GPU Arena] GPU simulator
-ready` and runs a 13-unit battle. First launch spends 30–60 s compiling compute
-pipelines; after that the SPIR-V cache makes it ~30 ms.
+`WAVESET.WD` + 100 SMD music files. Then the game walks the FFT opening — the Orbonne
+prayer, the Orbonne battle, on to the Military Academy and Gariland, and out onto the
+world map. First launch compiles the compute pipelines (30–60 s), but `NavigatorMain`
+warms them on a background thread while the opening plays, so it is not a frozen
+screen; after that the SPIR-V cache makes it ~30 ms.
 
 ### Three things that surprise everyone
 
@@ -68,7 +70,8 @@ pipelines; after that the SPIR-V cache makes it ~30 ms.
 
 | path | what |
 |---|---|
-| `assets/scenes/GPUArena.tscn` | the battle scene — start here |
+| `assets/scenes/NavigatorMain.tscn` | **start here** — the story walk, where every system meets: scenario playback, battles, the world map |
+| `assets/scenes/GPUArena.tscn` | one battle on its own, no story around it |
 | `src/gpu/` | the compute-shader combat engine |
 | `addons/exmateria_battlefield/` | terrain, movement, pathfinding, the walk integrator |
 | `addons/exmateria_almanac/` | the data tier: abilities, jobs, items, encounters |
